@@ -28,9 +28,9 @@ const Login = () => {
       
       {/* Simple Navbar */}
       <nav className="px-8 py-6">
-        <a href="/" className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition-opacity">
+        <a href="/" className="flex items-center gap-3 font-bold text-lg hover:opacity-80 transition-opacity">
           <Users className="w-6 h-6 text-blue-600" />
-          <span>PeerLearn</span>
+          <span className="text-2xl">PeerLearn</span>
         </a>
       </nav>
 
@@ -40,12 +40,6 @@ const Login = () => {
           
           {/* Welcome Header */}
           <div className="text-center mb-8">
-            {/* Logo */}
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center">
-                <Users className="w-9 h-9 text-white" />
-              </div>
-            </div>
             
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome Back :)
