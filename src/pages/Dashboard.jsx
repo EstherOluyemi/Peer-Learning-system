@@ -14,11 +14,17 @@ import {
   Award,
   Video,
   Menu,
-  X
+  X,
+  ChevronRight,
+  MoreVertical,
+  Filter,
+  Download
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
 
   // Sample data
   const upcomingSessions = [
@@ -28,7 +34,8 @@ const Dashboard = () => {
       tutor: "Sarah Johnson",
       time: "Today, 2:00 PM",
       subject: "Computer Science",
-      participants: 8
+      participants: 8,
+      status: "upcoming"
     },
     {
       id: 2,
@@ -36,7 +43,8 @@ const Dashboard = () => {
       tutor: "Michael Chen",
       time: "Tomorrow, 4:30 PM",
       subject: "Mathematics",
-      participants: 12
+      participants: 12,
+      status: "upcoming"
     },
     {
       id: 3,
@@ -44,23 +52,63 @@ const Dashboard = () => {
       tutor: "Emma Williams",
       time: "Friday, 1:00 PM",
       subject: "English Literature",
-      participants: 6
+      participants: 6,
+      status: "upcoming"
     }
   ];
 
   const stats = [
-    { label: "Sessions Attended", value: "24", icon: BookOpen, color: "blue" },
-    { label: "Hours Learned", value: "48", icon: Clock, color: "green" },
-    { label: "Study Partners", value: "15", icon: Users, color: "purple" },
-    { label: "Achievements", value: "8", icon: Award, color: "orange" }
+    { label: "Sessions Attended", value: "24", change: "+12%", icon: BookOpen, color: "bg-blue-500" },
+    { label: "Hours Learned", value: "48", change: "+8%", icon: Clock, color: "bg-green-500" },
+    { label: "Study Partners", value: "15", change: "+3", icon: Users, color: "bg-purple-500" },
+    { label: "Achievements", value: "8", change: "+2", icon: Award, color: "bg-orange-500" }
   ];
+
+  const recentActivity = [
+    {
+      id: 1,
+      title: "Completed React study session",
+      description: "Advanced React patterns",
+      time: "2 hours ago",
+      icon: TrendingUp,
+      iconColor: "text-green-600",
+      bgColor: "bg-green-50"
+    },
+    {
+      id: 2,
+      title: "New study partner added",
+      description: "Connected with Michael",
+      time: "5 hours ago",
+      icon: Users,
+      iconColor: "text-blue-600",
+      bgColor: "bg-blue-50"
+    },
+    {
+      id: 3,
+      title: "Earned 'Helpful peer' badge",
+      description: "Hosted 3 sessions this week",
+      time: "Yesterday",
+      icon: Award,
+      iconColor: "text-amber-600",
+      bgColor: "bg-amber-50"
+    }
+  ];
+
+  const initials = user?.fullName
+    ? user.fullName
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((n) => n[0]?.toUpperCase())
+        .join('')
+    : 'PL';
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       
       {/* SIDEBAR */}
       <aside 
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 lg:translate-x-0 lg:static ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Main navigation"
@@ -68,81 +116,102 @@ const Dashboard = () => {
         <div className="flex flex-col h-full">
           
           {/* Logo */}
-          <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200">
-            <a href="/" className="flex items-center gap-2" aria-label="PeerLearn home">
-              <Users className="w-8 h-8 text-blue-600" aria-hidden="true" />
-              <span className="text-xl font-bold text-gray-900">PeerLearn</span>
-            </a>
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-lg font-semibold text-gray-900">
+                PeerLearn
+              </span>
+            </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-1.5 rounded-md hover:bg-gray-100 transition-colors"
               aria-label="Close menu"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 text-gray-500" />
             </button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2" aria-label="Dashboard navigation">
+          <nav className="flex-1 px-4 py-6 space-y-1">
             <a
               href="#browse"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors text-sm font-medium"
             >
-              <Search className="w-5 h-5" aria-hidden="true" />
-              <span className="font-medium">Browse Sessions</span>
+              <Search className="w-4 h-4" />
+              <span>Browse sessions</span>
             </a>
             
             <a
               href="#my-sessions"
-              className="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-50 text-blue-600 font-medium"
               aria-current="page"
             >
-              <Calendar className="w-5 h-5" aria-hidden="true" />
-              <span>My Sessions</span>
+              <Calendar className="w-4 h-4" />
+              <span>My sessions</span>
+              <span className="ml-auto bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
+                3
+              </span>
             </a>
 
             <a
               href="#messages"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors text-sm font-medium"
             >
-              <MessageSquare className="w-5 h-5" aria-hidden="true" />
-              <span className="font-medium">Messages</span>
-              <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
+              <MessageSquare className="w-4 h-4" />
+              <span>Messages</span>
+              <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                3
+              </span>
             </a>
 
             <a
               href="#resources"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors text-sm font-medium"
             >
-              <BookOpen className="w-5 h-5" aria-hidden="true" />
-              <span className="font-medium">Resources</span>
+              <BookOpen className="w-4 h-4" />
+              <span>Resources</span>
             </a>
 
             <a
               href="#profile"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors text-sm font-medium"
             >
-              <Users className="w-5 h-5" aria-hidden="true" />
-              <span className="font-medium">My Profile</span>
+              <Users className="w-4 h-4" />
+              <span>My profile</span>
             </a>
 
             <a
               href="#settings"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors text-sm font-medium"
             >
-              <Settings className="w-5 h-5" aria-hidden="true" />
-              <span className="font-medium">Settings</span>
+              <Settings className="w-4 h-4" />
+              <span>Settings</span>
             </a>
           </nav>
 
-          {/* Logout */}
-          <div className="px-4 py-6 border-t border-gray-200">
+          {/* User Profile & Logout */}
+          <div className="border-t border-gray-200 px-4 py-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-sm font-medium text-white">
+                {initials}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900">{user?.fullName || 'User'}</p>
+                <p className="text-xs text-gray-500">Student</p>
+              </div>
+              <button className="p-1.5 rounded-md hover:bg-gray-100">
+                <MoreVertical className="w-4 h-4 text-gray-500" />
+              </button>
+            </div>
             <button
-              className="flex items-center gap-3 px-4 py-3 w-full text-gray-700 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-              aria-label="Log out of your account"
+              className="flex items-center gap-3 px-3 py-2.5 w-full text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium"
+              aria-label="Log out"
             >
-              <LogOut className="w-5 h-5" aria-hidden="true" />
-              <span className="font-medium">Log Out</span>
+              <LogOut className="w-4 h-4" />
+              <span>Log out</span>
             </button>
           </div>
         </div>
@@ -151,7 +220,7 @@ const Dashboard = () => {
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/20 z-30 lg:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         />
@@ -161,7 +230,7 @@ const Dashboard = () => {
       <main className="flex-1 flex flex-col min-w-0">
         
         {/* TOP HEADER */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30">
+        <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -169,53 +238,74 @@ const Dashboard = () => {
                 className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
                 aria-label="Open menu"
               >
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5 text-gray-600" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">My Dashboard</h1>
-                <p className="text-sm text-gray-600">Welcome back, John!</p>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Dashboard
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Welcome back, {user?.fullName?.split(' ')[0] || 'there'}! Here's your learning overview.
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
               <button
-                className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="relative p-2.5 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="Notifications"
               >
-                <Bell className="w-6 h-6 text-gray-700" aria-hidden="true" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true"></span>
+                <Bell className="w-5 h-5 text-gray-600" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
 
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                JD
-              </div>
+              <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
+                <Plus className="w-4 h-4" />
+                <span>Create Session</span>
+              </button>
             </div>
           </div>
         </header>
 
         {/* DASHBOARD CONTENT */}
-        <div className="flex-1 p-6 overflow-auto">
+        <div className="flex-1 p-6">
           
+          {/* WELCOME BANNER */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold mb-2">Continue your learning journey</h2>
+                <p className="text-blue-100">You have 3 upcoming sessions this week. Keep up the great work!</p>
+              </div>
+              <button className="px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                View Schedule
+              </button>
+            </div>
+          </div>
+
           {/* STATS GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
-              const colors = {
-                blue: 'bg-blue-100 text-blue-600',
-                green: 'bg-green-100 text-green-600',
-                purple: 'bg-purple-100 text-purple-600',
-                orange: 'bg-orange-100 text-orange-600'
-              };
-              
               return (
-                <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                <div
+                  key={index}
+                  className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm"
+                >
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-lg ${colors[stat.color]} flex items-center justify-center`}>
-                      <Icon className="w-6 h-6" aria-hidden="true" />
+                    <div className={`${stat.color} w-10 h-10 rounded-lg flex items-center justify-center`}>
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
+                    <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded">
+                      {stat.change}
+                    </span>
                   </div>
-                  <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                  <p className="text-sm text-gray-600">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900 mb-1">
+                    {stat.value}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {stat.label}
+                  </p>
                 </div>
               );
             })}
@@ -225,111 +315,166 @@ const Dashboard = () => {
             
             {/* UPCOMING SESSIONS */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">Upcoming Sessions</h2>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                    <Plus className="w-4 h-4" aria-hidden="true" />
-                    <span className="text-sm font-medium">Join Session</span>
-                  </button>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        Upcoming Sessions
+                      </h2>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Join or review your scheduled sessions
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <Filter className="w-4 h-4" />
+                        Filter
+                      </button>
+                      <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <Download className="w-4 h-4" />
+                        Export
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="divide-y divide-gray-200">
                   {upcomingSessions.map((session) => (
-                    <article
+                    <div
                       key={session.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all"
+                      className="px-6 py-4 hover:bg-gray-50 transition-colors"
                     >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold text-gray-900 mb-1">{session.title}</h3>
-                          <p className="text-sm text-gray-600">by {session.tutor}</p>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {session.subject}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              Hosted by {session.tutor}
+                            </span>
+                          </div>
+                          <h3 className="font-medium text-gray-900 mb-1">
+                            {session.title}
+                          </h3>
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="w-4 h-4" />
+                              {session.time}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <Users className="w-4 h-4" />
+                              {session.participants} participants
+                            </span>
+                          </div>
                         </div>
-                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                          {session.subject}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" aria-hidden="true" />
-                            {session.time}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Users className="w-4 h-4" aria-hidden="true" />
-                            {session.participants} participants
-                          </span>
+                        <div className="flex items-center gap-2">
+                          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
+                            <Video className="w-4 h-4" />
+                            Join
+                          </button>
+                          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <MoreVertical className="w-5 h-5 text-gray-500" />
+                          </button>
                         </div>
-                        
-                        <button className="flex items-center gap-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
-                          <Video className="w-4 h-4" aria-hidden="true" />
-                          Join
-                        </button>
                       </div>
-                    </article>
+                    </div>
                   ))}
+                </div>
+                
+                <div className="px-6 py-4 border-t border-gray-200">
+                  <button className="w-full py-3 text-center text-sm text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors">
+                    View all sessions
+                    <ChevronRight className="w-4 h-4 inline-block ml-1" />
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* QUICK ACTIONS & ACTIVITY */}
+            {/* RIGHT SIDEBAR */}
             <div className="space-y-6">
               
               {/* QUICK ACTIONS */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Quick Actions
+                </h2>
                 <div className="space-y-3">
-                  <button className="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                    <Plus className="w-5 h-5" aria-hidden="true" />
-                    <span className="font-medium">Create Session</span>
+                  <button className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Plus className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium text-gray-900">Create session</p>
+                        <p className="text-xs text-gray-500">Start a new study group</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
                   </button>
                   
-                  <button className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                    <Search className="w-5 h-5" aria-hidden="true" />
-                    <span className="font-medium">Find Partners</span>
+                  <button className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <Search className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium text-gray-900">Find partners</p>
+                        <p className="text-xs text-gray-500">Connect with peers</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
                   </button>
                   
-                  <button className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                    <BookOpen className="w-5 h-5" aria-hidden="true" />
-                    <span className="font-medium">Browse Resources</span>
+                  <button className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <BookOpen className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium text-gray-900">Browse resources</p>
+                        <p className="text-xs text-gray-500">Study materials & guides</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
                   </button>
                 </div>
               </div>
 
               {/* RECENT ACTIVITY */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Recent Activity
+                  </h2>
+                  <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                    See all
+                  </button>
+                </div>
+                
                 <div className="space-y-4">
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="w-4 h-4 text-green-600" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Completed React session</p>
-                      <p className="text-xs text-gray-600">2 hours ago</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Users className="w-4 h-4 text-blue-600" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">New study partner added</p>
-                      <p className="text-xs text-gray-600">5 hours ago</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Award className="w-4 h-4 text-orange-600" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Earned "Helpful Peer" badge</p>
-                      <p className="text-xs text-gray-600">Yesterday</p>
-                    </div>
-                  </div>
+                  {recentActivity.map((activity) => {
+                    const Icon = activity.icon;
+                    return (
+                      <div key={activity.id} className="flex gap-3">
+                        <div className={`${activity.bgColor} w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                          <Icon className={`w-5 h-5 ${activity.iconColor}`} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 text-sm">
+                            {activity.title}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-0.5">
+                            {activity.description}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {activity.time}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

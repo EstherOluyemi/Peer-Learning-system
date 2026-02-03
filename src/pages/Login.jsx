@@ -1,9 +1,16 @@
+// src/pages/Login.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, Users } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, Users, AlertCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -16,17 +23,41 @@ const Login = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    // Clear error when user types
+    if (error) setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login submitted:', formData);
-    // Add your login logic here
+    setError('');
+    setLoading(true);
+
+    // Basic validation
+    if (!formData.email || !formData.password) {
+      setError('Please fill in all fields');
+      setLoading(false);
+      return;
+    }
+
+    // Attempt login
+    const result = login(formData.email, formData.password);
+    
+    setLoading(false);
+
+    if (result.success) {
+      // Redirect to dashboard
+      navigate('/dashboard');
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col">
-      <a href="#main" className="skip-link">Skip to main content</a>
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded">
+        Skip to main content
+      </a>
+      
       <header>
         <nav className="px-8 py-6" aria-label="Account navigation">
           <Link
@@ -51,6 +82,13 @@ const Login = () => {
           </div>
 
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3" role="alert">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -72,6 +110,7 @@ const Login = () => {
                     placeholder="you@example.com"
                     required
                     aria-required="true"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -96,6 +135,7 @@ const Login = () => {
                     placeholder="Enter your password"
                     required
                     aria-required="true"
+                    disabled={loading}
                   />
                   <button
                     type="button"
@@ -103,6 +143,7 @@ const Login = () => {
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                     aria-pressed={showPassword}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    disabled={loading}
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" aria-hidden="true" />
@@ -125,6 +166,7 @@ const Login = () => {
                     checked={formData.rememberMe}
                     onChange={handleChange}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                    disabled={loading}
                   />
                   Remember me
                 </label>
@@ -138,9 +180,17 @@ const Login = () => {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Sign in
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign in'
+                )}
               </button>
             </form>
           </div>
