@@ -1,211 +1,235 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, Users, AlertCircle } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Users, Mail, Lock, ArrowLeft, Eye, EyeOff, LogIn } from 'lucide-react';
+import peerlearnLogo from '../assets/peerlearn-logo.png';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const message = location.state?.message;
   
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    rememberMe: false,
+    rememberMe: false
   });
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === 'checkbox' ? checked : value
     }));
-    // Clear error when user types
-    if (error) setError('');
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    // Basic validation
-    if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
-      setLoading(false);
-      return;
-    }
-
-    // Attempt login
-    const result = login(formData.email, formData.password);
     
-    setLoading(false);
-
-    if (result.success) {
-      // Redirect to dashboard
-      navigate('/dashboard');
-    } else {
-      setError(result.error);
+    if (validateForm()) {
+      setIsLoading(true);
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        // For demo purposes, accept any email/password
+        // In real app, you would make API call here
+        console.log('Login attempt:', formData);
+        
+        // Navigate to dashboard
+        navigate('/dashboard');
+        setIsLoading(false);
+      }, 1000);
     }
   };
 
+  const handleDemoLogin = (role) => {
+    setFormData({
+      email: `${role}@example.com`,
+      password: 'demo123',
+      rememberMe: false
+    });
+    
+    // Auto-submit after setting demo credentials
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 500);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col">
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded">
-        Skip to main content
-      </a>
-      
-      <header>
-        <nav className="px-8 py-6" aria-label="Account navigation">
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 font-semibold text-gray-900 hover:text-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 rounded-md w-fit"
-            aria-label="PeerLearn home"
-          >
-            <Users className="w-6 h-6 text-blue-600 shrink-0" aria-hidden="true" />
-            <span>PeerLearn</span>
-          </Link>
-        </nav>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center p-4">
+      <div className="absolute top-6 left-6">
+        <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition">
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-sm font-medium">Back to home</span>
+        </Link>
+      </div>
 
-      <main id="main" className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-6" aria-hidden="true">
-              <Users className="w-14 h-14 text-blue-500" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
-            <p className="text-gray-600">Sign in to continue your learning journey</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3" role="alert">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <p className="text-sm text-red-800">{error}</p>
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            {peerlearnLogo ? (
+              <img src={peerlearnLogo} alt="PeerLearn Logo" className="h-20 w-auto" />
+            ) : (
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <Users className="w-7 h-7 text-white" />
               </div>
             )}
+            <span className="text-2xl font-bold text-slate-900">PeerLearn</span>
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900 text-center">Welcome back</h1>
+          <p className="text-slate-600 text-center mt-2">Sign in to continue your learning journey</p>
+        </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email address
-                </label>
-                <div className="relative">
-                  <Mail
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-                    aria-hidden="true"
-                  />
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    autoComplete="email"
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="you@example.com"
-                    required
-                    aria-required="true"
-                    disabled={loading}
-                  />
+        {/* Success Message */}
+        {message && (
+          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+            <p className="text-emerald-700 text-sm font-medium">{message}</p>
+          </div>
+        )}
+
+        {/* Form Card */}
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-slate-900 mb-2">
+                Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-slate-400" />
                 </div>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`block w-full pl-10 pr-3 py-3 rounded-lg border ${errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                  placeholder="you@example.com"
+                  disabled={isLoading}
+                />
               </div>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              )}
+            </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-slate-900">
                   Password
                 </label>
-                <div className="relative">
-                  <Lock
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-                    aria-hidden="true"
-                  />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    autoComplete="current-password"
-                    className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="Enter your password"
-                    required
-                    aria-required="true"
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    aria-pressed={showPassword}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                    disabled={loading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" aria-hidden="true" />
-                    ) : (
-                      <Eye className="w-5 h-5" aria-hidden="true" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="rememberMe"
-                  className="flex items-center gap-2 cursor-pointer text-sm text-gray-600"
-                >
-                  <input
-                    type="checkbox"
-                    id="rememberMe"
-                    name="rememberMe"
-                    checked={formData.rememberMe}
-                    onChange={handleChange}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                    disabled={loading}
-                  />
-                  Remember me
-                </label>
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
-                >
+                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
                   Forgot password?
                 </Link>
               </div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-slate-400" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`block w-full pl-10 pr-10 py-3 rounded-lg border ${errors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                  placeholder="••••••••"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  disabled={isLoading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-slate-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-slate-400" />
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+              )}
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Signing in...
-                  </>
-                ) : (
-                  'Sign in'
-                )}
-              </button>
-            </form>
-          </div>
+            {/* Remember Me */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
+                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  disabled={isLoading}
+                />
+                <label htmlFor="rememberMe" className="ml-2 block text-sm text-slate-700">
+                  Remember me
+                </label>
+              </div>
+            </div>
 
-          <p className="text-center mt-6 text-sm text-gray-600">
-            Don&apos;t have an account?{' '}
-            <Link
-              to="/signup"
-              className="text-blue-600 hover:text-blue-700 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3.5 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              Sign up for free
-            </Link>
-          </p>
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Sign in to your account
+                </>
+              )}
+            </button>
+
+            {/* Sign Up Link */}
+            <div className="text-center pt-4 border-t border-slate-100">
+              <p className="text-sm text-slate-600">
+                Don't have an account?{' '}
+                <Link to="/register" className="font-medium text-blue-600 hover:text-blue-700">
+                  Create account
+                </Link>
+              </p>
+            </div>
+          </form>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
