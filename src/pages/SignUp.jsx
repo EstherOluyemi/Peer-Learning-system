@@ -1,10 +1,15 @@
-// src/pages/Register.jsx
+// src/pages/SignUp.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Mail, Lock, User, BookOpen, ArrowLeft, Eye, EyeOff, GraduationCap } from 'lucide-react';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
+import { useAuth } from '../context/AuthContext';
+import { useAccessibility } from '../context/hooks';
+import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
-const Register = () => {
+const SignUp = () => {
+  const { highContrast, textSize } = useAccessibility();
+  const { register } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
@@ -88,7 +93,8 @@ const Register = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center p-4">
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center p-4 transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
+      <AccessibilityToolbar />
       <div className="absolute top-6 left-6">
         <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition">
           <ArrowLeft className="w-4 h-4" />
@@ -309,4 +315,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default SignUp;

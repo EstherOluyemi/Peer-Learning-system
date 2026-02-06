@@ -1,6 +1,8 @@
 // src/pages/Dashboard.jsx - UPDATED WITH BLUE THEME
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useAccessibility } from '../context/hooks';
+import AccessibilityToolbar from '../components/AccessibilityToolbar';
 import { 
   Users, Calendar, Video, MessageSquare, BookOpen, 
   Settings, Bell, Search, TrendingUp, Award, Clock,
@@ -42,10 +44,13 @@ const sampleStats = {
 
 const Dashboard = () => {
   const { user, isTutor, isLearner } = useAuth();
+  const { highContrast, textSize } = useAccessibility();
 
   // Dashboard Header Component
   const DashboardHeader = () => (
-    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-slate-200">
+    <>
+      <AccessibilityToolbar />
+      <header className={`sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-slate-200 transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -93,6 +98,7 @@ const Dashboard = () => {
         </div>
       </div>
     </header>
+    </>
   );
 
   // Tutor Dashboard Content - BLUE THEME

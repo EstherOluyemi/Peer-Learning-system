@@ -3,12 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Users, Video, Award, BookOpen, ChevronRight, Star, CheckCircle, Play, MessageSquare, Calendar, Zap, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import heroBackground from '../assets/students-learning.jpg';
-
-// Import your new logo
-import peerlearnLogo from '../assets/peerlearn-logo.png'; // Update with your actual logo filename
+import peerlearnLogo from '../assets/peerlearn-logo.png';
+import { useAccessibility } from '../context/hooks';
+import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
 const Landing = () => {
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const { highContrast, textSize } = useAccessibility();
   const sectionRefs = useRef([]);
 
   useEffect(() => {
@@ -153,8 +154,8 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      {/* Add animations and marquee CSS */}
+    <div className={`min-h-screen bg-gradient-to-b from-slate-50 to-white transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
+      <AccessibilityToolbar />
       <style jsx global>{`
         @keyframes fadeInUp {
           from {
@@ -241,27 +242,23 @@ const Landing = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
         </div>
 
-        {/* Navigation - PERFECT LOGO ALIGNMENT */}
+        {/* Navigation - UPDATED LOGO SIZE */}
         <nav className="relative z-10 container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1"> {/* Reduced gap */}
-              {/* Updated Logo - Big and perfectly aligned */}
+            <div className="flex items-center space-x-3">
+              {/* Updated Logo - Bigger size */}
               {peerlearnLogo ? (
                 <img 
                   src={peerlearnLogo} 
                   alt="PeerLearn Logo" 
-                  className="h-20 w-auto"
-                  style={{ display: 'block',
-                        margin: '0',
-                        padding: '0',
-                        lineHeight: '0' }}
+                  className="h-12 w-auto"  // Increased from h-10 to h-12
                 />
               ) : (
-                <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20 mr-2">
-                  <Users className="w-8 h-8 text-white" />
+                <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
+                  <Users className="w-7 h-7 text-white" />
                 </div>
               )}
-              <span className="text-2xl font-bold text-white mt-1">PeerLearn</span> {/* mt-1 for vertical alignment */}
+              <span className="text-2xl font-bold text-white">PeerLearn</span>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
@@ -272,9 +269,9 @@ const Landing = () => {
               >
                 Testimonials
               </button>
-              <Link to="/Login" className="text-white/90 hover:text-white font-medium transition hover:scale-105">Login</Link>
+              <Link to="/login" className="text-white/90 hover:text-white font-medium transition hover:scale-105">Login</Link>
               <Link 
-                to="/SignUp" 
+                to="/register" 
                 className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-slate-100 transition-all hover:shadow-lg hover:scale-105"
               >
                 Get Started Free
@@ -302,12 +299,19 @@ const Landing = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
-                  to="/SignUp" 
+                  to="/register" 
                   className="inline-flex items-center justify-center bg-white text-slate-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-slate-100 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg"
                 >
                   Start Learning Free
                   <ArrowRight className="ml-3 w-5 h-5" />
                 </Link>
+                <button 
+                  onClick={() => setVideoPlaying(true)}
+                  className="inline-flex items-center justify-center bg-transparent border-2 border-white/40 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 hover:border-white/60 transition-all group"
+                >
+                  <Play className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
+                  Watch Demo
+                </button>
               </div>
             </div>
           </div>
@@ -489,20 +493,20 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Footer - PERFECT LOGO ALIGNMENT */}
+      {/* Footer - UPDATED LOGO SIZE */}
       <footer className="bg-gray-900 text-gray-300 py-10 reveal">
         <div className="max-w-2xl mx-auto text-center px-4">
-          <div className="flex items-center justify-center gap-2 mb-4" aria-hidden="true">
+          <div className="flex items-center justify-center gap-3 mb-4" aria-hidden="true">
             {peerlearnLogo ? (
               <img 
                 src={peerlearnLogo} 
                 alt="PeerLearn Logo" 
-                className="h-20 w-auto mr-2"
+                className="h-10 w-auto"  // Increased footer logo size
               />
             ) : (
-              <Users className="w-8 h-8 text-blue-500 mr-2" />
+              <Users className="w-6 h-6 text-blue-500" />
             )}
-            <span className="text-white font-bold text-xl mt-1">PeerLearn</span> {/* mt-1 for alignment */}
+            <span className="text-white font-bold text-xl">PeerLearn</span>
           </div>
 
           <p className="text-sm text-gray-400 mb-3">
