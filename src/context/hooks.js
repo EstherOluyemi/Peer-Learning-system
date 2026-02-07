@@ -1,7 +1,7 @@
 // src/context/hooks.js
 // Separate file for context hooks to comply with Fast Refresh rules
 import { useContext } from 'react';
-import { AccessibilityContext } from './AccessibilityContextValue';
+import { AccessibilityContext } from './AccessibilityContext.jsx';
 
 export const useAccessibility = () => {
   const context = useContext(AccessibilityContext);

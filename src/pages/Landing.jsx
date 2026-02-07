@@ -305,13 +305,6 @@ const Landing = () => {
                   Start Learning Free
                   <ArrowRight className="ml-3 w-5 h-5" />
                 </Link>
-                <button 
-                  onClick={() => setVideoPlaying(true)}
-                  className="inline-flex items-center justify-center bg-transparent border-2 border-white/40 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 hover:border-white/60 transition-all group"
-                >
-                  <Play className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-                  Watch Demo
-                </button>
               </div>
             </div>
           </div>
