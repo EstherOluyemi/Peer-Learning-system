@@ -30,3 +30,39 @@
   outline: none;
   box-shadow: 0 0 0 2px #93c5fd;
 }
+/* Accessibility Classes */
+.high-contrast {
+  filter: contrast(1.5);
+}
+
+.high-contrast body {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+.text-size-small {
+  font-size: 14px;
+}
+
+.text-size-medium {
+  font-size: 16px;
+}
+
+.text-size-large {
+  font-size: 20px;
+}
+
+/* Focus styles for keyboard navigation */
+*:focus {
+  outline: 3px solid #3b82f6 !important;
+  outline-offset: 2px;
+}
+
+.high-contrast *:focus {
+  outline: 3px solid #ffff00 !important;
+}
+
+/* Skip to content button */
+.skip-to-content:focus {
+  transform: translateY(0);
+}

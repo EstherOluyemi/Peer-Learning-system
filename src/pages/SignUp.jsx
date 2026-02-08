@@ -3,13 +3,32 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Mail, Lock, User, BookOpen, ArrowLeft, Eye, EyeOff, GraduationCap } from 'lucide-react';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
-import { useAuth } from '../context/AuthContext';
+
 import { useAccessibility } from '../context/hooks';
 import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
+const RoleCard = ({ title, description, icon: Icon, value, isSelected, setFormData }) => (
+  <div
+    onClick={() => setFormData(prev => ({ ...prev, role: value }))}
+    className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
+  >
+    <div className="flex items-center gap-4">
+      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${isSelected ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
+        <Icon className="w-6 h-6" />
+      </div>
+      <div>
+        <h3 className="font-semibold text-slate-900">{title}</h3>
+        <p className="text-sm text-slate-600 mt-1">{description}</p>
+      </div>
+    </div>
+  </div>
+);
+
 const SignUp = () => {
+  React.useEffect(() => {
+    document.title = 'Sign Up';
+  }, []);
   const { highContrast, textSize } = useAccessibility();
-  const { register } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
@@ -75,25 +94,8 @@ const SignUp = () => {
     }
   };
 
-  const RoleCard = ({ title, description, icon: Icon, value, isSelected }) => (
-    <div
-      onClick={() => setFormData(prev => ({ ...prev, role: value }))}
-      className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
-    >
-      <div className="flex items-center gap-4">
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${isSelected ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
-          <Icon className="w-6 h-6" />
-        </div>
-        <div>
-          <h3 className="font-semibold text-slate-900">{title}</h3>
-          <p className="text-sm text-slate-600 mt-1">{description}</p>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center p-4 transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
+    <div className={`min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center p-4 transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
       <AccessibilityToolbar />
       <div className="absolute top-6 left-6">
         <Link to="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition">
@@ -109,7 +111,7 @@ const SignUp = () => {
             {peerlearnLogo ? (
               <img src={peerlearnLogo} alt="PeerLearn Logo" className="h-20 w-auto" />
             ) : (
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                 <Users className="w-7 h-7 text-white" />
               </div>
             )}
@@ -134,6 +136,7 @@ const SignUp = () => {
                   icon={BookOpen}
                   value="learner"
                   isSelected={formData.role === 'learner'}
+                  setFormData={setFormData}
                 />
                 <RoleCard
                   title="Tutor"
@@ -141,6 +144,7 @@ const SignUp = () => {
                   icon={GraduationCap}
                   value="tutor"
                   isSelected={formData.role === 'tutor'}
+                  setFormData={setFormData}
                 />
               </div>
             </div>
@@ -282,7 +286,7 @@ const SignUp = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3.5 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
+              className="w-full bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold py-3.5 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
             >
               Create Account
             </button>
@@ -297,18 +301,6 @@ const SignUp = () => {
               </p>
             </div>
           </form>
-        </div>
-
-        {/* Features Preview */}
-        <div className="mt-8 grid grid-cols-2 gap-4">
-          <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 text-center">
-            <Users className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-            <p className="text-xs text-slate-600">500+ Active Peers</p>
-          </div>
-          <div className="bg-white/50 backdrop-blur-sm rounded-lg p-3 text-center">
-            <BookOpen className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-            <p className="text-xs text-slate-600">1000+ Sessions</p>
-          </div>
         </div>
       </div>
     </div>

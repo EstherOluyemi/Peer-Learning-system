@@ -271,7 +271,7 @@ const Landing = () => {
               </button>
               <Link to="/login" className="text-white/90 hover:text-white font-medium transition hover:scale-105">Login</Link>
               <Link 
-                to="/register" 
+                to="/signup" 
                 className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-slate-100 transition-all hover:shadow-lg hover:scale-105"
               >
                 Get Started Free
@@ -299,19 +299,12 @@ const Landing = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
-                  to="/register" 
+                  to="/signup" 
                   className="inline-flex items-center justify-center bg-white text-slate-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-slate-100 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg"
                 >
                   Start Learning Free
                   <ArrowRight className="ml-3 w-5 h-5" />
                 </Link>
-                <button 
-                  onClick={() => setVideoPlaying(true)}
-                  className="inline-flex items-center justify-center bg-transparent border-2 border-white/40 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 hover:border-white/60 transition-all group"
-                >
-                  <Play className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-                  Watch Demo
-                </button>
               </div>
             </div>
           </div>
@@ -480,7 +473,7 @@ const Landing = () => {
           {/* CTA below testimonials */}
           <div className="text-center mt-16">
             <Link 
-              to="/register" 
+              to="/signup" 
               className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:scale-105 transition-all shadow-md"
             >
               Join Our Community

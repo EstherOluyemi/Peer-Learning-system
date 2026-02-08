@@ -279,7 +279,7 @@ const Login = () => {
               <p className="text-sm text-slate-600">
                 Don't have an account?{' '}
                 <Link 
-                  to="/SignUp" 
+                  to="/signup" 
                   className="font-medium text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
                   aria-label="Create a new account"
                 >

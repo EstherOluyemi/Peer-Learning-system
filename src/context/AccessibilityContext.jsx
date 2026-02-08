@@ -1,37 +1,54 @@
-// src/context/AccessibilityContext.jsx
-import React, { useState, useEffect } from 'react';
-import { AccessibilityContext } from './AccessibilityContextValue';
+import React, { createContext, useState, useContext } from 'react';
 
-export { AccessibilityContext };
+export const AccessibilityContext = createContext();
+
+export const useAccessibility = () => useContext(AccessibilityContext);
 
 export const AccessibilityProvider = ({ children }) => {
-  const [highContrast, setHighContrast] = useState(() => {
-    return localStorage.getItem('highContrast') === 'true';
-  });
-  
-  const [textSize, setTextSize] = useState(() => {
-    return localStorage.getItem('textSize') || 'medium';
-  });
+  const [highContrast, setHighContrast] = useState(false);
+  const [textSize, setTextSize] = useState('medium'); // small, medium, large
+  const [keyboardShortcutsEnabled, setKeyboardShortcutsEnabled] = useState(true);
 
-  // Apply high contrast
-  useEffect(() => {
-    if (highContrast) {
-      document.documentElement.classList.add('high-contrast');
-    } else {
-      document.documentElement.classList.remove('high-contrast');
-    }
-    localStorage.setItem('highContrast', highContrast);
-  }, [highContrast]);
-
-    // Apply text size
-    useEffect(() => {
-      document.documentElement.setAttribute('data-text-size', textSize);
-      localStorage.setItem('textSize', textSize);
-    }, [textSize]);
-  
-    return (
-      <AccessibilityContext.Provider value={{ highContrast, setHighContrast, textSize, setTextSize }}>
-        {children}
-      </AccessibilityContext.Provider>
-    );
+  const toggleHighContrast = () => {
+    setHighContrast(!highContrast);
   };
+
+  const increaseTextSize = () => {
+    if (textSize === 'small') setTextSize('medium');
+    else if (textSize === 'medium') setTextSize('large');
+  };
+
+  const decreaseTextSize = () => {
+    if (textSize === 'large') setTextSize('medium');
+    else if (textSize === 'medium') setTextSize('small');
+  };
+
+  const resetAccessibility = () => {
+    setHighContrast(false);
+    setTextSize('medium');
+  };
+
+  // Apply accessibility styles globally
+  const accessibilityClasses = `
+    ${highContrast ? 'high-contrast' : ''}
+    text-size-${textSize}
+  `;
+
+  return (
+    <AccessibilityContext.Provider value={{
+      highContrast,
+      textSize,
+      keyboardShortcutsEnabled,
+      toggleHighContrast,
+      increaseTextSize,
+      decreaseTextSize,
+      resetAccessibility,
+      setKeyboardShortcutsEnabled,
+      accessibilityClasses
+    }}>
+      <div className={accessibilityClasses}>
+        {children}
+      </div>
+    </AccessibilityContext.Provider>
+  );
+};
