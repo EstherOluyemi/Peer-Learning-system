@@ -1,4 +1,3 @@
-// src/pages/Landing.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Users, Video, Award, BookOpen, ChevronRight, Star, CheckCircle, Play, MessageSquare, Calendar, Zap, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -269,10 +268,10 @@ const Landing = () => {
               >
                 Testimonials
               </button>
-              <Link to="/login" className="text-white/90 hover:text-white font-medium transition hover:scale-105">Login</Link>
+              <Link to="/login" className="text-white/90 hover:bg-blue-100 hover:text-blue-500 font-medium transition hover:scale-105 rounded-lg px-3 py-1">Login</Link>
               <Link 
                 to="/signup" 
-                className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-slate-100 transition-all hover:shadow-lg hover:scale-105"
+                className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-lg hover:scale-105"
               >
                 Get Started Free
               </Link>
@@ -300,7 +299,7 @@ const Landing = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
                   to="/signup" 
-                  className="inline-flex items-center justify-center bg-white text-slate-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-slate-100 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg"
+                  className="inline-flex items-center justify-center bg-white text-slate-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg"
                 >
                   Start Learning Free
                   <ArrowRight className="ml-3 w-5 h-5" />
@@ -474,7 +473,7 @@ const Landing = () => {
           <div className="text-center mt-16">
             <Link 
               to="/signup" 
-              className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:scale-105 transition-all shadow-md"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-blue-100 hover:text-blue-700 hover:shadow-xl hover:scale-105 transition-all shadow-md"
             >
               Join Our Community
               <ArrowRight className="ml-3 w-5 h-5" />

@@ -51,4 +51,4 @@ export const AccessibilityProvider = ({ children }) => {
       </div>
     </AccessibilityContext.Provider>
   );
-};
+}; 

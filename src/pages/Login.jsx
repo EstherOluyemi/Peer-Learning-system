@@ -1,8 +1,8 @@
-// src/pages/Login.jsx - WITH ACCESSIBILITY & FIXED NAVIGATION
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Users, Mail, Lock, ArrowLeft, Eye, EyeOff, LogIn } from 'lucide-react';
+import { Users, Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
+import loginLogo from '../assets/login-logo.jpg';
 import { useAuth } from '../context/AuthContext';
 import { useAccessibility } from '../context/hooks';
 import AccessibilityToolbar from '../components/AccessibilityToolbar';
@@ -11,215 +11,117 @@ const Login = () => {
   const { highContrast, textSize } = useAccessibility();
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth(); // ADD THIS
-  const message = location.state?.message;
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    rememberMe: false
-  });
-  
-  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false });
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
+    let newErrors = {};
+    if (!formData.email) newErrors.email = 'Email is required';
+    if (!formData.password) newErrors.password = 'Password is required';
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
-      
-      // Simulate API call delay
+      // Simulate login
       setTimeout(() => {
-        // Create demo user based on email
-        const isTutor = formData.email.includes('tutor');
-        const demoUser = {
-          id: Date.now(),
-          email: formData.email,
-          fullName: formData.email.split('@')[0],
-          role: isTutor ? 'tutor' : 'learner',
-          bio: '',
-          subjects: isTutor ? ['Mathematics', 'Computer Science'] : [],
-          learningInterests: !isTutor ? ['Web Development', 'Data Science'] : []
-        };
-        
-        // Save to AuthContext
-        login(demoUser);
-        
-        // Navigate to dashboard
-        navigate('/dashboard');
         setIsLoading(false);
+        // navigate('/dashboard');
       }, 1000);
     }
   };
 
-  const handleKeyDown = (e) => {
-    // Allow form submission with Enter key
-    if (e.key === 'Enter' && !isLoading) {
-      handleSubmit(e);
-    }
-  };
-
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center p-4 transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
-      <AccessibilityToolbar />
-      {/* Skip to main content */}
-      <a 
-        href="#login-form" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-lg z-50 focus:outline-none focus:ring-2 focus:ring-white"
-      >
-        Skip to login form
-      </a>
-
-      <div className="absolute top-6 left-6">
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-2"
-          aria-label="Back to home page"
-        >
-          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-          <span className="text-sm font-medium">Back to home</span>
-        </Link>
-      </div>
-
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            {peerlearnLogo ? (
-              <img 
-                src={peerlearnLogo} 
-                alt="PeerLearn Logo" 
-                className="h-20 w-auto"
-              />
-            ) : (
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                <Users className="w-7 h-7 text-white" aria-hidden="true" />
-              </div>
-            )}
-            <h1 className="text-2xl font-bold text-slate-900">PeerLearn</h1>
-          </div>
-          <h2 className="text-3xl font-bold text-slate-900 text-center">Welcome back</h2>
-          <p className="text-slate-600 text-center mt-2">Sign in to continue your learning journey</p>
+    <>
+      <div className={`min-h-screen w-screen flex transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
+        <AccessibilityToolbar />
+        {/* Left: Image (fixed, always fills left half) */}
+        <div className="hidden md:block md:w-1/2 fixed left-0 top-0 h-full min-h-screen z-0">
+          <img
+            src={loginLogo}
+            alt="Login visual"
+            className="object-cover w-full h-full min-h-screen"
+            style={{ minHeight: '100vh' }}
+          />
         </div>
-
-        {/* Success Message */}
-        {message && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl" role="alert">
-            <p className="text-emerald-700 text-sm font-medium">{message}</p>
+        {/* Right: Form (scrollable, with left margin) */}
+        <div className="flex-1 flex flex-col justify-center items-center bg-white/90 p-8 min-h-screen ml-0 md:ml-[50vw] z-10">
+          {/* Back to Home link */}a
+          <div className="w-full flex justify-start mb-4">
+              <Link to="/" className="flex items-center text-blue-600 hover:bg-blue-100 hover:text-blue-500 font-medium gap-1 rounded-lg px-2 py-1 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              Back to Home
+            </Link>
           </div>
-        )}
-
-        {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
-          <form 
-            id="login-form"
-            onSubmit={handleSubmit} 
-            onKeyDown={handleKeyDown}
-            className="space-y-6"
-            aria-labelledby="login-heading"
-          >
-            <h3 id="login-heading" className="sr-only">Login Form</h3>
-            
+          <div className="flex flex-col items-center mb-8 w-full">
+            <div className="flex items-center gap-3 mb-4">
+              {peerlearnLogo ? (
+                <img src={peerlearnLogo} alt= "PeerLearn Logo" className="h-16 w-auto" />
+              ) : (
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Users className="w-7 h-7 text-white" />
+                </div>
+              )}
+              <span className="text-2xl font-bold text-slate-900">PeerLearn</span>
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900 text-center">Sign in to your account</h1>
+            <p className="text-slate-600 text-center mt-2">Welcome back! Please enter your details.</p>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md">
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-900 mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-400" aria-hidden="true" />
-                </div>
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
                 <input
-                  id="email"
-                  name="email"
                   type="email"
+                  name="email"
+                  id="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-3 rounded-lg border ${errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                  className="block w-full pl-10 pr-3 py-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2"
                   placeholder="you@example.com"
                   disabled={isLoading}
-                  aria-required="true"
-                  aria-invalid={!!errors.email}
-                  aria-describedby={errors.email ? "email-error" : undefined}
-                  autoComplete="email"
                 />
               </div>
               {errors.email && (
-                <p id="email-error" className="mt-1 text-sm text-red-600" role="alert">
-                  {errors.email}
-                </p>
+                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
               )}
             </div>
-
             {/* Password */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-sm font-medium text-slate-900">
-                  Password
-                </label>
-                <Link 
-                  to="/forgot-password" 
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-                  aria-label="Forgot your password?"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-900 mb-2">
+                Password
+              </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-400" aria-hidden="true" />
-                </div>
+                <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
                 <input
-                  id="password"
-                  name="password"
                   type={showPassword ? "text" : "password"}
+                  name="password"
+                  id="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-10 py-3 rounded-lg border ${errors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                  className="block w-full pl-10 pr-10 py-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-blue-500 focus:outline-none focus:ring-2"
                   placeholder="••••••••"
                   disabled={isLoading}
-                  aria-required="true"
-                  aria-invalid={!!errors.password}
-                  aria-describedby={errors.password ? "password-error" : undefined}
-                  autoComplete="current-password"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-                  disabled={isLoading}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   aria-pressed={showPassword}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-slate-400" aria-hidden="true" />
@@ -234,7 +136,6 @@ const Login = () => {
                 </p>
               )}
             </div>
-
             {/* Remember Me */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -253,7 +154,6 @@ const Login = () => {
                 </label>
               </div>
             </div>
-
             {/* Submit Button */}
             <button
               type="submit"
@@ -273,7 +173,6 @@ const Login = () => {
                 </>
               )}
             </button>
-
             {/* Sign Up Link */}
             <div className="text-center pt-4 border-t border-slate-100">
               <p className="text-sm text-slate-600">
@@ -290,7 +189,7 @@ const Login = () => {
           </form>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
