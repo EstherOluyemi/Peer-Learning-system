@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -8,7 +8,8 @@ import AccessibilityToolbar from './components/AccessibilityToolbar';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
-import Dashboard from './pages/Dashboard';
+import DashboardLearner from './pages/DashboardLearner';
+import DashboardTutor from './pages/DashboardTutor';
 import Profile from './pages/Profile';
 /* import CreateSession from './pages/CreateSession';
 import BrowseSessions from './pages/BrowseSessions';
@@ -31,8 +32,12 @@ function App() {
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
+                 <Route path="/dashboard-learner" element={<DashboardLearner />} />
+                 <Route path="/dashboard-tutor" element={<DashboardTutor />} />
+                 <Route path="/profile" element={<Profile />} />
+                 {/* Redirect uppercase routes to lowercase for compatibility */}
+                 <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
+                 <Route path="/DashboardTutor" element={<Navigate to="/dashboard-tutor" replace />} />
                 {/* <Route path="/create-session" element={<CreateSession />} />
                 <Route path="/sessions" element={<BrowseSessions />} />
                 <Route path="/session/:id" element={<SessionDetail />} /> */}

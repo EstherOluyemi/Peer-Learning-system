@@ -7,6 +7,7 @@ import peerlearnLogo from '../assets/peerlearn-logo.png';
 import { useAccessibility } from '../context/hooks';
 import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
+// eslint-disable-next-line no-unused-vars
 const RoleCard = ({ title, description, icon: Icon, value, isSelected, setFormData }) => (
   <div
     onClick={() => setFormData(prev => ({ ...prev, role: value }))}
@@ -35,11 +36,12 @@ const SignUp = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'learner'
+    role: '' // force explicit selection
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,41 +56,57 @@ const SignUp = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+    if (!formData.role) {
+      newErrors.role = 'Please select a role';
+    }
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Full name is required';
     }
-    
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
+    // Strong password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = 'Password must contain an uppercase letter';
+    } else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = 'Password must contain a lowercase letter';
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = 'Password must contain a number';
+    } else if (!/[^A-Za-z0-9]/.test(formData.password)) {
+      newErrors.password = 'Password must contain a special character';
     }
-    
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+    if (isSubmitting) return;
     if (validateForm()) {
-      // For now, just log and navigate to login
-      console.log('Registration data:', formData);
-      // In real app, you would make API call here
-      navigate('/login', { state: { message: 'Registration successful! Please login.' } });
+      setIsSubmitting(true);
+      setTimeout(() => { // Simulate async
+        // For now, just log and redirect to dashboard based on role
+        console.log('Registration data:', formData);
+        if (formData.role === 'tutor') {
+          navigate('/dashboard-tutor');
+        } else if (formData.role === 'learner') {
+          navigate('/dashboard-learner');
+        } else {
+          navigate('/dashboard');
+        }
+        setIsSubmitting(false);
+      }, 1200);
     }
   };
 
@@ -119,7 +137,7 @@ const SignUp = () => {
               {peerlearnLogo ? (
                 <img src={peerlearnLogo} alt="PeerLearn Logo" className="h-16 w-auto" />
               ) : (
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                   <Users className="w-7 h-7 text-white" />
                 </div>
               )}
@@ -152,6 +170,9 @@ const SignUp = () => {
                   setFormData={setFormData}
                 />
               </div>
+              {errors.role && (
+                <p className="mt-1 text-sm text-red-600">{errors.role}</p>
+              )}
             </div>
             {/* Full Name */}
             <div>
@@ -285,9 +306,16 @@ const SignUp = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3.5 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg"
+              className={`w-full bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold py-3.5 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg flex items-center justify-center ${isSubmitting || !formData.role || !formData.fullName || !formData.email || !formData.password || !formData.confirmPassword || Object.keys(errors).length > 0 ? 'opacity-60 cursor-not-allowed' : ''}`}
+              disabled={isSubmitting || !formData.role || !formData.fullName || !formData.email || !formData.password || !formData.confirmPassword || Object.keys(errors).length > 0}
             >
-              Create Account
+              {isSubmitting ? (
+                <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+              ) : null}
+              {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </button>
             {/* Login Link */}
             <div className="text-center">

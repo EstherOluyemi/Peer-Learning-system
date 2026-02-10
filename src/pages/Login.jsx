@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Users, Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
 import loginLogo from '../assets/login-logo.jpg';
 import { useAuth } from '../context/AuthContext';
+import { mockUsers } from '../data/mockdata';
 import { useAccessibility } from '../context/hooks';
 import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
 const Login = () => {
   const { highContrast, textSize } = useAccessibility();
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
   const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -24,18 +26,47 @@ const Login = () => {
     }));
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    let newErrors = {};
-    if (!formData.email) newErrors.email = 'Email is required';
-    if (!formData.password) newErrors.password = 'Password is required';
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0) {
+    if (isLoading) return;
+    if (validateForm()) {
       setIsLoading(true);
-      // Simulate login
       setTimeout(() => {
+        let user = null;
+        if (formData.email === mockUsers.tutor.email) {
+          user = mockUsers.tutor;
+        } else if (formData.email === mockUsers.learner.email) {
+          user = mockUsers.learner;
+        }
+        if (user && formData.password === user.password) {
+          login(user);
+          if (user.role === 'tutor') {
+            navigate('/dashboard-tutor');
+          } else if (user.role === 'learner') {
+            navigate('/dashboard-learner');
+          } else {
+            navigate('/dashboard');
+          }
+        } else {
+          setErrors({ email: 'Invalid credentials' });
+        }
         setIsLoading(false);
-        // navigate('/dashboard');
       }, 1000);
     }
   };
@@ -55,7 +86,7 @@ const Login = () => {
         </div>
         {/* Right: Form (scrollable, with left margin) */}
         <div className="flex-1 flex flex-col justify-center items-center bg-white/90 p-8 min-h-screen ml-0 md:ml-[50vw] z-10">
-          {/* Back to Home link */}a
+          {/* Back to Home link */}
           <div className="w-full flex justify-start mb-4">
               <Link to="/" className="flex items-center text-blue-600 hover:bg-blue-100 hover:text-blue-500 font-medium gap-1 rounded-lg px-2 py-1 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -67,7 +98,7 @@ const Login = () => {
               {peerlearnLogo ? (
                 <img src={peerlearnLogo} alt= "PeerLearn Logo" className="h-16 w-auto" />
               ) : (
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                   <Users className="w-7 h-7 text-white" />
                 </div>
               )}
@@ -157,8 +188,8 @@ const Login = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3.5 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
+              disabled={isLoading || !formData.email || !formData.password || Object.keys(errors).length > 0}
+              className={`w-full bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold py-3.5 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg flex items-center justify-center ${isLoading || !formData.email || !formData.password || Object.keys(errors).length > 0 ? 'opacity-60 cursor-not-allowed' : ''}`}
               aria-label={isLoading ? "Signing in..." : "Sign in to your account"}
             >
               {isLoading ? (
