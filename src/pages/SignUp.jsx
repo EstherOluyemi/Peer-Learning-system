@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import signupLogo from '../assets/signup-logo.jpg';
-import { Link, useNavigate } from 'react-router-dom';
 import { Users, Mail, Lock, User, BookOpen, ArrowLeft, Eye, EyeOff, GraduationCap } from 'lucide-react';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
 import { useAccessibility } from '../context/hooks';
@@ -25,18 +25,21 @@ const RoleCard = ({ title, description, icon: Icon, value, isSelected, setFormDa
   </div>
 );
 
+
 const SignUp = () => {
   React.useEffect(() => {
     document.title = 'Sign Up';
   }, []);
   const { highContrast, textSize } = useAccessibility();
   const navigate = useNavigate();
+  const location = useLocation();
+  const initialRole = location.state?.role || '';
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: '' // force explicit selection
+    role: initialRole // get from role selection page
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -147,33 +150,12 @@ const SignUp = () => {
             <p className="text-slate-600 text-center mt-2">Join our community of learners and tutors</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md">
-            {/* Role Selection */}
-            <div>
-              <label className="block text-sm font-medium text-slate-900 mb-3">
-                I want to join as:
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                <RoleCard
-                  title="Learner"
-                  description="Join sessions and learn"
-                  icon={BookOpen}
-                  value="learner"
-                  isSelected={formData.role === 'learner'}
-                  setFormData={setFormData}
-                />
-                <RoleCard
-                  title="Tutor"
-                  description="Share knowledge"
-                  icon={GraduationCap}
-                  value="tutor"
-                  isSelected={formData.role === 'tutor'}
-                  setFormData={setFormData}
-                />
+            {/* Role Selection Notice */}
+            {!formData.role && (
+              <div className="mb-4">
+                <p className="text-red-600 text-sm">Please select your role first. <Link to="/role-selection" className="text-blue-600 underline">Go back</Link></p>
               </div>
-              {errors.role && (
-                <p className="mt-1 text-sm text-red-600">{errors.role}</p>
-              )}
-            </div>
+            )}
             {/* Full Name */}
             <div>
               <label className="block text-sm font-medium text-slate-900 mb-2">

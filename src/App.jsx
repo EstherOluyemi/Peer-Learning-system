@@ -8,6 +8,7 @@ import AccessibilityToolbar from './components/AccessibilityToolbar';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import RoleSelection from './pages/RoleSelection';
 import DashboardLearner from './pages/DashboardLearner';
 import DashboardTutor from './pages/DashboardTutor';
 import Profile from './pages/Profile';
@@ -28,19 +29,20 @@ function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/role-selection" element={<RoleSelection />} />
               <Route path="/signup" element={<SignUp />} />
               
-              {/* Protected Routes */}
-              <Route element={<ProtectedRoute />}>
-                 <Route path="/dashboard-learner" element={<DashboardLearner />} />
-                 <Route path="/dashboard-tutor" element={<DashboardTutor />} />
-                 <Route path="/profile" element={<Profile />} />
-                 {/* Redirect uppercase routes to lowercase for compatibility */}
-                 <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
-                 <Route path="/DashboardTutor" element={<Navigate to="/dashboard-tutor" replace />} />
-                {/* <Route path="/create-session" element={<CreateSession />} />
-                <Route path="/sessions" element={<BrowseSessions />} />
-                <Route path="/session/:id" element={<SessionDetail />} /> */}
+              {/* Protected Routes with role-based access */}
+              <Route element={<ProtectedRoute allowedRoles={["learner"]} />}>
+                <Route path="/dashboard-learner" element={<DashboardLearner />} />
+                <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={["tutor"]} />}>
+                <Route path="/dashboard-tutor" element={<DashboardTutor />} />
+                <Route path="/DashboardTutor" element={<Navigate to="/dashboard-tutor" replace />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={["learner", "tutor"]} />}>
+                <Route path="/profile" element={<Profile />} />
               </Route>
               
               {/* <Route path="*" element={<NotFound />} /> */}

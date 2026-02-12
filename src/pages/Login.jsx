@@ -61,7 +61,7 @@ const Login = () => {
           } else if (user.role === 'learner') {
             navigate('/dashboard-learner');
           } else {
-            navigate('/dashboard');
+            navigate('/login');
           }
         } else {
           setErrors({ email: 'Invalid credentials' });

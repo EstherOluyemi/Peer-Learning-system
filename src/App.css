@@ -1,0 +1,5 @@
+/* Remove blue border (focus ring) from all links when pressed or focused */
+a:focus, a:active {
+	outline: none !important;
+	box-shadow: none !important;
+}

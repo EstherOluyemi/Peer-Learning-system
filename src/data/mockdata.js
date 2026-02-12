@@ -23,6 +23,7 @@ export const mockUsers = {
     name: "Jane Smith",
     email: "jane@example.com",
     role: "tutor",
+    password: "Tutor@123", // Add password for mock login
     bio: "Senior Frontend Developer with 5+ years experience",
     subjects: ["React", "JavaScript", "TypeScript"],
     rating: 4.8
@@ -32,6 +33,7 @@ export const mockUsers = {
     name: "John Doe",
     email: "john@example.com",
     role: "learner",
+    password: "Learner@123", // Add password for mock login
     bio: "Computer Science student passionate about web development",
     interests: ["React", "Node.js", "UI/UX"]
   }

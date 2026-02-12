@@ -1,12 +1,14 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
-import { Users, Calendar, Star, TrendingUp, MessageSquare, BookOpen, DollarSign } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Users, Calendar, Star, TrendingUp, MessageSquare, BookOpen, DollarSign, Bell, LogOut } from 'lucide-react';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
 
 const DashboardTutor = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showAccessibility, setShowAccessibility] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
@@ -59,12 +61,22 @@ const DashboardTutor = () => {
             </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-3 mt-8">
-          <img src="https://cdn.lordicon.com/ljvjsnvh.json" alt="Animated Profile Avatar" className="w-10 h-10 rounded-full border-2 border-blue-200 dark:border-blue-400 object-cover" />
+        <div className="flex items-center gap-3 mt-8 relative">
+          <img src="https://cdn.lordicon.com/ljvjsnvh.json" alt="Animated Profile Avatar" className="w-10 h-10 rounded-full border-2 border-blue-200 dark:border-blue-400 object-cover cursor-pointer" onClick={() => setShowProfileMenu(v => !v)} />
           <div>
             <div className="font-semibold text-slate-900 dark:text-slate-100">{user?.name || 'Tutor'}</div>
             <div className="text-xs text-slate-500 dark:text-slate-400">Tutor</div>
           </div>
+          {showProfileMenu && (
+            <div className="absolute right-0 top-12 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 w-48 z-10">
+              <button className="w-full flex items-center gap-2 px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-900" onClick={() => { logout(); navigate('/login'); }}>
+                <LogOut className="w-5 h-5" /> Logout
+              </button>
+              <Link to="/profile" className="w-full flex items-center gap-2 px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-900">
+                <Users className="w-5 h-5" /> Profile
+              </Link>
+            </div>
+          )}
         </div>
       </aside>
 
@@ -77,8 +89,12 @@ const DashboardTutor = () => {
             <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 dark:text-slate-300" />
           </div>
           <div className="flex items-center gap-4 ml-6">
+            <Bell className="w-6 h-6 text-blue-500 cursor-pointer" title="Notifications" />
             <span className="text-slate-700 font-semibold text-lg dark:text-slate-100">Welcome back, {user?.name || 'Tutor'}</span>
             <img src="https://www.w3schools.com/howto/img_avatar.png" alt="User Profile Icon" className="w-10 h-10 rounded-full border-2 border-blue-200 dark:border-blue-400 object-cover" />
+            <button className="ml-2 px-3 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-sm flex items-center gap-2" onClick={() => { logout(); navigate('/login'); }}>
+              <LogOut className="w-5 h-5" /> Logout
+            </button>
           </div>
         </div>
 
@@ -188,6 +204,10 @@ const DashboardTutor = () => {
             <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition flex flex-col items-center dark:border-slate-700 dark:hover:bg-slate-900">
               <Calendar className="w-6 h-6 text-orange-600 mb-2" />
               <span className="text-sm font-medium">Schedule</span>
+            </button>
+            <button className="p-4 border border-blue-200 rounded-lg hover:bg-blue-50 transition flex flex-col items-center dark:border-blue-700 dark:hover:bg-blue-900">
+              <LogOut className="w-6 h-6 text-red-600 mb-2" />
+              <span className="text-sm font-medium">Logout</span>
             </button>
           </div>
         </div>

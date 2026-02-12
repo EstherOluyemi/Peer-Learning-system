@@ -19,7 +19,14 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
   // Role-based protection (optional)
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
+    // Redirect to correct dashboard based on user role
+    if (user.role === 'tutor') {
+      return <Navigate to="/dashboard-tutor" replace />;
+    } else if (user.role === 'learner') {
+      return <Navigate to="/dashboard-learner" replace />;
+    } else {
+      return <Navigate to="/login" replace />;
+    }
   }
 
   return <Outlet />;

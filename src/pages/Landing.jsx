@@ -247,19 +247,23 @@ const Landing = () => {
             <div className="flex items-center space-x-3">
               {/* Updated Logo - Bigger size */}
               {peerlearnLogo ? (
-                <img 
-                  src={peerlearnLogo} 
-                  alt="PeerLearn Logo" 
-                  className="h-12 w-auto"  // Increased from h-10 to h-12
-                />
+                <>
+                  <img 
+                    src={peerlearnLogo} 
+                    alt="PeerLearn Logo" 
+                    className="h-12 w-auto"  // Increased from h-10 to h-12
+                  />
+                  <Link to="/" onClick={() => window.location.reload()} className="text-2xl font-bold text-white ml-2 hover:text-blue-300 transition-colors">PeerLearn</Link>
+                </>
               ) : (
-                <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
-                  <Users className="w-7 h-7 text-white" />
-                </div>
+                <>
+                  <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
+                    <Users className="w-7 h-7 text-white" />
+                  </div>
+                  <Link to="/" onClick={() => window.location.reload()} className="text-2xl font-bold text-white ml-2 hover:text-blue-300 transition-colors">PeerLearn</Link>
+                </>
               )}
-              <span className="text-2xl font-bold text-white">PeerLearn</span>
             </div>
-            
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-white/90 hover:text-white font-medium transition hover:scale-105">Features</a>
               <button 
@@ -270,7 +274,7 @@ const Landing = () => {
               </button>
               <Link to="/login" className="text-white/90 hover:bg-blue-100 hover:text-blue-500 font-medium transition hover:scale-105 rounded-lg px-3 py-1">Login</Link>
               <Link 
-                to="/signup" 
+                to="/role-selection" 
                 className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-lg hover:scale-105"
               >
                 Get Started Free
@@ -278,38 +282,28 @@ const Landing = () => {
             </div>
           </div>
         </nav>
-
-        {/* Main Hero Content */}
-        <div className="relative z-10 container mx-auto px-6 py-16 md:py-24">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8" ref={el => sectionRefs.current[0] = el}>
-              <div>
-                <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white font-medium text-sm mb-6 animate-fade-in-up delay-100">
-                  🎓 Transform Your Learning Journey
-                </span>
-                <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
-                  Learn <span className="text-blue-300">Together,</span>
-                  <span className="block">Grow <span className="text-emerald-300">Together</span></span>
-                </h1>
-                <p className="text-xl text-white/90 mb-8 max-w-lg leading-relaxed">
-                  Connect with peers, share knowledge, and accelerate your learning journey through collaborative sessions and expert guidance in an interactive environment.
-                </p>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link 
-                  to="/signup" 
-                  className="inline-flex items-center justify-center bg-white text-slate-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg"
-                >
-                  Start Learning Free
-                  <ArrowRight className="ml-3 w-5 h-5" />
-                </Link>
-              </div>
-            </div>
+        {/* Hero Content */}
+        <div className="relative z-10 container mx-auto px-6 pt-20 pb-16 flex flex-col items-start">
+          <span className="block text-white text-lg mb-4">🎓 Transform Your Learning Journey</span>
+          <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+            Learn <span className="text-blue-300">Together,</span>
+            <span className="block">Grow <span className="text-emerald-300">Together</span></span>
+          </h1>
+          <p className="text-xl text-white/90 mb-8 max-w-lg leading-relaxed">
+            Connect with peers, share knowledge, and accelerate your learning journey through collaborative sessions and expert guidance in an interactive environment.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link 
+              to="/role-selection" 
+              className="inline-flex items-center justify-center bg-white text-slate-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg"
+            >
+              Start Learning For Free
+              <ArrowRight className="ml-3 w-5 h-5" />
+            </Link>
           </div>
         </div>
-      </header>
 
+      </header>
       {/* Stats Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
@@ -498,7 +492,7 @@ const Landing = () => {
             ) : (
               <Users className="w-6 h-6 text-blue-500" />
             )}
-            <span className="text-white font-bold text-xl">PeerLearn</span>
+            <Link to="/" onClick={() => window.location.reload()} className="text-white font-bold text-xl hover:text-blue-300 transition-colors">PeerLearn</Link>
           </div>
 
           <p className="text-sm text-gray-400 mb-3">
