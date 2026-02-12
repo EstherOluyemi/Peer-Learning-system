@@ -15,22 +15,20 @@ const Navbar = ({
     const location = useLocation();
 
     const NavItemContent = ({ item }) => {
-        // Check if this item is currently active
         const isActive = location.pathname === item.to;
-
-        // Base classes for the item
+        
         const baseClasses = `
       flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-base transition-all duration-200 group
       ${isActive
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-blue-600 dark:hover:text-blue-400'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-blue-600 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-blue-400'
             }
     `;
 
         return (
             <div className={baseClasses}>
                 {item.icon && (
-                    <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400'}`} />
+                    <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-blue-400'}`} />
                 )}
                 <span>{item.label}</span>
                 {item.badge && (
@@ -50,21 +48,23 @@ const Navbar = ({
                 onClick={() => setSidebarOpen(false)}
             />
 
-            {/* Sidebar */}
+            {/* Sidebar Layout Fixes */}
             <aside className={`
-        fixed top-0 left-0 z-50 h-full w-68 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 
-        transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none 
+        fixed top-0 left-0 z-50 h-full w-72 
+        bg-white border-r border-slate-200 text-slate-900
+        dark:bg-slate-900 dark:border-slate-800 dark:text-white
+        transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none 
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
                 <div className="flex flex-col h-full">
                     {/* Logo Area */}
-                    <div className="h-20 flex items-center px-6 border-b border-slate-100 dark:border-slate-700">
+                    <div className="h-20 flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
                         {peerlearnLogo ? (
                             <img src={peerlearnLogo} alt="PeerLearn" className="h-8 w-8 mr-3" />
                         ) : (
                             <div className="h-8 w-8 bg-blue-600 rounded-lg mr-3"></div>
                         )}
-                        <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">PeerLearn</span>
+                        <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">PeerLearn</span>
                         <button
                             onClick={() => setSidebarOpen(false)}
                             className="ml-auto lg:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
@@ -83,11 +83,14 @@ const Navbar = ({
                     </nav>
 
                     {/* Bottom Actions */}
-                    <div className="p-4 border-t border-slate-100 dark:border-slate-700 space-y-2 bg-slate-50/50 dark:bg-slate-800/50">
+                    <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-2 bg-slate-50 dark:bg-slate-900/50">
                         {bottomItems.map((item, idx) => (
-                            // Check if item has an onClick (like Dark Mode toggle), render button, else render Link
                             item.onClick ? (
-                                <button key={idx} onClick={item.onClick} className="w-full text-left">
+                                <button
+                                    key={idx}
+                                    onClick={item.onClick}
+                                    className="w-full text-left border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden hover:border-blue-500 transition-colors"
+                                >
                                     <NavItemContent item={item} />
                                 </button>
                             ) : (
@@ -99,14 +102,14 @@ const Navbar = ({
 
                         {/* User Profile Snippet */}
                         {user && (
-                            <div className="flex items-center gap-3 px-4 py-3 mt-4 bg-white dark:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-600 shadow-sm">
+                            <div className="flex items-center gap-3 px-4 py-3 mt-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                                 <img
                                     src={`https://ui-avatars.com/api/?name=${user.name || 'User'}&background=random`}
                                     alt="avatar"
                                     className="w-9 h-9 rounded-full object-cover"
                                 />
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-bold text-slate-900 dark:text-white truncate">{user.name}</div>
+                                    <div className="text-sm font-bold truncate text-slate-900 dark:text-white">{user.name}</div>
                                     <div className="text-xs text-slate-500 dark:text-slate-400 capitalize truncate">{user.role}</div>
                                 </div>
                                 {onLogout && (

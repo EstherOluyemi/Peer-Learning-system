@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAccessibility } from '../context/AccessibilityContext';
-import { Settings, X, Eye, EyeOff, Plus, Minus, RotateCcw } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { Settings, X, Eye, EyeOff, Plus, Minus, RotateCcw, Sun, Moon } from 'lucide-react';
 
 const AccessibilityToolbar = () => {
   const {
@@ -11,6 +12,7 @@ const AccessibilityToolbar = () => {
     resetAccessibility
   } = useAccessibility();
 
+  const { darkMode, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -119,6 +121,35 @@ const AccessibilityToolbar = () => {
                 <Plus size={16} />
               </button>
             </div>
+          </div>
+
+          {/* Theme Toggle */}
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+            <div className="flex items-center gap-3">
+              {darkMode ? (
+                <Moon size={20} className="text-blue-600" />
+              ) : (
+                <Sun size={20} className="text-gray-400" />
+              )}
+              <div>
+                <p className="font-medium text-gray-800">Theme</p>
+                <p className="text-xs text-gray-500">{darkMode ? 'Dark mode' : 'Light mode'}</p>
+              </div>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                darkMode ? 'bg-blue-600' : 'bg-gray-300'
+              }`}
+              aria-pressed={darkMode}
+              aria-label={`${darkMode ? 'Switch to light mode' : 'Switch to dark mode'}`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  darkMode ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
 
           {/* Reset Button */}

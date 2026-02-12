@@ -1,6 +1,7 @@
-// src/pages/DashboardTutor.jsx
-import React, { useState } from 'react';
+// src/pages/DashboardTutor.jsx (UPDATED)
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Users, Calendar, Star, TrendingUp, MessageSquare,
@@ -11,21 +12,11 @@ import Navbar from '../components/Navbar';
 
 const DashboardTutor = () => {
   const { user, logout } = useAuth();
+  const { darkMode, toggleTheme } = useTheme(); // FROM CONTEXT
   const navigate = useNavigate();
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
-  // Toggle Dark Mode Logic
-  const handleThemeToggle = () => {
-    setDarkMode((prev) => {
-      const next = !prev;
-      document.documentElement.classList.toggle('dark', next);
-      return next;
-    });
-  };
-
-  // --- Configuration for Navbar ---
   const navItems = [
     { label: 'Dashboard', icon: BookOpen, to: '/dashboard-tutor' },
     { label: 'My Sessions', icon: Calendar, to: '/sessions' },
@@ -41,11 +32,10 @@ const DashboardTutor = () => {
       label: darkMode ? 'Light Mode' : 'Dark Mode',
       icon: darkMode ? Sun : Moon,
       to: '#',
-      onClick: (e) => { e.preventDefault(); handleThemeToggle(); }
+      onClick: (e) => { e.preventDefault(); toggleTheme(); }
     },
   ];
 
-  // --- Mock Data ---
   const upcomingSessions = [
     { id: 1, title: "React Fundamentals", learners: 12, time: "2:00 PM", date: "Today", status: "confirmed", type: "Workshop" },
     { id: 2, title: "Advanced JavaScript", learners: 8, time: "4:30 PM", date: "Tomorrow", status: "pending", type: "1-on-1" },
@@ -59,15 +49,8 @@ const DashboardTutor = () => {
     { label: "Earnings", value: "$2,840", change: "+22%", icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900/30", trend: "up" },
   ];
 
-  const reviews = [
-    { name: "Alex Chen", comment: "Great explanation of React hooks!", rating: 5, date: "2h ago" },
-    { name: "Maria Garcia", comment: "Very patient and helpful.", rating: 5, date: "1d ago" },
-  ];
-
   return (
-    <div className={`min-h-screen transition-colors duration-200 ${darkMode ? 'dark bg-slate-900' : 'bg-slate-50'} flex`}>
-
-      {/* 1. Navbar Component */}
+    <div className={`flex min-h-screen ${darkMode ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <Navbar
         navItems={navItems}
         bottomItems={bottomItems}
@@ -77,14 +60,12 @@ const DashboardTutor = () => {
         setSidebarOpen={setSidebarOpen}
       />
 
-      {/* 2. Main Content Wrapper */}
-      {/* lg:pl-72 pushes content right on desktop to accommodate fixed sidebar */}
-      <div className="flex-1 lg:pl-72 flex flex-col min-h-screen w-full">
+      {/* Main Content */}
+      <div className="flex-1 lg:pl-72 flex flex-col w-full">
 
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 sm:px-8 h-20 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {/* Hamburger Menu (Mobile Only) */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
@@ -92,7 +73,6 @@ const DashboardTutor = () => {
               <Menu className="w-6 h-6" />
             </button>
 
-            {/* Search Bar */}
             <div className="hidden sm:flex relative w-64 md:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input
@@ -117,7 +97,7 @@ const DashboardTutor = () => {
               <img
                 src={`https://ui-avatars.com/api/?name=${user?.name || 'Tutor'}&background=random`}
                 alt="Avatar"
-                className="w-10 h-10 rounded-full border-2 border-slate-100 dark:border-slate-700 object-cover"
+                className="w-10 h-10 rounded-full border-2 border-slate-200 dark:border-slate-700 object-cover"
               />
             </div>
           </div>
@@ -142,7 +122,7 @@ const DashboardTutor = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {performanceStats.map((stat, index) => (
-                <div key={index} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+                <div key={index} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-200">
                   <div className="flex items-center justify-between mb-4">
                     <div className={`p-3 rounded-xl ${stat.bg}`}>
                       <stat.icon className={`w-6 h-6 ${stat.color}`} />
@@ -160,19 +140,18 @@ const DashboardTutor = () => {
               ))}
             </div>
 
-            {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-              {/* Left Column (Sessions) */}
+              {/* Upcoming Sessions */}
               <div className="lg:col-span-2 space-y-8">
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
-                  <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                  <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
                     <h2 className="text-lg font-bold text-slate-900 dark:text-white">Upcoming Sessions</h2>
                     <Link to="/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
                       View All <ChevronRight className="w-4 h-4" />
                     </Link>
                   </div>
-                  <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                  <div className="divide-y divide-slate-200 dark:divide-slate-700">
                     {upcomingSessions.map(session => (
                       <div key={session.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors group">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -208,11 +187,9 @@ const DashboardTutor = () => {
                 </div>
               </div>
 
-              {/* Right Column (Actions & Reviews) */}
+              {/* Quick Actions */}
               <div className="space-y-8">
-
-                {/* Quick Actions */}
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Quick Actions</h2>
                   <div className="grid grid-cols-2 gap-3">
                     <ActionButton icon={MessageSquare} label="Message" color="bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" />
@@ -221,31 +198,6 @@ const DashboardTutor = () => {
                     <ActionButton icon={Settings} label="Settings" color="bg-slate-50 text-slate-600 dark:bg-slate-700 dark:text-slate-300" />
                   </div>
                 </div>
-
-                {/* Reviews Widget */}
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Recent Reviews</h2>
-                    <div className="flex items-center gap-1 text-amber-500 font-bold text-sm">
-                      <Star className="w-4 h-4 fill-current" /> 4.8
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    {reviews.map((review, i) => (
-                      <div key={i} className="bg-slate-50 dark:bg-slate-700/30 p-4 rounded-xl">
-                        <div className="flex justify-between items-start mb-2">
-                          <span className="font-semibold text-sm text-slate-900 dark:text-white">{review.name}</span>
-                          <span className="text-xs text-slate-400">{review.date}</span>
-                        </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">"{review.comment}"</p>
-                      </div>
-                    ))}
-                  </div>
-                  <button className="w-full mt-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
-                    View All Reviews
-                  </button>
-                </div>
-
               </div>
             </div>
           </div>
@@ -255,7 +207,6 @@ const DashboardTutor = () => {
   );
 };
 
-// Helper for Dashboard Buttons
 const ActionButton = ({ icon: Icon, label, color }) => (
   <button className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all hover:scale-105 active:scale-95 ${color}`}>
     <Icon className="w-6 h-6 mb-2" />

@@ -1,6 +1,8 @@
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { AccessibilityProvider } from './context/AccessibilityContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AccessibilityToolbar from './components/AccessibilityToolbar';
 
@@ -24,30 +26,32 @@ function App() {
     <Router>
       <AuthProvider>
         <AccessibilityProvider>
-          <div className="min-h-screen bg-gray-50">
-            <AccessibilityToolbar />
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/role-selection" element={<RoleSelection />} />
-              <Route path="/signup" element={<SignUp />} />
-              
-              {/* Protected Routes with role-based access */}
-              <Route element={<ProtectedRoute allowedRoles={["learner"]} />}>
-                <Route path="/dashboard-learner" element={<DashboardLearner />} />
-                <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
-              </Route>
-              <Route element={<ProtectedRoute allowedRoles={["tutor"]} />}>
-                <Route path="/dashboard-tutor" element={<DashboardTutor />} />
-                <Route path="/DashboardTutor" element={<Navigate to="/dashboard-tutor" replace />} />
-              </Route>
-              <Route element={<ProtectedRoute allowedRoles={["learner", "tutor"]} />}>
-                <Route path="/profile" element={<Profile />} />
-              </Route>
-              
-              {/* <Route path="*" element={<NotFound />} /> */}
-            </Routes>
-          </div>
+          <ThemeProvider>
+            <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
+              <AccessibilityToolbar />
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/role-selection" element={<RoleSelection />} />
+                <Route path="/signup" element={<SignUp />} />
+
+                {/* Protected Routes with role-based access */}
+                <Route element={<ProtectedRoute allowedRoles={["learner"]} />}>
+                  <Route path="/dashboard-learner" element={<DashboardLearner />} />
+                  <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
+                </Route>
+                <Route element={<ProtectedRoute allowedRoles={["tutor"]} />}>
+                  <Route path="/dashboard-tutor" element={<DashboardTutor />} />
+                  <Route path="/DashboardTutor" element={<Navigate to="/dashboard-tutor" replace />} />
+                </Route>
+                <Route element={<ProtectedRoute allowedRoles={["learner", "tutor"]} />}>
+                  <Route path="/profile" element={<Profile />} />
+                </Route>
+
+                {/* <Route path="*" element={<NotFound />} /> */}
+              </Routes>
+            </div>
+          </ThemeProvider>
         </AccessibilityProvider>
       </AuthProvider>
     </Router>

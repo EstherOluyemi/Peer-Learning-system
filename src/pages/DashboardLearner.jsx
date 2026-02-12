@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { useTheme } from '../context/ThemeContext';
 
 const DashboardLearner = () => {
   const { user, logout } = useAuth();
@@ -15,17 +16,7 @@ const DashboardLearner = () => {
 
   // State for UI controls
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-
-  // Toggle Dark Mode
-  const handleThemeToggle = () => {
-    setDarkMode((prev) => {
-      const next = !prev;
-      // This toggles the class on the HTML element for Tailwind
-      document.documentElement.classList.toggle('dark', next);
-      return next;
-    });
-  };
+  const { darkMode, toggleTheme } = useTheme();
 
   // Sidebar Configuration
   const navItems = [
@@ -41,7 +32,7 @@ const DashboardLearner = () => {
       label: darkMode ? 'Light Mode' : 'Dark Mode',
       icon: darkMode ? Sun : Moon,
       to: '#',
-      onClick: (e) => { e.preventDefault(); handleThemeToggle(); }
+      onClick: (e) => { e.preventDefault(); toggleTheme(); }
     },
   ];
 
@@ -67,7 +58,7 @@ const DashboardLearner = () => {
 
   return (
     // Root container handles background and flex layout
-    <div className={`min-h-screen transition-colors duration-200 ${darkMode ? 'dark bg-slate-900' : 'bg-slate-50'} flex`}>
+    <div className={`min-h-screen transition-colors duration-200 ${darkMode ? 'bg-slate-900' : 'bg-slate-50'} flex`}>
 
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
