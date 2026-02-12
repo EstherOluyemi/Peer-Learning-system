@@ -1,5 +1,11 @@
+body {
+	font-family: "Roboto", sans-serif;
+	box-sizing: border-box;
+}
+
 /* Remove blue border (focus ring) from all links when pressed or focused */
-a:focus, a:active {
+a:focus,
+a:active {
 	outline: none !important;
 	box-shadow: none !important;
 }

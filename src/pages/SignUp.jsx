@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import signupLogo from '../assets/signup-logo.jpg';
+import signupLogo from '../assets/signup-logo.webp';
 import { Users, Mail, Lock, User, BookOpen, ArrowLeft, Eye, EyeOff, GraduationCap } from 'lucide-react';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
 import { useAccessibility } from '../context/hooks';
@@ -14,7 +14,7 @@ const RoleCard = ({ title, description, icon: Icon, value, isSelected, setFormDa
     className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
   >
     <div className="flex items-center gap-4">
-      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${isSelected ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'}`}> 
+      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${isSelected ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
         <Icon className="w-6 h-6" />
       </div>
       <div>
@@ -130,7 +130,7 @@ const SignUp = () => {
         <div className="flex-1 flex flex-col justify-center items-center bg-white/90 p-8 min-h-screen ml-0 md:ml-[50vw] z-10">
           {/* Back to Home link */}
           <div className="w-full flex justify-start mb-4">
-              <Link to="/" className="flex items-center text-blue-600 hover:bg-blue-100 hover:text-blue-500 font-medium gap-1 rounded-lg px-2 py-1 transition-colors">
+            <Link to="/" className="flex items-center text-blue-600 hover:bg-blue-100 hover:text-blue-500 font-medium gap-1 rounded-lg px-2 py-1 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
               Back to Home
             </Link>
