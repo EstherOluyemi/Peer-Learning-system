@@ -1,22 +1,20 @@
 // src/components/tutor/TutorLayout.jsx
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Link, useNavigate } from 'react-router-dom';
 import {
-  Users, Calendar, Star, TrendingUp, MessageSquare,
+  Users, Calendar, Star, MessageSquare,
   BookOpen, DollarSign, Bell, Menu, Search, Settings,
-  ChevronRight, Clock, Sun, Moon, ArrowUpRight
+  Sun, Moon
 } from 'lucide-react';
 import Navbar from '../Navbar';
 
-const TutorLayout = ({ children }) => {
+const TutorLayout = () => {
   const { user, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
-
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = [
     { label: 'Dashboard', icon: BookOpen, to: '/dashboard-tutor' },
@@ -62,8 +60,6 @@ const TutorLayout = ({ children }) => {
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 -ml-2 rounded-lg transition-colors"
               style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -82,18 +78,13 @@ const TutorLayout = ({ children }) => {
             </div>
           </div>
           <div className="flex items-center gap-3 sm:gap-6">
-            <button
-              className="relative p-2 rounded-full transition-colors"
-              style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
+            <button className="relative p-2 rounded-full transition-colors" style={{ color: 'var(--text-secondary)' }}>
               <Bell className="w-6 h-6" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
             </button>
             <div className="flex items-center gap-3">
               <div className="text-right hidden md:block">
-                <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{user?.name || 'Jane Doe'}</div>
+                <div className="text-sm font-bold">{user?.name || 'Jane Doe'}</div>
                 <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Senior Tutor</div>
               </div>
               <img
