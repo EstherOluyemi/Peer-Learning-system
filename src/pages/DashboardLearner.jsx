@@ -73,36 +73,52 @@ const DashboardLearner = () => {
       />
 
       <div className="flex-1 lg:pl-72 flex flex-col w-full">
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 h-16 sm:h-20 flex items-center justify-between px-4 sm:px-8">
+        <header
+          className="sticky top-0 z-30 backdrop-blur-md h-16 sm:h-20 flex items-center justify-between px-4 sm:px-8 border-b transition-all duration-300"
+          style={{
+            backgroundColor: 'rgba(var(--bg-primary-rgb), 0.8)',
+            borderColor: 'var(--border-color)'
+          }}
+        >
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+              className="lg:hidden p-2 -ml-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+              style={{ color: 'var(--text-secondary)' }}
             >
               <Menu className="w-6 h-6" />
             </button>
             <div className="relative hidden sm:block w-64 md:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
               <input
                 type="text"
                 placeholder="Find sessions or tutors..."
-                className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-200 placeholder-slate-400 transition-all"
+                className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all"
+                style={{
+                  backgroundColor: 'var(--input-bg)',
+                  color: 'var(--input-text)',
+                  borderColor: 'var(--input-border)'
+                }}
               />
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors dark:text-slate-400 dark:hover:bg-slate-800">
+            <button
+              className="relative p-2 rounded-full transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2" style={{ ringColor: 'var(--bg-primary)' }}></span>
             </button>
             <div className="hidden md:flex flex-col items-end">
-              <span className="text-sm font-bold text-slate-800 dark:text-white">{user?.name || 'Student'}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">Learner</span>
+              <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{user?.name || 'Student'}</span>
+              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Learner</span>
             </div>
             <img
               src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`}
               alt="Profile"
-              className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700"
+              className="w-9 h-9 rounded-full border"
+              style={{ borderColor: 'var(--border-color)' }}
             />
           </div>
         </header>
