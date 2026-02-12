@@ -115,7 +115,7 @@ const SignUp = () => {
 
   return (
     <>
-      <div className={`min-h-screen w-screen flex transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
+      <div className={`min-h-screen w-screen flex transition-colors duration-300 ${highContrast ? 'high-contrast' : ''} signup-page`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
         <AccessibilityToolbar />
         {/* Left: Image (fixed, always fills left half) */}
         <div className="hidden md:block md:w-1/2 fixed left-0 top-0 h-full min-h-screen z-0">

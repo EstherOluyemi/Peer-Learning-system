@@ -87,7 +87,7 @@ const Login = () => {
   const containerClass = highContrast ? 'bg-white text-black contrast-more' : 'bg-slate-50';
 
   return (
-    <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300 overflow-hidden`}>
+    <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300 overflow-hidden login-page`}>
       <AccessibilityToolbar />
 
       <div className="flex-1 flex flex-col lg:flex-row h-full">

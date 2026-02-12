@@ -27,7 +27,7 @@ function App() {
       <AuthProvider>
         <AccessibilityProvider>
           <ThemeProvider>
-            <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
               <AccessibilityToolbar />
               <Routes>
                 <Route path="/" element={<Landing />} />

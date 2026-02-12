@@ -16,7 +16,7 @@ const Navbar = ({
 
     const NavItemContent = ({ item }) => {
         const isActive = location.pathname === item.to;
-        
+
         const baseClasses = `
       flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-base transition-all duration-200 group
       ${isActive
@@ -42,13 +42,11 @@ const Navbar = ({
 
     return (
         <>
-            {/* Mobile Overlay */}
             <div
                 className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 backdrop-blur-sm ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
                 onClick={() => setSidebarOpen(false)}
             />
 
-            {/* Sidebar Layout Fixes */}
             <aside className={`
         fixed top-0 left-0 z-50 h-full w-72 
         bg-white border-r border-slate-200 text-slate-900
@@ -57,7 +55,6 @@ const Navbar = ({
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
                 <div className="flex flex-col h-full">
-                    {/* Logo Area */}
                     <div className="h-20 flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
                         {peerlearnLogo ? (
                             <img src={peerlearnLogo} alt="PeerLearn" className="h-8 w-8 mr-3" />
@@ -73,7 +70,6 @@ const Navbar = ({
                         </button>
                     </div>
 
-                    {/* Main Navigation */}
                     <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
                         {navItems.map((item, idx) => (
                             <Link key={idx} to={item.to} onClick={() => setSidebarOpen(false)}>
@@ -82,7 +78,6 @@ const Navbar = ({
                         ))}
                     </nav>
 
-                    {/* Bottom Actions */}
                     <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-2 bg-slate-50 dark:bg-slate-900/50">
                         {bottomItems.map((item, idx) => (
                             item.onClick ? (
@@ -100,7 +95,6 @@ const Navbar = ({
                             )
                         ))}
 
-                        {/* User Profile Snippet */}
                         {user && (
                             <div className="flex items-center gap-3 px-4 py-3 mt-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                                 <img

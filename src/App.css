@@ -1,9 +1,105 @@
+/* src/App.css */
 body {
 	font-family: "Roboto", sans-serif;
 	box-sizing: border-box;
+	transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Remove blue border (focus ring) from all links when pressed or focused */
+/* Login and Signup pages - Always dark background (#020202), light content (ignores global dark mode) */
+.login-page,
+.signup-page {
+	background-color: #020202 !important;
+}
+
+/* Force light content styles even when global dark mode is enabled */
+html.dark .login-page *,
+html.dark .signup-page * {
+	transition: none;
+}
+
+html.dark .login-page .bg-white,
+html.dark .signup-page .bg-white {
+	background-color: #ffffff !important;
+	color: #111827 !important;
+}
+
+html.dark .login-page .bg-gray-50,
+html.dark .signup-page .bg-gray-50 {
+	background-color: #f9fafb !important;
+}
+
+html.dark .login-page .text-gray-900,
+html.dark .signup-page .text-gray-900 {
+	color: #111827 !important;
+}
+
+html.dark .login-page .text-gray-700,
+html.dark .signup-page .text-gray-700 {
+	color: #374151 !important;
+}
+
+html.dark .login-page .text-gray-600,
+html.dark .signup-page .text-gray-600 {
+	color: #4b5563 !important;
+}
+
+html.dark .login-page .text-gray-500,
+html.dark .signup-page .text-gray-500 {
+	color: #6b7280 !important;
+}
+
+html.dark .login-page .text-gray-400,
+html.dark .signup-page .text-gray-400 {
+	color: #9ca3af !important;
+}
+
+html.dark .login-page .text-white,
+html.dark .signup-page .text-white {
+	color: #ffffff !important;
+}
+
+html.dark .login-page .border-gray-200,
+html.dark .signup-page .border-gray-200 {
+	border-color: #e5e7eb !important;
+}
+
+html.dark .login-page .border-gray-100,
+html.dark .signup-page .border-gray-100 {
+	border-color: #f3f4f6 !important;
+}
+
+html.dark .login-page input,
+html.dark .signup-page input {
+	background-color: #ffffff !important;
+	color: #111827 !important;
+	border-color: #e5e7eb !important;
+}
+
+html.dark .login-page input::placeholder,
+html.dark .signup-page input::placeholder {
+	color: #9ca3af !important;
+}
+
+/* Custom scrollbar (applies in dark mode) */
+html.dark ::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+html.dark ::-webkit-scrollbar-track {
+	background: #1f2937;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+	background: #4b5563;
+	border-radius: 4px;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+	background: #6b7280;
+}
+
+/* Remove focus outlines from links */
 a:focus,
 a:active {
 	outline: none !important;

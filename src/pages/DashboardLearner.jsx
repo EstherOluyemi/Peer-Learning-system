@@ -1,24 +1,22 @@
 // src/pages/DashboardLearner.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   BookOpen, Clock, TrendingUp, Star, Users, Calendar,
-  User, Settings, Plus, Menu, Search, Bell, LogOut,
-  Sun, Moon, ChevronRight, ArrowUpRight
+  User, Settings, Plus, Menu, Search, Bell,
+  ChevronRight, ArrowUpRight, Sun, Moon
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { useTheme } from '../context/ThemeContext';
 
 const DashboardLearner = () => {
   const { user, logout } = useAuth();
+  const { darkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  // State for UI controls
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { darkMode, toggleTheme } = useTheme();
 
-  // Sidebar Configuration
   const navItems = [
     { label: 'Dashboard', icon: BookOpen, to: '/dashboard-learner' },
     { label: 'My Sessions', icon: Calendar, to: '/sessions' },
@@ -36,7 +34,6 @@ const DashboardLearner = () => {
     },
   ];
 
-  // Mock Data
   const statCards = [
     { icon: BookOpen, label: 'Total Sessions', value: 12, color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' },
     { icon: Clock, label: 'Upcoming', value: 3, color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' },
@@ -57,10 +54,8 @@ const DashboardLearner = () => {
   ];
 
   return (
-    // Root container handles background and flex layout
-    <div className={`min-h-screen transition-colors duration-200 ${darkMode ? 'bg-slate-900' : 'bg-slate-50'} flex`}>
-
-      {/* Mobile Sidebar Overlay */}
+    <div className="flex min-h-screen">
+      {/* Mobile Overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
@@ -68,7 +63,6 @@ const DashboardLearner = () => {
         />
       )}
 
-      {/* Navbar Component */}
       <Navbar
         navItems={navItems}
         bottomItems={bottomItems}
@@ -78,10 +72,7 @@ const DashboardLearner = () => {
         setSidebarOpen={setSidebarOpen}
       />
 
-      {/* Main Content Wrapper - Added lg:pl-72 to offset fixed sidebar */}
-      <div className="flex-1 lg:pl-72 flex flex-col min-h-screen w-full">
-
-        {/* Responsive Header */}
+      <div className="flex-1 lg:pl-72 flex flex-col w-full">
         <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 h-16 sm:h-20 flex items-center justify-between px-4 sm:px-8">
           <div className="flex items-center gap-4">
             <button
@@ -90,8 +81,6 @@ const DashboardLearner = () => {
             >
               <Menu className="w-6 h-6" />
             </button>
-
-            {/* Search Bar */}
             <div className="relative hidden sm:block w-64 md:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input
@@ -101,7 +90,6 @@ const DashboardLearner = () => {
               />
             </div>
           </div>
-
           <div className="flex items-center gap-4">
             <button className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors dark:text-slate-400 dark:hover:bg-slate-800">
               <Bell className="w-5 h-5" />
@@ -119,11 +107,8 @@ const DashboardLearner = () => {
           </div>
         </header>
 
-        {/* Dashboard Body */}
         <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-8">
-
-            {/* Welcome Section */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
@@ -139,7 +124,6 @@ const DashboardLearner = () => {
               </button>
             </div>
 
-            {/* Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {statCards.map((stat, i) => (
                 <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all duration-200">
@@ -156,10 +140,7 @@ const DashboardLearner = () => {
               ))}
             </div>
 
-            {/* Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-
-              {/* Left Column: Upcoming Sessions */}
               <div className="lg:col-span-2 space-y-6">
                 <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
                   <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex flex-wrap justify-between items-center gap-4">
@@ -168,7 +149,6 @@ const DashboardLearner = () => {
                       View Schedule <ChevronRight className="w-4 h-4" />
                     </Link>
                   </div>
-
                   <div className="divide-y divide-slate-100 dark:divide-slate-700">
                     {upcomingSessions.map((session, i) => (
                       <div key={i} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
@@ -202,10 +182,7 @@ const DashboardLearner = () => {
                 </div>
               </div>
 
-              {/* Right Column: Quick Actions & Activity */}
               <div className="space-y-6">
-
-                {/* Quick Actions */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Quick Actions</h2>
                   <div className="space-y-3">
@@ -218,7 +195,6 @@ const DashboardLearner = () => {
                   </div>
                 </div>
 
-                {/* Recent Activity */}
                 <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Activity</h2>
                   <div className="space-y-4">
@@ -236,10 +212,8 @@ const DashboardLearner = () => {
                     ))}
                   </div>
                 </div>
-
               </div>
             </div>
-
           </div>
         </main>
       </div>
