@@ -13,6 +13,13 @@ import SignUp from './pages/SignUp';
 import RoleSelection from './pages/RoleSelection';
 import DashboardLearner from './pages/DashboardLearner';
 import DashboardTutor from './pages/DashboardTutor';
+import TutorLayout from './components/tutor/TutorLayout';
+import SessionsPage from './components/tutor/SessionsPage';
+import StudentsPage from './components/tutor/StudentsPage';
+import MessagesPage from './components/tutor/MessagesPage';
+import ReviewsPage from './components/tutor/ReviewsPage';
+import EarningsPage from './components/tutor/EarningsPage';
+import SettingsPage from './components/tutor/SettingsPage';
 import Profile from './pages/Profile';
 /* import CreateSession from './pages/CreateSession';
 import BrowseSessions from './pages/BrowseSessions';
@@ -41,7 +48,15 @@ function App() {
                   <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
                 </Route>
                 <Route element={<ProtectedRoute allowedRoles={["tutor"]} />}>
-                  <Route path="/dashboard-tutor" element={<DashboardTutor />} />
+                  <Route path="/dashboard-tutor" element={<TutorLayout />}>
+                    <Route index element={<DashboardTutor />} />
+                    <Route path="sessions" element={<SessionsPage />} />
+                    <Route path="students" element={<StudentsPage />} />
+                    <Route path="messages" element={<MessagesPage />} />
+                    <Route path="reviews" element={<ReviewsPage />} />
+                    <Route path="earnings" element={<EarningsPage />} />
+                    <Route path="settings" element={<SettingsPage />} />
+                  </Route>
                   <Route path="/DashboardTutor" element={<Navigate to="/dashboard-tutor" replace />} />
                 </Route>
                 <Route element={<ProtectedRoute allowedRoles={["learner", "tutor"]} />}>
