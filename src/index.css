@@ -1,5 +1,77 @@
 @import "tailwindcss";
 
+@theme {
+  /* Light Mode - Default */
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  --color-muted-background: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-border: #e2e8f0;
+  --color-input-background: #f1f5f9;
+  --color-card-background: #ffffff;
+  --color-card-hover: #f8fafc;
+  
+  /* Dark Mode */
+  --dark-background: #0f172a;
+  --dark-foreground: #f1f5f9;
+  --dark-muted-background: #1e293b;
+  --dark-muted-foreground: #94a3b8;
+  --dark-border: #334155;
+  --dark-input-background: #1e293b;
+  --dark-card-background: #1e293b;
+  --dark-card-hover: #334155;
+  
+  /* Accent Colors */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+}
+
+/* Light Mode (default) */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-hover: #f1f5f9;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  
+  --border-color: #e2e8f0;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  
+  --input-bg: #f1f5f9;
+  --input-border: #e2e8f0;
+  --input-text: #0f172a;
+}
+
+/* Dark Mode */
+:root.dark {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-hover: #334155;
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  
+  --border-color: #334155;
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  
+  --input-bg: #1e293b;
+  --input-border: #334155;
+  --input-text: #f1f5f9;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 /* Skip link: visually hidden until focused (keyboard users) */
 .skip-link {
   position: absolute;
@@ -30,6 +102,7 @@
   outline: none;
   box-shadow: 0 0 0 2px #93c5fd;
 }
+
 /* Accessibility Classes */
 .high-contrast {
   filter: contrast(1.5);
@@ -65,4 +138,11 @@
 /* Skip to content button */
 .skip-to-content:focus {
   transform: translateY(0);
+}
+
+/* Navbar sidebar - ensure it displays on desktop */
+@media (min-width: 1024px) {
+  aside {
+    transform: translateX(0) !important;
+  }
 }
