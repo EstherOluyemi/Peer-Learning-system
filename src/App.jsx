@@ -1,5 +1,10 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import LearnerLayout from './components/learner/LearnerLayout';
+import SessionsPage from './components/learner/SessionsPage';
+import CreateSessionPage from './components/learner/CreateSessionPage';
+import ProfilePage from './components/learner/ProfilePage';
+import SettingsPage from './components/learner/SettingsPage';
 import { AuthProvider } from './context/AuthContext';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -44,7 +49,13 @@ function App() {
 
                 {/* Protected Routes with role-based access */}
                 <Route element={<ProtectedRoute allowedRoles={["learner"]} />}>
-                  <Route path="/dashboard-learner" element={<DashboardLearner />} />
+                  <Route path="/dashboard-learner" element={<LearnerLayout />}>
+                    <Route index element={<DashboardLearner />} />
+                    <Route path="sessions" element={<SessionsPage />} />
+                    <Route path="create-session" element={<CreateSessionPage />} />
+                    <Route path="profile" element={<ProfilePage />} />
+                    <Route path="settings" element={<SettingsPage />} />
+                  </Route>
                   <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
                 </Route>
                 <Route element={<ProtectedRoute allowedRoles={["tutor"]} />}>
