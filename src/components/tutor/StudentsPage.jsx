@@ -76,7 +76,7 @@ const StudentsPage = () => {
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.email.toLowerCase().includes(searchTerm.toLowerCase());
+      student.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLevel = filterLevel === 'all' || student.level.toLowerCase() === filterLevel.toLowerCase();
     return matchesSearch && matchesLevel;
   });
@@ -138,11 +138,10 @@ const StudentsPage = () => {
                 <button
                   key={level}
                   onClick={() => setFilterLevel(level)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    filterLevel === level
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${filterLevel === level
                       ? 'bg-blue-600 text-white'
                       : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
+                    }`}
                 >
                   {level.charAt(0).toUpperCase() + level.slice(1)}
                 </button>

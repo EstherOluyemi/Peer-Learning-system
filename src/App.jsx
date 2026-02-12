@@ -1,10 +1,6 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LearnerLayout from './components/learner/LearnerLayout';
-import SessionsPage from './components/learner/SessionsPage';
-import CreateSessionPage from './components/learner/CreateSessionPage';
-import ProfilePage from './components/learner/ProfilePage';
-import SettingsPage from './components/learner/SettingsPage';
 import { AuthProvider } from './context/AuthContext';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -19,13 +15,10 @@ import RoleSelection from './pages/RoleSelection';
 import DashboardLearner from './pages/DashboardLearner';
 import DashboardTutor from './pages/DashboardTutor';
 import TutorLayout from './components/tutor/TutorLayout';
-import SessionsPage from './components/tutor/SessionsPage';
 import StudentsPage from './components/tutor/StudentsPage';
 import MessagesPage from './components/tutor/MessagesPage';
 import ReviewsPage from './components/tutor/ReviewsPage';
 import EarningsPage from './components/tutor/EarningsPage';
-import SettingsPage from './components/tutor/SettingsPage';
-import Profile from './pages/Profile';
 /* import CreateSession from './pages/CreateSession';
 import BrowseSessions from './pages/BrowseSessions';
 import SessionDetail from './pages/SessionDetail';

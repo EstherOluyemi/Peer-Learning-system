@@ -211,11 +211,10 @@ const MessagesPage = () => {
               <div
                 key={conv.id}
                 onClick={() => setSelectedConversation(conv)}
-                className={`p-4 rounded-xl cursor-pointer transition-all ${
-                  selectedConversation?.id === conv.id
+                className={`p-4 rounded-xl cursor-pointer transition-all ${selectedConversation?.id === conv.id
                     ? 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-800'
                     : 'hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent'
-                }`}
+                  }`}
                 style={{
                   borderColor: selectedConversation?.id === conv.id ? 'var(--border-color)' : 'transparent'
                 }}
@@ -324,11 +323,10 @@ const MessagesPage = () => {
                     className={`flex ${message.sender === 'tutor' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                        message.sender === 'tutor'
+                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${message.sender === 'tutor'
                           ? 'bg-blue-600 text-white'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100'
-                      }`}
+                        }`}
                     >
                       <p className="text-sm">{message.text}</p>
                       <div className="flex items-center justify-between mt-2 text-xs opacity-75">

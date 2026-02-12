@@ -311,11 +311,10 @@ const EarningsPage = () => {
                     <button
                       key={period}
                       onClick={() => setFilterPeriod(period)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        filterPeriod === period
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${filterPeriod === period
                           ? 'bg-blue-600 text-white'
                           : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                      }`}
+                        }`}
                     >
                       {period.charAt(0).toUpperCase() + period.slice(1)}
                     </button>
@@ -390,11 +389,10 @@ const EarningsPage = () => {
                 {['all', 'completed', 'pending', 'cancelled'].map(status => (
                   <button
                     key={status}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
-                      status === 'all'
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${status === 'all'
                         ? 'bg-blue-600 text-white'
                         : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                    }`}
+                      }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </button>

@@ -124,8 +124,8 @@ const ReviewsPage = () => {
 
   const filteredReviews = reviews.filter(review => {
     const matchesSearch = review.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         review.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         review.session.toLowerCase().includes(searchTerm.toLowerCase());
+      review.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      review.session.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRating = filterRating === 'all' || review.rating === parseInt(filterRating);
     return matchesSearch && matchesRating;
   });
@@ -200,11 +200,10 @@ const ReviewsPage = () => {
                   <button
                     key={rating}
                     onClick={() => setFilterRating(rating)}
-                    className={`flex items-center justify-between w-full px-3 py-2 rounded-lg transition-colors ${
-                      filterRating === rating
+                    className={`flex items-center justify-between w-full px-3 py-2 rounded-lg transition-colors ${filterRating === rating
                         ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                         : 'hover:bg-slate-100 dark:hover:bg-slate-800'
-                    }`}
+                      }`}
                   >
                     <span className="flex items-center gap-2">
                       {rating !== 'all' && <Star className="w-4 h-4" />}
