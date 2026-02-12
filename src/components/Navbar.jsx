@@ -52,7 +52,7 @@ const Navbar = ({
 
             {/* Sidebar */}
             <aside className={`
-        fixed top-0 left-0 z-50 h-full w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 
+        fixed top-0 left-0 z-50 h-full w-68 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 
         transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none 
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
