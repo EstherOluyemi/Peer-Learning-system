@@ -4,35 +4,33 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-    const [darkMode, setDarkMode] = useState(false);
+    const [darkMode, setDarkMode] = useState(() => {
+        // Initialize from localStorage or system preference
+        if (typeof window !== 'undefined') {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                return savedTheme === 'dark';
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        return false;
+    });
 
     useEffect(() => {
-        // Check saved preference or system preference on mount
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const initialDark = savedTheme === 'dark' || (savedTheme === null && prefersDark);
-
-        setDarkMode(initialDark);
-
-        if (initialDark) {
-            document.documentElement.classList.add('dark');
+        // Apply theme on mount and whenever darkMode changes
+        const htmlElement = document.documentElement;
+        
+        if (darkMode) {
+            htmlElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
         } else {
-            document.documentElement.classList.remove('dark');
+            htmlElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
         }
-    }, []);
+    }, [darkMode]);
 
     const toggleTheme = () => {
-        setDarkMode((prev) => {
-            const next = !prev;
-            if (next) {
-                localStorage.setItem('theme', 'dark');
-                document.documentElement.classList.add('dark');
-            } else {
-                localStorage.setItem('theme', 'light');
-                document.documentElement.classList.remove('dark');
-            }
-            return next;
-        });
+        setDarkMode((prev) => !prev);
     };
 
     return (
@@ -42,4 +40,10 @@ export const ThemeProvider = ({ children }) => {
     );
 };
 
-export const useTheme = () => useContext(ThemeContext);
+export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        throw new Error('useTheme must be used within a ThemeProvider');
+    }
+    return context;
+};
