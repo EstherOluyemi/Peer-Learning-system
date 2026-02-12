@@ -139,3 +139,10 @@ body {
 .skip-to-content:focus {
   transform: translateY(0);
 }
+
+/* Navbar sidebar - ensure it displays on desktop */
+@media (min-width: 1024px) {
+  aside {
+    transform: translateX(0) !important;
+  }
+}

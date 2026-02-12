@@ -60,14 +60,11 @@ const Navbar = ({
             />
 
             <aside
-                className="fixed top-0 left-0 z-50 h-full w-72 transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none border-r"
+                className="fixed top-0 left-0 z-50 h-full w-72 transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none border-r lg:translate-x-0"
                 style={{
                     backgroundColor: 'var(--card-bg)',
                     borderColor: 'var(--border-color)',
                     transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-                    '@media (min-width: 1024px)': {
-                        transform: 'translateX(0)'
-                    }
                 }}
             >
                 <div className="flex flex-col h-full">
@@ -88,10 +85,12 @@ const Navbar = ({
                         </span>
                         <button
                             onClick={() => setSidebarOpen(false)}
-                            className="ml-auto lg:hidden p-1 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+                            className="ml-auto lg:hidden p-1 rounded-lg transition-colors"
                             style={{
                                 color: 'var(--text-secondary)'
                             }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         >
                             <X className="w-6 h-6" />
                         </button>
@@ -161,10 +160,12 @@ const Navbar = ({
                                 {onLogout && (
                                     <button
                                         onClick={onLogout}
-                                        className="p-1.5 rounded-lg transition-all hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        className="p-1.5 rounded-lg transition-all"
                                         style={{
                                             color: 'var(--text-secondary)'
                                         }}
+                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                         title="Logout"
                                     >
                                         <svg

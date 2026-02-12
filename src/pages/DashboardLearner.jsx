@@ -76,15 +76,21 @@ const DashboardLearner = () => {
         <header
           className="sticky top-0 z-30 backdrop-blur-md h-16 sm:h-20 flex items-center justify-between px-4 sm:px-8 border-b transition-all duration-300"
           style={{
-            backgroundColor: 'rgba(var(--bg-primary-rgb), 0.8)',
-            borderColor: 'var(--border-color)'
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--border-color)',
+            color: 'var(--text-primary)'
           }}
         >
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 -ml-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
-              style={{ color: 'var(--text-secondary)' }}
+              className="lg:hidden p-2 -ml-2 rounded-lg transition-colors"
+              style={{
+                color: 'var(--text-secondary)',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -104,11 +110,13 @@ const DashboardLearner = () => {
           </div>
           <div className="flex items-center gap-4">
             <button
-              className="relative p-2 rounded-full transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="relative p-2 rounded-full transition-colors"
               style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2" style={{ ringColor: 'var(--bg-primary)' }}></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
             </button>
             <div className="hidden md:flex flex-col items-end">
               <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{user?.name || 'Student'}</span>
