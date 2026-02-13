@@ -11,6 +11,7 @@ import AccessibilityToolbar from './components/AccessibilityToolbar';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import ProfileSetup from './pages/ProfileSetup';
 import RoleSelection from './pages/RoleSelection';
 import DashboardLearner from './pages/DashboardLearner';
 import DashboardTutor from './pages/DashboardTutor';
@@ -48,8 +49,9 @@ function App() {
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/role-selection" element={<RoleSelection />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/profile-setup" element={<ProfileSetup />} />
+                <Route path="/role-selection" element={<RoleSelection />} />
 
                 {/* Learner Routes */}
                 <Route element={<ProtectedRoute allowedRoles={["learner"]} />}>

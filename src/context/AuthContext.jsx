@@ -38,21 +38,50 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (credentials, role = 'learner') => {
+  const login = async (credentials, role = null) => {
     try {
-      const endpoint = role === 'tutor' ? '/v1/tutor/auth/login' : '/v1/learner/auth/login';
-      const response = await api.post(endpoint, credentials);
-      
-      // Token is now in HTTP-only cookie, handled by browser
-      const userData = { ...response.data.user, role };
-      setUser(userData);
-      // Store only non-sensitive user info and role for session persistence checks
-      localStorage.setItem('peerlearn_user', JSON.stringify({ 
-        id: userData.id, 
-        role: userData.role,
-        name: userData.name 
-      }));
-      return userData;
+      // If role is provided, use the specific endpoint
+      if (role) {
+        const endpoint = role === 'tutor' ? '/v1/tutor/auth/login' : '/v1/learner/auth/login';
+        const response = await api.post(endpoint, credentials);
+        const userData = { ...response.data.user, role };
+        setUser(userData);
+        localStorage.setItem('peerlearn_user', JSON.stringify({ 
+          id: userData.id, 
+          role: userData.role,
+          name: userData.name 
+        }));
+        return userData;
+      }
+
+      // If no role is provided, try learner first, then tutor
+      try {
+        const response = await api.post('/v1/learner/auth/login', credentials);
+        const userData = { ...response.data.user, role: 'learner' };
+        setUser(userData);
+        localStorage.setItem('peerlearn_user', JSON.stringify({ 
+          id: userData.id, 
+          role: 'learner',
+          name: userData.name 
+        }));
+        return userData;
+      } catch (learnerError) {
+        // If learner login fails, try tutor
+        try {
+          const response = await api.post('/v1/tutor/auth/login', credentials);
+          const userData = { ...response.data.user, role: 'tutor' };
+          setUser(userData);
+          localStorage.setItem('peerlearn_user', JSON.stringify({ 
+            id: userData.id, 
+            role: 'tutor',
+            name: userData.name 
+          }));
+          return userData;
+        } catch (tutorError) {
+          // If both fail, throw the original error (usually 401)
+          throw learnerError;
+        }
+      }
     } catch (error) {
       throw error;
     }

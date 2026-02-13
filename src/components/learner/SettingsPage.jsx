@@ -1,21 +1,30 @@
 // src/components/learner/SettingsPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Settings, User, Mail, Lock, Bell, CreditCard, Globe,
     Calendar, Clock, Shield, Eye, EyeOff, Save, Edit, Upload,
-    TrendingUp, TrendingDown, MessageSquare, Star, Users
+    TrendingUp, TrendingDown, MessageSquare, Star, Users,
+    AlertCircle, Loader2
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
 const SettingsPage = () => {
+    const { user, updateUser } = useAuth();
     const [activeTab, setActiveTab] = useState('account');
+    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState('');
+
     const [profile, setProfile] = useState({
-        name: "Alex Johnson",
-        email: "alex.johnson@example.com",
-        bio: "Computer Science student passionate about web development and machine learning.",
-        major: "Computer Science",
-        university: "Tech University",
-        year: "Sophomore",
-        notificationEmail: "alex.johnson@example.com",
+        name: user?.name || "",
+        email: user?.email || "",
+        bio: user?.bio || "",
+        major: user?.major || "",
+        university: user?.university || "",
+        year: user?.year || "Freshman",
+        notificationEmail: user?.email || "",
         pushNotifications: true,
         sessionReminders: true,
         newSessionAlerts: true,
@@ -29,8 +38,47 @@ const SettingsPage = () => {
         activeSessions: 2
     });
 
+    useEffect(() => {
+        if (user) {
+            setProfile(prev => ({
+                ...prev,
+                name: user.name || "",
+                email: user.email || "",
+                bio: user.bio || "",
+                major: user.major || "",
+                university: user.university || "",
+                year: user.year || "Freshman",
+                notificationEmail: user.email || ""
+            }));
+        }
+    }, [user]);
+
     const handleProfileChange = (field, value) => {
         setProfile(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSaveProfile = async () => {
+        try {
+            setSaving(true);
+            setError(null);
+            
+            const response = await api.patch('/v1/learner/me', {
+                name: profile.name,
+                bio: profile.bio,
+                major: profile.major,
+                university: profile.university,
+                year: profile.year
+            });
+            
+            updateUser(response.data.user);
+            setSuccessMessage('Profile updated successfully!');
+            
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to update profile');
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleNotificationToggle = (field) => {
@@ -54,6 +102,21 @@ const SettingsPage = () => {
                 }}
             >
                 <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Profile Information</h3>
+                
+                {error && (
+                    <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm">
+                        <AlertCircle className="w-4 h-4" />
+                        {error}
+                    </div>
+                )}
+                
+                {successMessage && (
+                    <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
+                        <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
+                        {successMessage}
+                    </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Full Name</label>
@@ -74,8 +137,8 @@ const SettingsPage = () => {
                         <input
                             type="email"
                             value={profile.email}
-                            onChange={(e) => handleProfileChange('email', e.target.value)}
-                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
+                            disabled
+                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all opacity-60 cursor-not-allowed"
                             style={{
                                 backgroundColor: 'var(--input-bg)',
                                 color: 'var(--input-text)',
@@ -127,10 +190,6 @@ const SettingsPage = () => {
                     </div>
                 </div>
                 <div className="mt-4 flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-                        <Save className="w-4 h-4" />
-                        Save Changes
-                    </button>
                     <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
                         <Upload className="w-4 h-4" />
                         Upload Photo
@@ -179,6 +238,20 @@ const SettingsPage = () => {
                             }}
                         />
                     </div>
+                </div>
+                <div className="mt-6 flex justify-end border-t pt-6" style={{ borderColor: 'var(--card-border)' }}>
+                    <button 
+                        onClick={handleSaveProfile}
+                        disabled={saving}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
+                    >
+                        {saving ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <Save className="w-5 h-5" />
+                        )}
+                        Save All Changes
+                    </button>
                 </div>
             </div>
         </div>

@@ -14,7 +14,7 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ email: '', password: '', role: 'learner', rememberMe: false });
+  const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,10 +30,6 @@ const Login = () => {
     // Clear errors when user types
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
     if (generalError) setGeneralError('');
-  };
-
-  const handleRoleChange = (role) => {
-    setFormData(prev => ({ ...prev, role }));
   };
 
   // Validation Logic
@@ -63,12 +59,12 @@ const Login = () => {
       setGeneralError('');
 
       try {
-        await login({
+        const user = await login({
           email: formData.email,
           password: formData.password
-        }, formData.role);
+        });
 
-        if (formData.role === 'tutor') {
+        if (user.role === 'tutor') {
           navigate('/dashboard-tutor');
         } else {
           navigate('/dashboard-learner');
@@ -86,26 +82,28 @@ const Login = () => {
   const containerClass = highContrast ? 'bg-white text-black contrast-more' : 'bg-slate-50';
 
   return (
-    <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300 overflow-hidden login-page`}>
+    <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300 login-page`}>
       <AccessibilityToolbar />
 
-      <div className="flex-1 flex flex-col lg:flex-row h-full">
+      <div className="flex-1 flex flex-col lg:flex-row relative">
 
         {/* LEFT SIDE: Image (Hidden on Mobile/Tablet, Visible on Large Screens) */}
-        <div className="hidden lg:block lg:w-1/2 relative h-full min-h-screen bg-slate-900">
-          <img
-            src={loginLogo}
-            alt="Students learning together"
-            className="absolute inset-0 w-full h-full object-cover opacity-90"
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/30 to-transparent flex flex-col justify-end p-12 text-white">
-            <h2 className="text-4xl font-bold mb-4">Join our learning community</h2>
-            <p className="text-lg text-slate-200 max-w-md">Connect with peers, master new skills, and achieve your educational goals together.</p>
+        <div className="hidden lg:block lg:w-1/2">
+          <div className="fixed top-0 left-0 w-1/2 h-full bg-slate-900 z-0">
+            <img
+              src={loginLogo}
+              alt="Students learning together"
+              className="w-full h-full object-cover opacity-90"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/30 to-transparent flex flex-col justify-end p-12 text-white">
+              <h2 className="text-4xl font-bold mb-4">Join our learning community</h2>
+              <p className="text-lg text-slate-200 max-w-md">Connect with peers, master new skills, and achieve your educational goals together.</p>
+            </div>
           </div>
         </div>
 
         {/* RIGHT SIDE: Form Container */}
-        <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 lg:px-16 bg-white overflow-y-auto">
+        <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 lg:px-16 bg-white z-10 min-h-screen">
 
           <div className="w-full max-w-md space-y-8">
 
@@ -148,35 +146,6 @@ const Login = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
-
-              {/* Role Selection */}
-              <div>
-                <label className={`block font-medium text-slate-900 mb-2 ${baseFontSize}`}>
-                  I am a:
-                </label>
-                <div className="flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => handleRoleChange('learner')}
-                    className={`flex-1 py-2 rounded-xl border font-medium transition-all ${formData.role === 'learner'
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
-                      : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
-                      }`}
-                  >
-                    Learner
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleRoleChange('tutor')}
-                    className={`flex-1 py-2 rounded-xl border font-medium transition-all ${formData.role === 'tutor'
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
-                      : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
-                      }`}
-                  >
-                    Tutor
-                  </button>
-                </div>
-              </div>
 
               {/* Email Input */}
               <div>

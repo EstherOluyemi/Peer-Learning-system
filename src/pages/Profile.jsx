@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import { AlertCircle, Loader2, Save, Edit, X } from 'lucide-react';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -11,6 +17,18 @@ const Profile = () => {
     subjects: user?.subjects || [],
     interests: user?.interests || []
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        bio: user.bio || '',
+        subjects: user.subjects || [],
+        interests: user.interests || []
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,11 +38,27 @@ const Profile = () => {
     }));
   };
 
-  const handleSave = () => {
-    // In real app, this would call an API
-    console.log('Saving profile:', formData);
-    setIsEditing(false);
-    // Update context/user here
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      
+      const endpoint = user.role === 'tutor' ? '/v1/tutor/me' : '/v1/learner/me';
+      const response = await api.patch(endpoint, {
+        name: formData.name,
+        bio: formData.bio
+      });
+      
+      updateUser(response.data.user);
+      setSuccessMessage('Profile updated successfully!');
+      setIsEditing(false);
+      
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!user) {
@@ -45,11 +79,36 @@ const Profile = () => {
             <h2 className="text-xl font-semibold">Personal Information</h2>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition disabled:opacity-50"
             >
-              {isEditing ? 'Cancel' : 'Edit Profile'}
+              {isEditing ? (
+                <>
+                  <X className="w-4 h-4" />
+                  Cancel
+                </>
+              ) : (
+                <>
+                  <Edit className="w-4 h-4" />
+                  Edit Profile
+                </>
+              )}
             </button>
           </div>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2 text-red-700 text-sm">
+              <AlertCircle className="w-4 h-4" />
+              {error}
+            </div>
+          )}
+          
+          {successMessage && (
+            <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 flex items-center gap-2 text-green-700 text-sm">
+              <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white text-[10px]">✓</div>
+              {successMessage}
+            </div>
+          )}
 
           {isEditing ? (
             <div className="space-y-4">
@@ -75,7 +134,7 @@ const Profile = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 opacity-60 cursor-not-allowed"
                   disabled
                 />
                 <p className="text-sm text-gray-500 mt-1">Email cannot be changed</p>
@@ -97,8 +156,14 @@ const Profile = () => {
 
               <button
                 onClick={handleSave}
-                className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+                disabled={saving}
+                className="flex items-center gap-2 px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition disabled:opacity-50"
               >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
                 Save Changes
               </button>
             </div>

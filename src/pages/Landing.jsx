@@ -153,7 +153,7 @@ const Landing = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b from-slate-50 to-white transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
+    <div className={`min-h-screen bg-linear-to-b from-slate-50 to-white transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
       <AccessibilityToolbar />
       <style jsx global>{`
         @keyframes fadeInUp {
@@ -237,8 +237,8 @@ const Landing = () => {
              backgroundImage: `url(${heroBackground})`,
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/70 via-slate-900/50 to-slate-900/30"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-slate-900/70 via-slate-900/50 to-slate-900/30"></div>
+          <div className="absolute inset-0 bg-linear-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
         </div>
 
         {/* Navigation - UPDATED LOGO SIZE */}
@@ -316,10 +316,10 @@ const Landing = () => {
               return (
                 <div 
                   key={index} 
-                  className="text-center p-6 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-100 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 animate-fade-in-up"
+                  className="text-center p-6 rounded-2xl bg-linear-to-b from-white to-slate-50 border border-slate-100 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 animate-fade-in-up"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-50 to-white rounded-2xl mb-4 border border-slate-100">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-blue-50 to-white rounded-2xl mb-4 border border-slate-100">
                     <Icon className="w-8 h-8 text-blue-600" />
                   </div>
                   <div className="text-4xl font-bold text-slate-900 mb-2">{stat.number}</div>
@@ -332,7 +332,7 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-gradient-to-b from-white to-slate-50">
+      <section id="features" className="py-20 bg-linear-to-b from-white to-slate-50">
         <div className="container mx-auto px-6">
           <div 
             className="text-center max-w-3xl mx-auto mb-16"
@@ -388,16 +388,16 @@ const Landing = () => {
           
           {/* Marquee Container */}
           <div className="relative overflow-hidden py-4 pause-on-hover">
-            {/* Gradient overlay on edges */}
-            <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white via-white to-transparent z-10 pointer-events-none"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white via-white to-transparent z-10 pointer-events-none"></div>
+            {/* linear overlay on edges */}
+            <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white via-white to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white via-white to-transparent z-10 pointer-events-none"></div>
             
             {/* Marquee Row 1 - Moves LEFT (faster: 30s) */}
             <div className="flex animate-marquee-left mb-10">
               {duplicatedTestimonials.map((testimonial, index) => (
                 <div 
                   key={`first-${testimonial.id}-${index}`} 
-                  className="flex-shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md"
+                  className="shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md"
                 >
                   <Quote className="w-8 h-8 text-blue-400 mb-4 quote-icon transition-transform duration-300" />
                   <p className="text-slate-700 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
@@ -432,7 +432,7 @@ const Landing = () => {
               {[...duplicatedTestimonials].reverse().map((testimonial, index) => (
                 <div 
                   key={`second-${testimonial.id}-${index}`} 
-                  className="flex-shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md"
+                  className="shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md"
                 >
                   <Quote className="w-8 h-8 text-emerald-400 mb-4 quote-icon transition-transform duration-300" />
                   <p className="text-slate-700 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
@@ -466,8 +466,8 @@ const Landing = () => {
           {/* CTA below testimonials */}
           <div className="text-center mt-16">
             <Link 
-              to="/signup" 
-              className="inline-flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-blue-100 hover:text-blue-700 hover:shadow-xl hover:scale-105 transition-all shadow-md"
+              to="/role-selection" 
+              className="inline-flex items-center justify-center bg-linear-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-blue-100 hover:text-blue-700 hover:shadow-xl hover:scale-105 transition-all shadow-md"
             >
               Join Our Community
               <ArrowRight className="ml-3 w-5 h-5" />
@@ -515,7 +515,7 @@ const Landing = () => {
             >
               Close ×
             </button>
-            <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl overflow-hidden border border-white/10">
+            <div className="aspect-video bg-linear-to-br from-slate-800 to-slate-900 rounded-2xl overflow-hidden border border-white/10">
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
                   <Play className="w-20 h-20 text-white mx-auto mb-6" />

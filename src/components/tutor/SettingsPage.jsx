@@ -1,20 +1,66 @@
 // src/components/tutor/SettingsPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Settings, User, Mail, Lock, Bell, CreditCard, Globe,
-  Calendar, Clock, Shield, Eye, EyeOff, Save, Edit, Upload
+  Calendar, Clock, Shield, Eye, EyeOff, Save, Edit, Upload,
+  AlertCircle, Loader2
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
 const SettingsPage = () => {
+  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+
   const [profile, setProfile] = useState({
-    name: "Jane Doe",
-    email: "jane.doe@example.com",
-    bio: "Experienced software developer and tutor with 5+ years of teaching experience.",
-    expertise: ["React", "JavaScript", "Node.js", "Python"],
-    availability: "Mon-Fri, 9 AM - 6 PM",
-    hourlyRate: 75
+    name: user?.name || "",
+    email: user?.email || "",
+    bio: user?.bio || "",
+    expertise: user?.expertise || [],
+    availability: user?.availability || "Mon-Fri, 9 AM - 6 PM",
+    hourlyRate: user?.hourlyRate || 0
   });
+
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        name: user.name || "",
+        email: user.email || "",
+        bio: user.bio || "",
+        expertise: user.expertise || [],
+        availability: user.availability || "Mon-Fri, 9 AM - 6 PM",
+        hourlyRate: user.hourlyRate || 0
+      });
+    }
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      
+      const response = await api.patch('/v1/tutor/me', {
+        name: profile.name,
+        bio: profile.bio,
+        expertise: profile.expertise,
+        availability: profile.availability,
+        hourlyRate: profile.hourlyRate
+      });
+      
+      updateUser(response.data.user);
+      setSuccessMessage('Profile updated successfully!');
+      
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const [notifications, setNotifications] = useState({
     emailNotifications: true,
@@ -74,6 +120,21 @@ const SettingsPage = () => {
         }}
       >
         <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Profile Information</h3>
+        
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm">
+            <AlertCircle className="w-4 h-4" />
+            {error}
+          </div>
+        )}
+        
+        {successMessage && (
+          <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
+            <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
+            {successMessage}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Full Name</label>
@@ -94,8 +155,8 @@ const SettingsPage = () => {
             <input
               type="email"
               value={profile.email}
-              onChange={(e) => handleProfileChange('email', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
+              disabled
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all opacity-60 cursor-not-allowed"
               style={{
                 backgroundColor: 'var(--input-bg)',
                 color: 'var(--input-text)',
@@ -147,8 +208,16 @@ const SettingsPage = () => {
           </div>
         </div>
         <div className="mt-4 flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-            <Save className="w-4 h-4" />
+          <button 
+            onClick={handleSaveProfile}
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
             Save Changes
           </button>
           <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">

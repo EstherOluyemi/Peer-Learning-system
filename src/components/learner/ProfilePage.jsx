@@ -1,35 +1,99 @@
 // src/components/learner/ProfilePage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     User, Mail, Calendar, Star, BookOpen, Clock, TrendingUp,
     Edit, Upload, Save, Shield, CreditCard, Globe, Settings,
-    ChevronRight, ChevronLeft, Plus, Users, Award
+    ChevronRight, ChevronLeft, Plus, Users, Award, AlertCircle,
+    Loader2
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
 const ProfilePage = () => {
+    const { user, updateUser } = useAuth();
     const [activeTab, setActiveTab] = useState('overview');
     const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState('');
+
     const [profile, setProfile] = useState({
-        name: "Alex Johnson",
-        email: "alex.johnson@example.com",
-        bio: "Computer Science student passionate about web development and machine learning.",
-        major: "Computer Science",
-        university: "Tech University",
-        year: "Sophomore",
-        skills: ["JavaScript", "Python", "React", "Node.js"],
-        interests: ["Web Development", "AI/ML", "Data Science"],
-        joinedDate: "January 2024",
-        totalSessions: 24,
-        averageRating: 4.8,
-        completedHours: 36,
-        badges: ["Quick Learner", "Consistent", "Tech Enthusiast"]
+        name: user?.name || "",
+        email: user?.email || "",
+        bio: user?.bio || "",
+        major: user?.major || "Not specified",
+        university: user?.university || "Not specified",
+        year: user?.year || "Not specified",
+        skills: user?.skills || [],
+        interests: user?.interests || [],
+        joinedDate: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : "Recently",
+        totalSessions: 0,
+        averageRating: 0,
+        completedHours: 0,
+        badges: user?.badges || []
     });
 
-    const [newSkill, setNewSkill] = useState('');
-    const [newInterest, setNewInterest] = useState('');
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                setLoading(true);
+                // Fetch extra progress/stats data
+                const response = await api.get('/v1/learner/me/progress');
+                const progressData = response.data || {};
+                
+                setProfile(prev => ({
+                    ...prev,
+                    name: user?.name || prev.name,
+                    email: user?.email || prev.email,
+                    bio: user?.bio || prev.bio,
+                    totalSessions: progressData.totalSessions || 0,
+                    averageRating: progressData.avgRating || 0,
+                    completedHours: progressData.completedHours || 0,
+                    badges: user?.badges || progressData.badges || []
+                }));
+            } catch (err) {
+                console.error("Failed to fetch extended profile data:", err);
+                // We don't block the UI if extended data fails, just use user context
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user) {
+            fetchProfileData();
+        }
+    }, [user]);
 
     const handleProfileChange = (field, value) => {
         setProfile(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSaveProfile = async () => {
+        try {
+            setSaving(true);
+            setError(null);
+            
+            const response = await api.patch('/v1/learner/me', {
+                name: profile.name,
+                bio: profile.bio,
+                major: profile.major,
+                university: profile.university,
+                year: profile.year,
+                skills: profile.skills,
+                interests: profile.interests
+            });
+            
+            updateUser(response.data.user);
+            setSuccessMessage('Profile updated successfully!');
+            setIsEditing(false);
+            
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to update profile');
+        } finally {
+            setSaving(false);
+        }
     };
 
     const addSkill = () => {
@@ -66,6 +130,18 @@ const ProfilePage = () => {
         }));
     };
 
+    const [newSkill, setNewSkill] = useState('');
+    const [newInterest, setNewInterest] = useState('');
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+                <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading profile...</p>
+            </div>
+        );
+    }
+
     const tabs = [
         { id: 'overview', label: 'Overview', icon: User },
         { id: 'education', label: 'Education', icon: BookOpen },
@@ -87,13 +163,32 @@ const ProfilePage = () => {
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Profile Information</h3>
                             <button
-                                onClick={() => setIsEditing(!isEditing)}
-                                className="flex items-center gap-2 px-3 py-1.5 text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                                onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
+                                disabled={saving}
+                                className="flex items-center gap-2 px-3 py-1.5 text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50"
                             >
-                                <Edit className="w-4 h-4" />
+                                {saving ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Edit className="w-4 h-4" />
+                                )}
                                 {isEditing ? 'Save' : 'Edit'}
                             </button>
                         </div>
+                        
+                        {error && (
+                            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm">
+                                <AlertCircle className="w-4 h-4" />
+                                {error}
+                            </div>
+                        )}
+                        
+                        {successMessage && (
+                            <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
+                                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
+                                {successMessage}
+                            </div>
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Full Name</label>
@@ -252,7 +347,7 @@ const ProfilePage = () => {
                     >
                         <div className="text-center">
                             <img
-                                src="https://ui-avatars.com/api/?name=Alex+Johnson&background=random"
+                                src={`https://ui-avatars.com/api/?name=${profile.name || 'User'}&background=random`}
                                 alt="Profile"
                                 className="w-24 h-24 rounded-full mx-auto mb-4 border-4"
                                 style={{ borderColor: 'var(--border-color)' }}
