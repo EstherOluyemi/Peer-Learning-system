@@ -9,17 +9,32 @@ export const AuthProvider = ({ children }) => {
 
   // Check for stored user on app load
   useEffect(() => {
-    const storedUser = localStorage.getItem('peerlearn_user');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('peerlearn_user');
+    const checkAuth = async () => {
+      const storedUser = localStorage.getItem('peerlearn_user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          // Verify session with backend using HTTP-only cookies
+          const endpoint = parsedUser.role === 'tutor' ? '/v1/tutor/auth/me' : '/v1/learner/auth/me';
+          try {
+            const response = await api.get(endpoint);
+            // Backend should return user data if cookie is valid
+            setUser({ ...response.data.user, role: parsedUser.role });
+          } catch (err) {
+            console.error('Session expired or invalid:', err);
+            // If 401 or other error, clear the role from localStorage
+            localStorage.removeItem('peerlearn_user');
+            setUser(null);
+          }
+        } catch (error) {
+          console.error('Error parsing stored user role:', error);
+          localStorage.removeItem('peerlearn_user');
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
   // Login function
@@ -27,9 +42,16 @@ export const AuthProvider = ({ children }) => {
     try {
       const endpoint = role === 'tutor' ? '/v1/tutor/auth/login' : '/v1/learner/auth/login';
       const response = await api.post(endpoint, credentials);
-      const userData = { ...response.data.user, token: response.token || response.data.token, role };
+      
+      // Token is now in HTTP-only cookie, handled by browser
+      const userData = { ...response.data.user, role };
       setUser(userData);
-      localStorage.setItem('peerlearn_user', JSON.stringify(userData));
+      // Store only non-sensitive user info and role for session persistence checks
+      localStorage.setItem('peerlearn_user', JSON.stringify({ 
+        id: userData.id, 
+        role: userData.role,
+        name: userData.name 
+      }));
       return userData;
     } catch (error) {
       throw error;
@@ -41,9 +63,16 @@ export const AuthProvider = ({ children }) => {
     try {
       const endpoint = role === 'tutor' ? '/v1/tutor/auth/register' : '/v1/learner/auth/register';
       const response = await api.post(endpoint, userData);
-      const newUser = { ...response.data.user, token: response.token || response.data.token, role };
+      
+      // Token is now in HTTP-only cookie
+      const newUser = { ...response.data.user, role };
       setUser(newUser);
-      localStorage.setItem('peerlearn_user', JSON.stringify(newUser));
+      // Store only non-sensitive user info and role
+      localStorage.setItem('peerlearn_user', JSON.stringify({ 
+        id: newUser.id, 
+        role: newUser.role,
+        name: newUser.name 
+      }));
       return newUser;
     } catch (error) {
       throw error;
@@ -51,16 +80,29 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout function
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('peerlearn_user');
+  const logout = async () => {
+    try {
+      const role = user?.role || JSON.parse(localStorage.getItem('peerlearn_user'))?.role || 'learner';
+      const endpoint = role === 'tutor' ? '/v1/tutor/auth/logout' : '/v1/learner/auth/logout';
+      await api.post(endpoint);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('peerlearn_user');
+    }
   };
 
   // Update user function
   const updateUser = (updatedData) => {
     const updatedUser = { ...user, ...updatedData };
     setUser(updatedUser);
-    localStorage.setItem('peerlearn_user', JSON.stringify(updatedUser));
+    // Keep role and ID in localStorage
+    localStorage.setItem('peerlearn_user', JSON.stringify({ 
+      id: updatedUser.id, 
+      role: updatedUser.role,
+      name: updatedUser.name 
+    }));
   };
 
   // Check if user is tutor/learner

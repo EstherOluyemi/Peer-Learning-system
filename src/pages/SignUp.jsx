@@ -105,13 +105,13 @@ const SignUp = () => {
       setIsSubmitting(true);
       setGeneralError('');
       try {
-        const user = await register({
+        await register({
           name: formData.fullName,
           email: formData.email,
           password: formData.password
         }, formData.role);
 
-        if (user.role === 'tutor') {
+        if (formData.role === 'tutor') {
           navigate('/dashboard-tutor');
         } else {
           navigate('/dashboard-learner');
