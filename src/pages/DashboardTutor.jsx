@@ -1,32 +1,87 @@
 // src/pages/DashboardTutor.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Users, Calendar, Star, TrendingUp, DollarSign,
   Clock, ChevronRight, ArrowUpRight, MessageSquare,
-  BookOpen, Settings
+  BookOpen, Settings, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import api from '../services/api';
 
 const DashboardTutor = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    rating: '0.0',
+    hoursTaught: '0h',
+    earnings: '$0'
+  });
+  const [upcomingSessions, setUpcomingSessions] = useState([]);
 
-  const upcomingSessions = [
-    { id: 1, title: "React Fundamentals", learners: 12, time: "2:00 PM", date: "Today", status: "confirmed", type: "Workshop" },
-    { id: 2, title: "Advanced JavaScript", learners: 8, time: "4:30 PM", date: "Tomorrow", status: "pending", type: "1-on-1" },
-    { id: 3, title: "UI/UX Workshop", learners: 15, time: "11:00 AM", date: "Dec 24", status: "confirmed", type: "Webinar" },
-  ];
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const [overviewRes, sessionsRes] = await Promise.all([
+          api.get('/v1/tutor/analytics/overview'),
+          api.get('/v1/tutor/sessions?status=scheduled')
+        ]);
+
+        setStats({
+          totalStudents: overviewRes.data?.totalStudents || 0,
+          rating: overviewRes.data?.rating || '0.0',
+          hoursTaught: overviewRes.data?.hoursTaught || '0h',
+          earnings: `$${overviewRes.data?.earnings || 0}`
+        });
+
+        setUpcomingSessions(sessionsRes.data || []);
+      } catch (err) {
+        setError('Failed to load dashboard data. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const performanceStats = [
-    { label: "Total Students", value: "47", change: "+12%", icon: Users, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30", trend: "up" },
-    { label: "Rating", value: "4.8", change: "+0.2", icon: Star, color: "text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/30", trend: "up" },
-    { label: "Hours Taught", value: "156h", change: "+18%", icon: Clock, color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30", trend: "up" },
-    { label: "Earnings", value: "$2,840", change: "+22%", icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900/30", trend: "up" },
+    { label: "Total Students", value: stats.totalStudents, change: "+0%", icon: Users, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30", trend: "up" },
+    { label: "Rating", value: stats.rating, change: "+0.0", icon: Star, color: "text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/30", trend: "up" },
+    { label: "Hours Taught", value: stats.hoursTaught, change: "+0%", icon: Clock, color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30", trend: "up" },
+    { label: "Earnings", value: stats.earnings, change: "+0%", icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900/30", trend: "up" },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <p className="text-sm font-medium">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -35,7 +90,10 @@ const DashboardTutor = () => {
             Welcome back, {user?.name || 'Tutor'}. Manage your sessions and track student progress.
           </p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+        <button 
+          onClick={() => navigate('/dashboard-tutor/create-session')}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
+        >
           <Calendar className="w-5 h-5" />
           Create New Session
         </button>
@@ -75,39 +133,54 @@ const DashboardTutor = () => {
               </Link>
             </div>
             <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
-              {upcomingSessions.map(session => (
-                <div key={session.id} className="p-6 transition-colors group"
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                      <div className="flex flex-col items-center justify-center w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400 shrink-0">
-                        <span className="text-xs font-bold uppercase">{session.date.split(' ')[0]}</span>
-                        <span className="text-lg font-bold">{session.time.split(':')[0]}</span>
-                      </div>
-                      <div>
-                        <h4 className="font-bold group-hover:text-blue-600 transition-colors" style={{ color: 'var(--text-primary)' }}>{session.title}</h4>
-                        <div className="flex items-center gap-3 mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                          <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {session.learners} students</span>
-                          <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
-                          <span>{session.type}</span>
+              {upcomingSessions.length > 0 ? (
+                upcomingSessions.map(session => (
+                  <div key={session.id} className="p-6 transition-colors group"
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-start gap-4">
+                        <div className="flex flex-col items-center justify-center w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400 shrink-0">
+                          <span className="text-xs font-bold uppercase">{session.date?.split(' ')[0] || 'TBD'}</span>
+                          <span className="text-lg font-bold">{session.time?.split(':')[0] || '--'}</span>
+                        </div>
+                        <div>
+                          <h4 className="font-bold group-hover:text-blue-600 transition-colors" style={{ color: 'var(--text-primary)' }}>{session.title}</h4>
+                          <div className="flex items-center gap-3 mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {session.learners || 0} students</span>
+                            <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
+                            <span>{session.type || 'Group'}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                      {session.status === 'confirmed' ? (
-                        <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-50 dark:bg-green-900/30 dark:text-green-400 rounded-full border border-green-100 dark:border-green-800">Confirmed</span>
-                      ) : (
-                        <span className="px-3 py-1 text-xs font-semibold text-amber-700 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-400 rounded-full border border-amber-100 dark:border-amber-800">Pending</span>
-                      )}
-                      <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        <ArrowUpRight className="w-5 h-5" />
-                      </button>
+                      <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                        {session.status === 'confirmed' ? (
+                          <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-50 dark:bg-green-900/30 dark:text-green-400 rounded-full border border-green-100 dark:border-green-800">Confirmed</span>
+                        ) : (
+                          <span className="px-3 py-1 text-xs font-semibold text-amber-700 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-400 rounded-full border border-amber-100 dark:border-amber-800">Pending</span>
+                        )}
+                        <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                          <ArrowUpRight className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="p-12 text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
+                    <Calendar className="w-8 h-8 text-slate-400" />
+                  </div>
+                  <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No upcoming sessions</h3>
+                  <p className="text-sm max-w-xs mx-auto mb-6" style={{ color: 'var(--text-secondary)' }}>
+                    You don't have any sessions scheduled for today. Start by creating a new one!
+                  </p>
+                  <button className="text-sm font-bold text-blue-600 hover:underline">
+                    Create your first session
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

@@ -14,7 +14,7 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false });
+  const [formData, setFormData] = useState({ email: '', password: '', role: 'learner', rememberMe: false });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +32,10 @@ const Login = () => {
     if (generalError) setGeneralError('');
   };
 
+  const handleRoleChange = (role) => {
+    setFormData(prev => ({ ...prev, role }));
+  };
+
   // Validation Logic
   const validateForm = () => {
     const newErrors = {};
@@ -43,8 +47,6 @@ const Login = () => {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
     }
 
     setErrors(newErrors);
@@ -52,7 +54,7 @@ const Login = () => {
   };
 
   // Submit Handler
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLoading) return;
 
@@ -60,25 +62,22 @@ const Login = () => {
       setIsLoading(true);
       setGeneralError('');
 
-      // Simulate API Call
-      setTimeout(() => {
-        let user = null;
-        if (formData.email === mockUsers.tutor.email) {
-          user = mockUsers.tutor;
-        } else if (formData.email === mockUsers.learner.email) {
-          user = mockUsers.learner;
-        }
+      try {
+        const user = await login({
+          email: formData.email,
+          password: formData.password
+        }, formData.role);
 
-        if (user && formData.password === user.password) {
-          login(user);
-          if (user.role === 'tutor') navigate('/dashboard-tutor');
-          else if (user.role === 'learner') navigate('/dashboard-learner');
-          else navigate('/login');
+        if (user.role === 'tutor') {
+          navigate('/dashboard-tutor');
         } else {
-          setGeneralError('Invalid email or password. Please try again.');
+          navigate('/dashboard-learner');
         }
+      } catch (error) {
+        setGeneralError(error.message || 'Invalid email or password. Please try again.');
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     }
   };
 
@@ -149,6 +148,35 @@ const Login = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
+
+              {/* Role Selection */}
+              <div>
+                <label className={`block font-medium text-slate-900 mb-2 ${baseFontSize}`}>
+                  I am a:
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => handleRoleChange('learner')}
+                    className={`flex-1 py-2 rounded-xl border font-medium transition-all ${formData.role === 'learner'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
+                      }`}
+                  >
+                    Learner
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRoleChange('tutor')}
+                    className={`flex-1 py-2 rounded-xl border font-medium transition-all ${formData.role === 'tutor'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
+                      }`}
+                  >
+                    Tutor
+                  </button>
+                </div>
+              </div>
 
               {/* Email Input */}
               <div>

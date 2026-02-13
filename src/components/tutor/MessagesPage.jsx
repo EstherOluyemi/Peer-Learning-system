@@ -2,156 +2,39 @@
 import React, { useState, useEffect } from 'react';
 import {
   MessageSquare, Search, Send, Paperclip, MoreVertical,
-  ChevronLeft, ChevronRight, User, Clock, Check, CheckCheck
+  ChevronLeft, ChevronRight, User, Clock, Check, CheckCheck, AlertCircle
 } from 'lucide-react';
+import api from '../../services/api';
 
 const MessagesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const itemsPerPage = 8;
 
-  const conversations = [
-    {
-      id: 1,
-      student: {
-        name: "Sarah Johnson",
-        avatar: "https://ui-avatars.com/api/?name=Sarah+Johnson&background=random",
-        lastSeen: "2 minutes ago"
-      },
-      lastMessage: "Hi! I have a question about the React workshop for tomorrow.",
-      time: "10:30 AM",
-      unread: 2,
-      messages: [
-        {
-          id: 1,
-          sender: "student",
-          text: "Hi! I have a question about the React workshop for tomorrow.",
-          time: "10:30 AM",
-          read: true
-        },
-        {
-          id: 2,
-          sender: "tutor",
-          text: "Hello Sarah! Sure, what would you like to know?",
-          time: "10:32 AM",
-          read: true
-        },
-        {
-          id: 3,
-          sender: "student",
-          text: "Is there any prerequisite knowledge I should have before attending?",
-          time: "10:35 AM",
-          read: false
-        }
-      ]
-    },
-    {
-      id: 2,
-      student: {
-        name: "Michael Chen",
-        avatar: "https://ui-avatars.com/api/?name=Michael+Chen&background=random",
-        lastSeen: "1 hour ago"
-      },
-      lastMessage: "Thanks for the feedback on my project! I'll make those changes.",
-      time: "Yesterday",
-      unread: 0,
-      messages: [
-        {
-          id: 1,
-          sender: "tutor",
-          text: "Great work on your project, Michael! Here are some suggestions for improvement...",
-          time: "3:45 PM",
-          read: true
-        },
-        {
-          id: 2,
-          sender: "student",
-          text: "Thanks for the feedback! I'll make those changes.",
-          time: "4:00 PM",
-          read: true
-        }
-      ]
-    },
-    {
-      id: 3,
-      student: {
-        name: "Emily Rodriguez",
-        avatar: "https://ui-avatars.com/api/?name=Emily+Rodriguez&background=random",
-        lastSeen: "3 hours ago"
-      },
-      lastMessage: "Can we reschedule our session for next week?",
-      time: "Dec 20",
-      unread: 1,
-      messages: [
-        {
-          id: 1,
-          sender: "student",
-          text: "Can we reschedule our session for next week?",
-          time: "Dec 20, 2:15 PM",
-          read: false
-        }
-      ]
-    },
-    {
-      id: 4,
-      student: {
-        name: "David Kim",
-        avatar: "https://ui-avatars.com/api/?name=David+Kim&background=random",
-        lastSeen: "5 hours ago"
-      },
-      lastMessage: "I'm ready for our session at 3 PM today.",
-      time: "Dec 19",
-      unread: 0,
-      messages: [
-        {
-          id: 1,
-          sender: "student",
-          text: "I'm ready for our session at 3 PM today.",
-          time: "Dec 19, 1:30 PM",
-          read: true
-        },
-        {
-          id: 2,
-          sender: "tutor",
-          text: "Perfect! I'll see you then. Make sure to have your code ready.",
-          time: "Dec 19, 1:35 PM",
-          read: true
-        }
-      ]
-    },
-    {
-      id: 5,
-      student: {
-        name: "Lisa Thompson",
-        avatar: "https://ui-avatars.com/api/?name=Lisa+Thompson&background=random",
-        lastSeen: "1 day ago"
-      },
-      lastMessage: "Could you recommend some resources for learning advanced CSS?",
-      time: "Dec 18",
-      unread: 0,
-      messages: [
-        {
-          id: 1,
-          sender: "student",
-          text: "Could you recommend some resources for learning advanced CSS?",
-          time: "Dec 18, 4:20 PM",
-          read: true
-        },
-        {
-          id: 2,
-          sender: "tutor",
-          text: "Absolutely! Here are some great resources...",
-          time: "Dec 18, 4:25 PM",
-          read: true
-        }
-      ]
-    },
-  ];
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/v1/tutor/messages');
+        setConversations(response.data || []);
+      } catch (err) {
+        setError('Failed to fetch messages. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConversations();
+  }, []);
 
   const filteredConversations = conversations.filter(conv =>
-    conv.student.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (conv.student?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredConversations.length / itemsPerPage);
@@ -160,21 +43,65 @@ const MessagesPage = () => {
     currentPage * itemsPerPage
   );
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (newMessage.trim() && selectedConversation) {
-      // In a real app, this would send the message to the backend
-      console.log('Sending message:', newMessage);
-      setNewMessage('');
+      try {
+        const messageToSend = {
+          conversationId: selectedConversation.id,
+          text: newMessage.trim(),
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          sender: 'tutor'
+        };
+
+        // Optimistically update UI
+        const updatedConversations = conversations.map(conv => {
+          if (conv.id === selectedConversation.id) {
+            return {
+              ...conv,
+              lastMessage: messageToSend.text,
+              time: 'Just now',
+              messages: [...(conv.messages || []), { ...messageToSend, id: Date.now(), read: true }]
+            };
+          }
+          return conv;
+        });
+        
+        setConversations(updatedConversations);
+        setSelectedConversation(updatedConversations.find(c => c.id === selectedConversation.id));
+        setNewMessage('');
+
+        // Real API call
+        await api.post(`/v1/tutor/messages/${selectedConversation.id}`, { text: messageToSend.text });
+      } catch (err) {
+        console.error('Failed to send message:', err);
+        // Error handling could be added here (e.g., toast notification)
+      }
     }
   };
 
-  const formatTime = (time) => {
-    // Simple time formatting - in a real app, you'd use a library like date-fns
-    return time;
-  };
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading messages...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <p className="text-sm font-medium">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Messages</h1>
@@ -206,47 +133,50 @@ const MessagesPage = () => {
             />
           </div>
 
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {currentConversations.map(conv => (
-              <div
-                key={conv.id}
-                onClick={() => setSelectedConversation(conv)}
-                className={`p-4 rounded-xl cursor-pointer transition-all ${selectedConversation?.id === conv.id
-                    ? 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-800'
-                    : 'hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent'
-                  }`}
-                style={{
-                  borderColor: selectedConversation?.id === conv.id ? 'var(--border-color)' : 'transparent'
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <img
-                    src={conv.student.avatar}
-                    alt={conv.student.name}
-                    className="w-12 h-12 rounded-full border-2 object-cover"
-                    style={{ borderColor: 'var(--border-color)' }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-bold truncate" style={{ color: 'var(--text-primary)' }}>
-                        {conv.student.name}
-                      </h4>
-                      <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{conv.time}</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>
-                        {conv.lastMessage}
-                      </p>
-                      {conv.unread > 0 && (
-                        <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                          {conv.unread}
-                        </span>
-                      )}
+          <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+            {currentConversations.length > 0 ? (
+              currentConversations.map(conv => (
+                <div
+                  key={conv.id}
+                  onClick={() => setSelectedConversation(conv)}
+                  className={`p-4 rounded-xl cursor-pointer transition-all ${selectedConversation?.id === conv.id
+                      ? 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-800'
+                      : 'hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent'
+                    }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={conv.student?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.student?.name || 'Student')}&background=random`}
+                      alt={conv.student?.name}
+                      className="w-12 h-12 rounded-full border-2 object-cover"
+                      style={{ borderColor: 'var(--border-color)' }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-bold truncate" style={{ color: 'var(--text-primary)' }}>
+                          {conv.student?.name}
+                        </h4>
+                        <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{conv.time}</span>
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>
+                          {conv.lastMessage}
+                        </p>
+                        {conv.unread > 0 && (
+                          <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                            {conv.unread}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No conversations found.</p>
               </div>
-            ))}
+            )}
           </div>
 
           {totalPages > 1 && (
@@ -254,7 +184,7 @@ const MessagesPage = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{
                   borderColor: 'var(--border-color)',
                   color: 'var(--text-secondary)',
@@ -270,7 +200,7 @@ const MessagesPage = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{
                   borderColor: 'var(--border-color)',
                   color: 'var(--text-secondary)',
@@ -297,17 +227,17 @@ const MessagesPage = () => {
               >
                 <div className="flex items-center gap-3">
                   <img
-                    src={selectedConversation.student.avatar}
-                    alt={selectedConversation.student.name}
+                    src={selectedConversation.student?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedConversation.student?.name || 'Student')}&background=random`}
+                    alt={selectedConversation.student?.name}
                     className="w-10 h-10 rounded-full border-2 object-cover"
                     style={{ borderColor: 'var(--border-color)' }}
                   />
                   <div>
                     <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>
-                      {selectedConversation.student.name}
+                      {selectedConversation.student?.name}
                     </h4>
                     <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                      Last seen {selectedConversation.student.lastSeen}
+                      Last seen {selectedConversation.student?.lastSeen || 'recently'}
                     </p>
                   </div>
                 </div>
@@ -317,7 +247,7 @@ const MessagesPage = () => {
               </div>
 
               <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                {selectedConversation.messages.map(message => (
+                {(selectedConversation.messages || []).map(message => (
                   <div
                     key={message.id}
                     className={`flex ${message.sender === 'tutor' ? 'justify-end' : 'justify-start'}`}
@@ -333,8 +263,7 @@ const MessagesPage = () => {
                         <span>{message.time}</span>
                         {message.sender === 'tutor' && (
                           <div className="flex items-center gap-1">
-                            <Check className="w-3 h-3" />
-                            <CheckCheck className="w-3 h-3" />
+                            {message.read ? <CheckCheck className="w-3 h-3" /> : <Check className="w-3 h-3" />}
                           </div>
                         )}
                       </div>

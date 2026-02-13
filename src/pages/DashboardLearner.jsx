@@ -1,11 +1,12 @@
 // src/pages/DashboardLearner.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import api from '../services/api';
 import {
   BookOpen, Clock, TrendingUp, Star, Users, Calendar,
   User, Settings, Plus, Menu, Search, Bell,
-  ChevronRight, ArrowUpRight, Sun, Moon
+  ChevronRight, ArrowUpRight, Sun, Moon, AlertCircle
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -16,6 +17,53 @@ const DashboardLearner = () => {
   const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [stats, setStats] = useState({
+    totalSessions: 0,
+    upcoming: 0,
+    completed: 0,
+    avgRating: '0.0'
+  });
+  const [upcomingSessions, setUpcomingSessions] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        // Fetch progress and enrolled courses/sessions
+        const [progressRes, sessionsRes] = await Promise.all([
+          api.get('/v1/learner/me/progress'),
+          api.get('/v1/learner/courses?enrolled=true')
+        ]);
+
+        // Mocking some data transformation until backends are fully populated
+        // In a real scenario, the backend would return these stats
+        setStats({
+          totalSessions: progressRes.data?.totalSessions || 0,
+          upcoming: sessionsRes.data?.length || 0,
+          completed: progressRes.data?.completedSessions || 0,
+          avgRating: progressRes.data?.avgRating || '5.0'
+        });
+
+        setUpcomingSessions(sessionsRes.data?.slice(0, 3) || []);
+        
+        // Mock activity for now as there's no dedicated endpoint yet
+        setRecentActivity([
+          { id: 1, type: 'System', detail: 'Welcome to PeerLearn!', time: 'Just now', icon: Bell },
+        ]);
+        
+      } catch (err) {
+        setError('Failed to load dashboard data. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const navItems = [
     { label: 'Dashboard', icon: BookOpen, to: '/dashboard-learner' },
@@ -35,22 +83,10 @@ const DashboardLearner = () => {
   ];
 
   const statCards = [
-    { icon: BookOpen, label: 'Total Sessions', value: 12, color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' },
-    { icon: Clock, label: 'Upcoming', value: 3, color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' },
-    { icon: TrendingUp, label: 'Completed', value: 9, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
-    { icon: Star, label: 'Avg Rating', value: '4.9', color: 'text-purple-600', bg: 'bg-purple-100 dark:bg-purple-900/30' },
-  ];
-
-  const upcomingSessions = [
-    { id: 1, title: 'Intro to React Hooks', subject: 'Computer Science', date: 'Today, 14:00', participants: '8/15', tutor: 'Jane Doe' },
-    { id: 2, title: 'Calculus: Derivatives', subject: 'Mathematics', date: 'Tomorrow, 16:30', participants: '12/12', tutor: 'Dr. Smith' },
-    { id: 3, title: 'Organic Chemistry Lab', subject: 'Chemistry', date: 'Dec 22, 10:00', participants: '6/8', tutor: 'Alex T.' },
-  ];
-
-  const recentActivity = [
-    { id: 1, type: 'New session available', detail: 'Advanced React Patterns', time: '2h ago', icon: Plus },
-    { id: 2, type: 'Session completed', detail: 'JavaScript Fundamentals', time: 'Yesterday', icon: BookOpen },
-    { id: 3, type: 'System', detail: 'Welcome to PeerLearn!', time: '2d ago', icon: Bell },
+    { icon: BookOpen, label: 'Total Sessions', value: stats.totalSessions, color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' },
+    { icon: Clock, label: 'Upcoming', value: stats.upcoming, color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' },
+    { icon: TrendingUp, label: 'Completed', value: stats.completed, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
+    { icon: Star, label: 'Avg Rating', value: stats.avgRating, color: 'text-purple-600', bg: 'bg-purple-100 dark:bg-purple-900/30' },
   ];
 
   return (
@@ -153,119 +189,142 @@ const DashboardLearner = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {statCards.map((stat, i) => (
-                <div key={i} className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md" 
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--card-border)'
-                }}>
-                  <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-xl ${stat.bg}`}>
-                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</div>
-                      <div className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-              <div className="lg:col-span-2 space-y-6">
-                <div className="rounded-2xl shadow-sm border overflow-hidden"
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--card-border)'
-                }}>
-                  <div className="p-6 border-b flex flex-wrap justify-between items-center gap-4" style={{ borderColor: 'var(--border-color)' }}>
-                    <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Upcoming Sessions</h2>
-                    <Link to="/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
-                      View Schedule <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                  <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
-                    {upcomingSessions.map((session, i) => (
-                      <div key={i} className="p-6 transition-colors" style={{ backgroundColor: 'var(--card-bg)' }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                          <div className="flex items-start gap-4">
-                            <div className="flex flex-col items-center justify-center w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                              <Calendar className="w-6 h-6" />
-                            </div>
-                            <div>
-                              <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>{session.title}</h3>
-                              <div className="text-sm mt-1 flex flex-wrap items-center gap-3" style={{ color: 'var(--text-secondary)' }}>
-                                <span className="flex items-center gap-1"><User className="w-3 h-3" /> {session.tutor}</span>
-                                <span className="hidden sm:inline w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
-                                <span>{session.subject}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
-                            <div className="text-right">
-                              <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{session.date}</div>
-                              <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{session.participants} joined</div>
-                            </div>
-                            <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                              <ArrowUpRight className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <p className="text-red-700 font-medium">{error}</p>
               </div>
+            )}
 
-              <div className="space-y-6">
-                <div className="rounded-2xl shadow-sm border p-6"
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--card-border)'
-                }}>
-                  <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Actions</h2>
-                  <div className="space-y-3">
-                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-500/20">
-                      <Search className="w-5 h-5" /> Find a Tutor
-                    </button>
-                    <button className="w-full border text-slate-700 dark:text-slate-200 font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:transition-all"
-                    style={{
-                      borderColor: 'var(--border-color)',
-                      backgroundColor: 'var(--bg-secondary)'
-                    }}>
-                      <User className="w-5 h-5" /> Edit Profile
-                    </button>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl shadow-sm border p-6"
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--card-border)'
-                }}>
-                  <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Recent Activity</h2>
-                  <div className="space-y-4">
-                    {recentActivity.map((item, i) => (
-                      <div key={i} className="flex gap-3">
-                        <div className="mt-1 p-1.5 rounded-full h-fit" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-                          <item.icon className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
+            {loading ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {statCards.map((stat, i) => (
+                    <div key={i} className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md"
+                      style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderColor: 'var(--card-border)'
+                      }}>
+                      <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-xl ${stat.bg}`}>
+                          <stat.icon className={`w-6 h-6 ${stat.color}`} />
                         </div>
                         <div>
-                          <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.type}</p>
-                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{item.detail}</p>
-                          <p className="text-[10px] mt-1 uppercase tracking-wide" style={{ color: 'var(--text-tertiary)' }}>{item.time}</p>
+                          <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</div>
+                          <div className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</div>
                         </div>
                       </div>
-                    ))}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                  <div className="lg:col-span-2 space-y-6">
+                    <div className="rounded-2xl shadow-sm border overflow-hidden"
+                      style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderColor: 'var(--card-border)'
+                      }}>
+                      <div className="p-6 border-b flex flex-wrap justify-between items-center gap-4" style={{ borderColor: 'var(--border-color)' }}>
+                        <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Upcoming Sessions</h2>
+                        <Link to="/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
+                          View Schedule <ChevronRight className="w-4 h-4" />
+                        </Link>
+                      </div>
+                      <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
+                        {upcomingSessions.length > 0 ? (
+                          upcomingSessions.map((session, i) => (
+                            <div key={i} className="p-6 transition-colors" style={{ backgroundColor: 'var(--card-bg)' }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
+                            >
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-start gap-4">
+                                  <div className="flex flex-col items-center justify-center w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
+                                    <Calendar className="w-6 h-6" />
+                                  </div>
+                                  <div>
+                                    <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>{session.title || session.name}</h3>
+                                    <div className="text-sm mt-1 flex flex-wrap items-center gap-3" style={{ color: 'var(--text-secondary)' }}>
+                                      <span className="flex items-center gap-1"><User className="w-3 h-3" /> {session.tutor?.name || 'Assigned Tutor'}</span>
+                                      <span className="hidden sm:inline w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
+                                      <span>{session.subject || 'General'}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                                  <div className="text-right">
+                                    <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{session.date || 'Soon'}</div>
+                                    <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{session.participants || 'Join now'}</div>
+                                  </div>
+                                  <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                    <ArrowUpRight className="w-5 h-5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-12 text-center" style={{ color: 'var(--text-tertiary)' }}>
+                            <Calendar className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                            <p className="font-medium">No upcoming sessions found.</p>
+                            <Link to="/sessions" className="text-blue-600 hover:underline mt-2 inline-block">Browse available sessions</Link>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Rest of the component (Quick Actions, Recent Activity) */}
+                  <div className="space-y-6">
+                    <div className="rounded-2xl shadow-sm border p-6"
+                      style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderColor: 'var(--card-border)'
+                      }}>
+                      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Actions</h2>
+                      <div className="space-y-3">
+                        <button onClick={() => navigate('/sessions')} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-500/20">
+                          <Search className="w-5 h-5" /> Find a Tutor
+                        </button>
+                        <button onClick={() => navigate('/profile')} className="w-full border text-slate-700 dark:text-slate-200 font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:transition-all"
+                          style={{
+                            borderColor: 'var(--border-color)',
+                            backgroundColor: 'var(--bg-secondary)'
+                          }}>
+                          <User className="w-5 h-5" /> Edit Profile
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl shadow-sm border p-6"
+                      style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderColor: 'var(--card-border)'
+                      }}>
+                      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Recent Activity</h2>
+                      <div className="space-y-4">
+                        {recentActivity.map((item, i) => (
+                          <div key={i} className="flex gap-3">
+                            <div className="mt-1 p-1.5 rounded-full h-fit" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                              <item.icon className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.type}</p>
+                              <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{item.detail}</p>
+                              <p className="text-[10px] mt-1 uppercase tracking-wide" style={{ color: 'var(--text-tertiary)' }}>{item.time}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </main>
       </div>

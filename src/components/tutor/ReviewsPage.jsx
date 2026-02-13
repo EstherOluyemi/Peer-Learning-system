@@ -1,132 +1,69 @@
 // src/components/tutor/ReviewsPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Star, Users, Calendar, TrendingUp, Filter, Search,
-  ChevronLeft, ChevronRight, Eye, ThumbsUp, ThumbsDown, MessageCircle
+  ChevronLeft, ChevronRight, Eye, ThumbsUp, ThumbsDown, MessageCircle, AlertCircle
 } from 'lucide-react';
+import api from '../../services/api';
 
 const ReviewsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRating, setFilterRating] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    average: '0.0',
+    total: 0,
+    responseRate: '0%',
+    distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  });
   const itemsPerPage = 8;
 
-  const reviews = [
-    {
-      id: 1,
-      student: {
-        name: "Sarah Johnson",
-        avatar: "https://ui-avatars.com/api/?name=Sarah+Johnson&background=random",
-        level: "Beginner"
-      },
-      rating: 5,
-      comment: "Sarah is an excellent tutor! She explained React concepts in a way that was easy to understand. The workshop was well-structured and I learned a lot. Highly recommended!",
-      session: "React Fundamentals Workshop",
-      date: "Dec 20, 2024",
-      helpful: 12,
-      responses: [
-        {
-          id: 1,
-          text: "Thank you, Sarah! I'm glad you enjoyed the workshop. Keep up the great work with your React projects!",
-          date: "Dec 21, 2024"
-        }
-      ]
-    },
-    {
-      id: 2,
-      student: {
-        name: "Michael Chen",
-        avatar: "https://ui-avatars.com/api/?name=Michael+Chen&background=random",
-        level: "Intermediate"
-      },
-      rating: 4,
-      comment: "Great session on JavaScript patterns. Michael provided excellent feedback on my project. The only suggestion would be to have more hands-on coding exercises.",
-      session: "Advanced JavaScript 1-on-1",
-      date: "Dec 18, 2024",
-      helpful: 8,
-      responses: [
-        {
-          id: 1,
-          text: "Thanks for the feedback, Michael! I'll definitely incorporate more coding exercises in future sessions.",
-          date: "Dec 19, 2024"
-        }
-      ]
-    },
-    {
-      id: 3,
-      student: {
-        name: "Emily Rodriguez",
-        avatar: "https://ui-avatars.com/api/?name=Emily+Rodriguez&background=random",
-        level: "Advanced"
-      },
-      rating: 5,
-      comment: "The UI/UX workshop was incredibly insightful. Emily has a great way of breaking down complex design principles. The practical exercises were very valuable.",
-      session: "UI/UX Design Workshop",
-      date: "Dec 15, 2024",
-      helpful: 15,
-      responses: []
-    },
-    {
-      id: 4,
-      student: {
-        name: "David Kim",
-        avatar: "https://ui-avatars.com/api/?name=David+Kim&background=random",
-        level: "Beginner"
-      },
-      rating: 4,
-      comment: "Good introduction to Python. David was patient and explained concepts clearly. Would have liked a bit more time for Q&A at the end.",
-      session: "Python for Beginners",
-      date: "Dec 12, 2024",
-      helpful: 6,
-      responses: [
-        {
-          id: 1,
-          text: "Thanks for your feedback, David! I'll make sure to allocate more time for questions in future sessions.",
-          date: "Dec 13, 2024"
-        }
-      ]
-    },
-    {
-      id: 5,
-      student: {
-        name: "Lisa Thompson",
-        avatar: "https://ui-avatars.com/api/?name=Lisa+Thompson&background=random",
-        level: "Intermediate"
-      },
-      rating: 5,
-      comment: "Outstanding tutor! Lisa's knowledge of data structures is impressive. The session was challenging but very rewarding. I feel much more confident now.",
-      session: "Data Structures & Algorithms",
-      date: "Dec 10, 2024",
-      helpful: 20,
-      responses: []
-    },
-    {
-      id: 6,
-      student: {
-        name: "James Wilson",
-        avatar: "https://ui-avatars.com/api/?name=James+Wilson&background=random",
-        level: "Beginner"
-      },
-      rating: 3,
-      comment: "The session was okay, but I felt the pace was a bit too fast for a beginner like me. Some concepts went over my head.",
-      session: "React Fundamentals Workshop",
-      date: "Dec 8, 2024",
-      helpful: 3,
-      responses: [
-        {
-          id: 1,
-          text: "I apologize for the pace, James. Let's schedule a follow-up session to go over the concepts at a more comfortable speed.",
-          date: "Dec 9, 2024"
-        }
-      ]
-    },
-  ];
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/v1/tutor/reviews');
+        const reviewData = response.data || [];
+        setReviews(reviewData);
+
+        // Calculate stats
+        const total = reviewData.length;
+        const sum = reviewData.reduce((acc, r) => acc + (r.rating || 0), 0);
+        const average = total > 0 ? (sum / total).toFixed(1) : '0.0';
+        
+        const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+        reviewData.forEach(r => {
+          if (r.rating >= 1 && r.rating <= 5) distribution[Math.floor(r.rating)]++;
+        });
+
+        const responded = reviewData.filter(r => r.responses && r.responses.length > 0).length;
+        const responseRate = total > 0 ? Math.round((responded / total) * 100) + '%' : '0%';
+
+        setStats({
+          average,
+          total,
+          responseRate,
+          distribution
+        });
+      } catch (err) {
+        setError('Failed to fetch reviews. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
 
   const filteredReviews = reviews.filter(review => {
-    const matchesSearch = review.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      review.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      review.session.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRating = filterRating === 'all' || review.rating === parseInt(filterRating);
+    const matchesSearch = (review.student?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (review.comment || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (review.session || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRating = filterRating === 'all' || Math.floor(review.rating) === parseInt(filterRating);
     return matchesSearch && matchesRating;
   });
 
@@ -136,26 +73,54 @@ const ReviewsPage = () => {
     currentPage * itemsPerPage
   );
 
-  const getAverageRating = () => {
-    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return (total / reviews.length).toFixed(1);
+  const handleResponse = async (reviewId, responseText) => {
+    try {
+      // Optimistic update
+      const updatedReviews = reviews.map(r => {
+        if (r.id === reviewId) {
+          return {
+            ...r,
+            responses: [...(r.responses || []), {
+              id: Date.now(),
+              text: responseText,
+              date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            }]
+          };
+        }
+        return r;
+      });
+      setReviews(updatedReviews);
+
+      // Real API call
+      await api.post(`/v1/tutor/reviews/${reviewId}/response`, { text: responseText });
+    } catch (err) {
+      console.error('Failed to send response:', err);
+    }
   };
 
-  const getRatingDistribution = () => {
-    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    reviews.forEach(review => {
-      distribution[review.rating]++;
-    });
-    return distribution;
-  };
-
-  const handleResponse = (reviewId, responseText) => {
-    console.log(`Responding to review ${reviewId}: ${responseText}`);
-    // In a real app, this would send the response to the backend
-  };
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading reviews...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <p className="text-sm font-medium">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Reviews</h1>
@@ -167,7 +132,7 @@ const ReviewsPage = () => {
           >
             <Star className="w-6 h-6 text-yellow-500" />
             <div>
-              <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{getAverageRating()}</div>
+              <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{stats.average}</div>
               <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Average Rating</div>
             </div>
           </div>
@@ -211,7 +176,7 @@ const ReviewsPage = () => {
                     </span>
                     {rating !== 'all' && (
                       <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                        {getRatingDistribution()[parseInt(rating)]}
+                        {stats.distribution[parseInt(rating)]}
                       </span>
                     )}
                   </button>
@@ -226,19 +191,19 @@ const ReviewsPage = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--text-secondary)' }}>Total Reviews</span>
-                  <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{reviews.length}</span>
+                  <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{stats.total}</span>
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--text-secondary)' }}>5 Star</span>
-                  <span className="font-bold text-yellow-600">{getRatingDistribution()[5]}</span>
+                  <span className="font-bold text-yellow-600">{stats.distribution[5]}</span>
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--text-secondary)' }}>4 Star</span>
-                  <span className="font-bold text-green-600">{getRatingDistribution()[4]}</span>
+                  <span className="font-bold text-green-600">{stats.distribution[4]}</span>
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--text-secondary)' }}>Response Rate</span>
-                  <span className="font-bold text-blue-600">85%</span>
+                  <span className="font-bold text-blue-600">{stats.responseRate}</span>
                 </div>
               </div>
             </div>
@@ -255,7 +220,7 @@ const ReviewsPage = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{reviews.length}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stats.total}</div>
                   <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Reviews</div>
                 </div>
                 <Star className="w-8 h-8 text-yellow-500" />
@@ -269,7 +234,7 @@ const ReviewsPage = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{getAverageRating()}</div>
+                  <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stats.average}</div>
                   <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Average Rating</div>
                 </div>
                 <TrendingUp className="w-8 h-8 text-green-500" />
@@ -283,7 +248,7 @@ const ReviewsPage = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>85%</div>
+                  <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stats.responseRate}</div>
                   <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Response Rate</div>
                 </div>
                 <Users className="w-8 h-8 text-blue-500" />
@@ -292,86 +257,100 @@ const ReviewsPage = () => {
           </div>
 
           <div className="space-y-4">
-            {currentReviews.map(review => (
-              <div
-                key={review.id}
-                className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--card-border)'
-                }}
-              >
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <img
-                      src={review.student.avatar}
-                      alt={review.student.name}
-                      className="w-12 h-12 rounded-full border-2 object-cover"
-                      style={{ borderColor: 'var(--border-color)' }}
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{review.student.name}</h4>
-                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                          {review.student.level}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500' : 'text-slate-300 dark:text-slate-600'}`}
-                            />
-                          ))}
+            {currentReviews.length > 0 ? (
+              currentReviews.map(review => (
+                <div
+                  key={review.id}
+                  className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+                  style={{
+                    backgroundColor: 'var(--card-bg)',
+                    borderColor: 'var(--card-border)'
+                  }}
+                >
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <img
+                        src={review.student?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.student?.name || 'Student')}&background=random`}
+                        alt={review.student?.name}
+                        className="w-12 h-12 rounded-full border-2 object-cover"
+                        style={{ borderColor: 'var(--border-color)' }}
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{review.student?.name}</h4>
+                          <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                            {review.student?.level || 'Student'}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500' : 'text-slate-300 dark:text-slate-600'}`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{review.comment}</p>
+                        <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                          <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {review.date}</span>
+                          <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {review.session}</span>
                         </div>
                       </div>
-                      <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{review.comment}</p>
-                      <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                        <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {review.date}</span>
-                        <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {review.session}</span>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex gap-2">
+                        <button className="flex items-center gap-2 px-3 py-1.5 text-green-600 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors">
+                          <ThumbsUp className="w-4 h-4" />
+                          Helpful ({review.helpful || 0})
+                        </button>
+                        <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                          <Eye className="w-5 h-5" />
+                        </button>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Responses: {review.responses?.length || 0}</div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex gap-2">
-                      <button className="flex items-center gap-2 px-3 py-1.5 text-green-600 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors">
-                        <ThumbsUp className="w-4 h-4" />
-                        Helpful ({review.helpful})
-                      </button>
-                      <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        <Eye className="w-5 h-5" />
+
+                  {review.responses && review.responses.length > 0 && (
+                    <div className="mt-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <MessageCircle className="w-4 h-4 text-blue-500" />
+                        <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Your Response</span>
+                      </div>
+                      {review.responses.map(response => (
+                        <div key={response.id} className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                          {response.text}
+                          <div className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>— {response.date}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {(!review.responses || review.responses.length === 0) && (
+                    <div className="mt-4">
+                      <button 
+                        onClick={() => {
+                          const text = prompt('Enter your response:');
+                          if (text) handleResponse(review.id, text);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Respond to this review
                       </button>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Responses: {review.responses.length}</div>
-                    </div>
-                  </div>
+                  )}
                 </div>
-
-                {review.responses.length > 0 && (
-                  <div className="mt-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <MessageCircle className="w-4 h-4 text-blue-500" />
-                      <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Your Response</span>
-                    </div>
-                    {review.responses.map(response => (
-                      <div key={response.id} className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                        {response.text}
-                        <div className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>— {response.date}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {review.responses.length === 0 && (
-                  <div className="mt-4">
-                    <button className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
-                      <MessageCircle className="w-4 h-4" />
-                      Respond to this review
-                    </button>
-                  </div>
-                )}
+              ))
+            ) : (
+              <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
+                <Star className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No reviews found</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or filters.</p>
               </div>
-            ))}
+            )}
           </div>
 
           {totalPages > 1 && (
@@ -379,7 +358,7 @@ const ReviewsPage = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{
                   borderColor: 'var(--border-color)',
                   color: 'var(--text-secondary)',
@@ -395,7 +374,7 @@ const ReviewsPage = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{
                   borderColor: 'var(--border-color)',
                   color: 'var(--text-secondary)',

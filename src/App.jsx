@@ -27,6 +27,7 @@ import MessagesPage from './components/tutor/MessagesPage';
 import ReviewsPage from './components/tutor/ReviewsPage';
 import EarningsPage from './components/tutor/EarningsPage';
 import TutorSettingsPage from './components/tutor/SettingsPage';
+import TutorCreateSessionPage from './components/tutor/CreateSessionPage';
 
 // Sub-pages (Learner)
 import LearnerSessionsPage from './components/learner/SessionsPage';
@@ -66,6 +67,7 @@ function App() {
                   <Route path="/dashboard-tutor" element={<TutorLayout />}>
                     <Route index element={<DashboardTutor />} />
                     <Route path="sessions" element={<TutorSessionsPage />} />
+                    <Route path="create-session" element={<TutorCreateSessionPage />} />
                     <Route path="students" element={<StudentsPage />} />
                     <Route path="messages" element={<MessagesPage />} />
                     <Route path="reviews" element={<ReviewsPage />} />

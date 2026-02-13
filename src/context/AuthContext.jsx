@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -11,7 +12,8 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('peerlearn_user');
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
       } catch (error) {
         console.error('Error parsing stored user:', error);
         localStorage.removeItem('peerlearn_user');
@@ -21,15 +23,31 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('peerlearn_user', JSON.stringify(userData));
+  const login = async (credentials, role = 'learner') => {
+    try {
+      const endpoint = role === 'tutor' ? '/v1/tutor/auth/login' : '/v1/learner/auth/login';
+      const response = await api.post(endpoint, credentials);
+      const userData = { ...response.data.user, token: response.token || response.data.token, role };
+      setUser(userData);
+      localStorage.setItem('peerlearn_user', JSON.stringify(userData));
+      return userData;
+    } catch (error) {
+      throw error;
+    }
   };
 
   // Register function
-  const register = (userData) => {
-    setUser(userData);
-    localStorage.setItem('peerlearn_user', JSON.stringify(userData));
+  const register = async (userData, role = 'learner') => {
+    try {
+      const endpoint = role === 'tutor' ? '/v1/tutor/auth/register' : '/v1/learner/auth/register';
+      const response = await api.post(endpoint, userData);
+      const newUser = { ...response.data.user, token: response.token || response.data.token, role };
+      setUser(newUser);
+      localStorage.setItem('peerlearn_user', JSON.stringify(newUser));
+      return newUser;
+    } catch (error) {
+      throw error;
+    }
   };
 
   // Logout function

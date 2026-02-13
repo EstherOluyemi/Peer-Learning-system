@@ -1,17 +1,22 @@
 // src/components/learner/CreateSessionPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Plus, Calendar, Clock, Users, Star, Search, Filter, Save,
     ChevronLeft, ChevronRight, Eye, MessageSquare, Bookmark,
-    TrendingUp, TrendingDown, MapPin, Video, BookOpen, X, Plus as PlusIcon
+    TrendingUp, TrendingDown, MapPin, Video, BookOpen, X, Plus as PlusIcon,
+    AlertCircle, Loader2
 } from 'lucide-react';
+import api from '../../services/api';
 
 const CreateSessionPage = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         title: '',
         subject: '',
         description: '',
         tutor: '',
+        tutorId: '',
         date: '',
         time: '',
         duration: '1.5',
@@ -26,22 +31,48 @@ const CreateSessionPage = () => {
 
     const [newSkill, setNewSkill] = useState('');
     const [step, setStep] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState(null);
+    const [tutors, setTutors] = useState([]);
 
     const subjects = [
         'Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology',
         'English Literature', 'History', 'Geography', 'Economics', 'Business Studies'
     ];
 
-    const tutors = [
-        { name: 'Jane Doe', subject: 'Computer Science', rating: 4.8, price: 50 },
-        { name: 'John Smith', subject: 'Mathematics', rating: 4.9, price: 40 },
-        { name: 'Dr. Sarah Wilson', subject: 'Physics', rating: 4.7, price: 60 },
-        { name: 'Alex Thompson', subject: 'Chemistry', rating: 4.6, price: 45 },
-        { name: 'Emily Davis', subject: 'Biology', rating: 4.8, price: 35 }
-    ];
+    useEffect(() => {
+        const fetchTutors = async () => {
+            try {
+                setLoading(true);
+                // Filter tutors by subject if selected
+                const endpoint = formData.subject 
+                    ? `/v1/tutors?subject=${encodeURIComponent(formData.subject)}`
+                    : '/v1/tutors';
+                const response = await api.get(endpoint);
+                setTutors(response.data || []);
+            } catch (err) {
+                console.error('Failed to fetch tutors:', err);
+                setError('Failed to load tutors. Please try again later.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTutors();
+    }, [formData.subject]);
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleTutorSelect = (tutor) => {
+        setFormData(prev => ({
+            ...prev,
+            tutor: tutor.name,
+            tutorId: tutor.id,
+            price: tutor.price || prev.price
+        }));
     };
 
     const addSkill = () => {
@@ -61,10 +92,22 @@ const CreateSessionPage = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Session created:', formData);
-        // In a real app, this would send the data to your backend
+        try {
+            setSubmitting(true);
+            setError(null);
+            
+            await api.post('/v1/learner/sessions', formData);
+            
+            // Redirect to sessions page on success
+            navigate('/dashboard-learner/sessions');
+        } catch (err) {
+            console.error('Failed to create session:', err);
+            setError(err.message || 'Failed to create session. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const renderStep1 = () => (
@@ -306,44 +349,56 @@ const CreateSessionPage = () => {
                 }}
             >
                 <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Select Tutor</h3>
-                <div className="space-y-4">
-                    {tutors.map(tutor => (
-                        <div
-                            key={tutor.name}
-                            onClick={() => handleInputChange('tutor', tutor.name)}
-                            className={`p-4 rounded-lg border cursor-pointer transition-all ${formData.tutor === tutor.name
-                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                    : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
-                                }`}
-                        >
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <img
-                                        src={`https://ui-avatars.com/api/?name=${tutor.name}&background=random`}
-                                        alt={tutor.name}
-                                        className="w-12 h-12 rounded-full"
-                                    />
-                                    <div>
-                                        <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{tutor.name}</h4>
-                                        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{tutor.subject}</p>
-                                        <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                                            <span className="flex items-center gap-1"><Star className="w-3 h-3" /> {tutor.rating}</span>
-                                            <span>${tutor.price}/hr</span>
+                
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-12 gap-3">
+                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                        <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Finding available tutors...</p>
+                    </div>
+                ) : tutors.length > 0 ? (
+                    <div className="space-y-4">
+                        {tutors.map(tutor => (
+                            <div
+                                key={tutor.id}
+                                onClick={() => handleTutorSelect(tutor)}
+                                className={`p-4 rounded-lg border cursor-pointer transition-all ${formData.tutorId === tutor.id
+                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                        : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
+                                    }`}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <img
+                                            src={tutor.avatar || `https://ui-avatars.com/api/?name=${tutor.name}&background=random`}
+                                            alt={tutor.name}
+                                            className="w-12 h-12 rounded-full object-cover"
+                                        />
+                                        <div>
+                                            <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{tutor.name}</h4>
+                                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{tutor.specialization || tutor.subject || 'Expert Tutor'}</p>
+                                            <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                                                <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-500 fill-amber-500" /> {tutor.rating || 'N/A'}</span>
+                                                <span>${tutor.price || '0'}/hr</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                            formData.tutorId === tutor.id ? 'border-blue-500 bg-blue-500' : 'border-slate-300'
+                                        }`}>
+                                            {formData.tutorId === tutor.id && <div className="w-2 h-2 rounded-full bg-white" />}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="radio"
-                                        checked={formData.tutor === tutor.name}
-                                        onChange={() => handleInputChange('tutor', tutor.name)}
-                                        className="w-4 h-4 text-blue-600"
-                                    />
-                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-12">
+                        <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                        <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>No tutors available for the selected subject.</p>
+                    </div>
+                )}
             </div>
 
             <div className="p-6 rounded-2xl shadow-sm border"
@@ -434,19 +489,20 @@ const CreateSessionPage = () => {
     );
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="max-w-6xl mx-auto p-6">
+            <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Create Session</h1>
-                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Set up your learning session with a tutor.</p>
-                </div>
-                <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
-                        <ChevronLeft className="w-4 h-4" />
-                        Back to Sessions
-                    </button>
+                    <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Request New Session</h1>
+                    <p style={{ color: 'var(--text-secondary)' }}>Fill in the details to request a learning session from a tutor.</p>
                 </div>
             </div>
+
+            {error && (
+                <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+                    <p className="text-sm font-medium">{error}</p>
+                </div>
+            )}
 
             <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center gap-2">
@@ -496,10 +552,20 @@ const CreateSessionPage = () => {
                         ) : (
                             <button
                                 onClick={handleSubmit}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                                disabled={submitting || !formData.tutorId}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <Save className="w-4 h-4" />
-                                Create Session
+                                {submitting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Creating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="w-4 h-4" />
+                                        Request Session
+                                    </>
+                                )}
                             </button>
                         )}
                     </div>

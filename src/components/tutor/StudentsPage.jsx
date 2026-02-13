@@ -1,83 +1,56 @@
 // src/components/tutor/StudentsPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Users, Search, Filter, MessageSquare, Star, Calendar,
-  ChevronLeft, ChevronRight, Eye, Plus, UserPlus
+  ChevronLeft, ChevronRight, Eye, Plus, UserPlus, AlertCircle
 } from 'lucide-react';
+import api from '../../services/api';
 
 const StudentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLevel, setFilterLevel] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    total: 0,
+    beginner: 0,
+    intermediate: 0,
+    advanced: 0
+  });
   const itemsPerPage = 8;
 
-  const students = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      email: "sarah.j@example.com",
-      level: "Beginner",
-      sessions: 12,
-      rating: 4.8,
-      lastSession: "2 days ago",
-      avatar: "https://ui-avatars.com/api/?name=Sarah+Johnson&background=random"
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      email: "michael.c@example.com",
-      level: "Intermediate",
-      sessions: 8,
-      rating: 4.9,
-      lastSession: "1 day ago",
-      avatar: "https://ui-avatars.com/api/?name=Michael+Chen&background=random"
-    },
-    {
-      id: 3,
-      name: "Emily Rodriguez",
-      email: "emily.r@example.com",
-      level: "Advanced",
-      sessions: 15,
-      rating: 4.7,
-      lastSession: "3 days ago",
-      avatar: "https://ui-avatars.com/api/?name=Emily+Rodriguez&background=random"
-    },
-    {
-      id: 4,
-      name: "David Kim",
-      email: "david.k@example.com",
-      level: "Beginner",
-      sessions: 5,
-      rating: 4.6,
-      lastSession: "5 days ago",
-      avatar: "https://ui-avatars.com/api/?name=David+Kim&background=random"
-    },
-    {
-      id: 5,
-      name: "Lisa Thompson",
-      email: "lisa.t@example.com",
-      level: "Intermediate",
-      sessions: 10,
-      rating: 4.8,
-      lastSession: "Yesterday",
-      avatar: "https://ui-avatars.com/api/?name=Lisa+Thompson&background=random"
-    },
-    {
-      id: 6,
-      name: "James Wilson",
-      email: "james.w@example.com",
-      level: "Beginner",
-      sessions: 3,
-      rating: 4.5,
-      lastSession: "1 week ago",
-      avatar: "https://ui-avatars.com/api/?name=James+Wilson&background=random"
-    },
-  ];
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/v1/tutor/students');
+        const studentData = response.data || [];
+        setStudents(studentData);
+        
+        // Calculate stats from data
+        setStats({
+          total: studentData.length,
+          beginner: studentData.filter(s => s.level?.toLowerCase() === 'beginner').length,
+          intermediate: studentData.filter(s => s.level?.toLowerCase() === 'intermediate').length,
+          advanced: studentData.filter(s => s.level?.toLowerCase() === 'advanced').length
+        });
+      } catch (err) {
+        setError('Failed to fetch students. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, []);
 
   const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLevel = filterLevel === 'all' || student.level.toLowerCase() === filterLevel.toLowerCase();
+    const matchesSearch = (student.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (student.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    const matchesLevel = filterLevel === 'all' || student.level?.toLowerCase() === filterLevel.toLowerCase();
     return matchesSearch && matchesLevel;
   });
 
@@ -88,16 +61,37 @@ const StudentsPage = () => {
   );
 
   const getLevelColor = (level) => {
-    switch (level) {
-      case 'Beginner': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-      case 'Intermediate': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-      case 'Advanced': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
+    switch (level?.toLowerCase()) {
+      case 'beginner': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      case 'intermediate': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+      case 'advanced': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
       default: return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading students...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <p className="text-sm font-medium">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Students</h1>
@@ -150,53 +144,61 @@ const StudentsPage = () => {
           </div>
 
           <div className="space-y-4">
-            {currentStudents.map(student => (
-              <div
-                key={student.id}
-                className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--card-border)'
-                }}
-              >
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={student.avatar}
-                      alt={student.name}
-                      className="w-16 h-16 rounded-full border-2 object-cover"
-                      style={{ borderColor: 'var(--border-color)' }}
-                    />
-                    <div>
-                      <h4 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>{student.name}</h4>
-                      <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>{student.email}</p>
-                      <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getLevelColor(student.level)}`}>
-                          {student.level}
-                        </span>
-                        <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5" /> {student.rating}</span>
-                        <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {student.lastSession}</span>
+            {currentStudents.length > 0 ? (
+              currentStudents.map(student => (
+                <div
+                  key={student.id}
+                  className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+                  style={{
+                    backgroundColor: 'var(--card-bg)',
+                    borderColor: 'var(--card-border)'
+                  }}
+                >
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={student.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name || 'Student')}&background=random`}
+                        alt={student.name}
+                        className="w-16 h-16 rounded-full border-2 object-cover"
+                        style={{ borderColor: 'var(--border-color)' }}
+                      />
+                      <div>
+                        <h4 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>{student.name}</h4>
+                        <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>{student.email}</p>
+                        <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getLevelColor(student.level)}`}>
+                            {student.level}
+                          </span>
+                          <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5" /> {student.rating || 'N/A'}</span>
+                          <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {student.lastSession || 'Never'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex gap-2">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+                          <MessageSquare className="w-4 h-4" />
+                          Message
+                        </button>
+                        <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                          <Eye className="w-5 h-5" />
+                        </button>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{student.sessions || 0} Sessions</div>
+                        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Total booked</div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex gap-2">
-                      <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-                        <MessageSquare className="w-4 h-4" />
-                        Message
-                      </button>
-                      <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        <Eye className="w-5 h-5" />
-                      </button>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{student.sessions} Sessions</div>
-                      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Total booked</div>
-                    </div>
-                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
+                <Users className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No students found</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or filters.</p>
               </div>
-            ))}
+            )}
           </div>
 
           {totalPages > 1 && (
@@ -204,7 +206,7 @@ const StudentsPage = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{
                   borderColor: 'var(--border-color)',
                   color: 'var(--text-secondary)',
@@ -220,7 +222,7 @@ const StudentsPage = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{
                   borderColor: 'var(--border-color)',
                   color: 'var(--text-secondary)',
@@ -250,25 +252,25 @@ const StudentsPage = () => {
                   <div className="font-medium" style={{ color: 'var(--text-primary)' }}>Total Students</div>
                   <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>All active students</div>
                 </div>
-                <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>24</div>
+                <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stats.total}</div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-lg text-center"
                   style={{ backgroundColor: 'var(--bg-hover)' }}
                 >
-                  <div className="text-lg font-bold text-green-600 dark:text-green-400">12</div>
+                  <div className="text-lg font-bold text-green-600 dark:text-green-400">{stats.beginner}</div>
                   <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Beginner</div>
                 </div>
                 <div className="p-3 rounded-lg text-center"
                   style={{ backgroundColor: 'var(--bg-hover)' }}
                 >
-                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">8</div>
+                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{stats.intermediate}</div>
                   <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Intermediate</div>
                 </div>
                 <div className="p-3 rounded-lg text-center"
                   style={{ backgroundColor: 'var(--bg-hover)' }}
                 >
-                  <div className="text-lg font-bold text-purple-600 dark:text-purple-400">4</div>
+                  <div className="text-lg font-bold text-purple-600 dark:text-purple-400">{stats.advanced}</div>
                   <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Advanced</div>
                 </div>
               </div>
@@ -283,27 +285,31 @@ const StudentsPage = () => {
           >
             <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Recent Activity</h3>
             <div className="space-y-3">
-              {students.slice(0, 4).map(student => (
-                <div key={student.id} className="flex items-center justify-between p-3 rounded-lg"
-                  style={{ backgroundColor: 'var(--bg-hover)' }}
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={student.avatar}
-                      alt={student.name}
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <div>
-                      <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{student.name}</div>
-                      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Booked session</div>
+              {students.length > 0 ? (
+                students.slice(0, 4).map(student => (
+                  <div key={student.id} className="flex items-center justify-between p-3 rounded-lg"
+                    style={{ backgroundColor: 'var(--bg-hover)' }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={student.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name || 'Student')}&background=random`}
+                        alt={student.name}
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div>
+                        <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{student.name}</div>
+                        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Booked session</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{student.lastSession || 'Never'}</div>
+                      <div className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{student.sessions || 0} sessions</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{student.lastSession}</div>
-                    <div className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{student.sessions} sessions</div>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-center text-sm py-4" style={{ color: 'var(--text-secondary)' }}>No recent activity</p>
+              )}
             </div>
           </div>
         </div>

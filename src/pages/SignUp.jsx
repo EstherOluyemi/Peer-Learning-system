@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import signupLogo from '../assets/signup-logo.webp';
-import { Users, Mail, Lock, User, BookOpen, ArrowLeft, Eye, EyeOff, GraduationCap } from 'lucide-react';
+import { Users, Mail, Lock, User, BookOpen, ArrowLeft, Eye, EyeOff, GraduationCap, AlertCircle } from 'lucide-react';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
 import { useAccessibility } from '../context/hooks';
+import { useAuth } from '../context/AuthContext';
 import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
 // eslint-disable-next-line no-unused-vars
@@ -46,6 +47,9 @@ const SignUp = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { register } = useAuth();
+  const [generalError, setGeneralError] = useState('');
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -55,6 +59,7 @@ const SignUp = () => {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+    if (generalError) setGeneralError('');
   };
 
   const validateForm = () => {
@@ -93,23 +98,29 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
     if (validateForm()) {
       setIsSubmitting(true);
-      setTimeout(() => { // Simulate async
-        // For now, just log and redirect to dashboard based on role
-        console.log('Registration data:', formData);
-        if (formData.role === 'tutor') {
+      setGeneralError('');
+      try {
+        const user = await register({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password
+        }, formData.role);
+
+        if (user.role === 'tutor') {
           navigate('/dashboard-tutor');
-        } else if (formData.role === 'learner') {
-          navigate('/dashboard-learner');
         } else {
-          navigate('/dashboard');
+          navigate('/dashboard-learner');
         }
+      } catch (error) {
+        setGeneralError(error.message || 'Registration failed. Please try again.');
+      } finally {
         setIsSubmitting(false);
-      }, 1200);
+      }
     }
   };
 
@@ -149,6 +160,15 @@ const SignUp = () => {
             <h1 className="text-3xl font-bold text-slate-900 text-center">Create your account</h1>
             <p className="text-slate-600 text-center mt-2">Join our community of learners and tutors</p>
           </div>
+
+          {/* General Error Banner */}
+          {generalError && (
+            <div className="w-full max-w-md mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md flex items-start animate-fade-in">
+              <AlertCircle className="w-5 h-5 text-red-500 mr-3 mt-0.5" />
+              <p className="text-sm text-red-700">{generalError}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md">
             {/* Role Selection Notice */}
             {!formData.role && (
