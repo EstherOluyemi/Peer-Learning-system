@@ -1,154 +1,152 @@
-# Tutor Backend API Reference
+# Tutor Backend Specification
 
-This document outlines the comprehensive set of backend APIs required for the tutor section of the Peer Learning System frontend to sync completely. The APIs are grouped by feature and cover CRUD operations, authentication, and data fetching for all tutor-related pages.
-
----
-
-## 1. Authentication & Profile
-
-### Tutor Login
-- **POST /api/auth/login**
-  - Request: `{ email, password }`
-  - Response: `{ token, user }`
-
-### Tutor Profile
-- **GET /api/tutors/{tutorId}**
-  - Response: Tutor profile data
-- **PUT /api/tutors/{tutorId}**
-  - Request: Updated profile fields
-  - Response: Updated tutor profile
+This document defines the API requirements, data models, and endpoints exclusively for the tutor section of the Peer Learning System.
 
 ---
 
-## 2. Dashboard
+## 1. Tutor Data Models
 
-### Fetch Dashboard Stats
-- **GET /api/tutors/{tutorId}/dashboard**
-  - Response: `{ earnings, sessions, students, reviews, ... }`
+### 1.1 Tutor Profile Model
+Extends the base User model with professional details.
+```javascript
+{
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  bio: { type: String, required: true },
+  subjects: [{ type: String }],
+  rating: { type: Number, default: 0 },
+  reviewCount: { type: Number, default: 0 },
+  earnings: { type: Number, default: 0 },
+  availability: [{ 
+    day: { type: String, enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] },
+    slots: [{ startTime: String, endTime: String }]
+  }],
+  hourlyRate: { type: Number, required: true },
+  verified: { type: Boolean, default: false }
+}
+```
 
----
+### 1.2 Course Model
+Representing structured learning paths created by tutors.
+```javascript
+{
+  title: { type: String, required: true },
+  description: { type: String },
+  tutorId: { type: Schema.Types.ObjectId, ref: 'Tutor', required: true },
+  price: { type: Number, required: true },
+  tags: [String],
+  level: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced'] },
+  published: { type: Boolean, default: false }
+}
+```
 
-## 3. Sessions Management
+### 1.3 Session Model (Tutor View)
+Represents a scheduled learning event.
+```javascript
+{
+  courseId: { type: Schema.Types.ObjectId, ref: 'Course' },
+  tutorId: { type: Schema.Types.ObjectId, ref: 'Tutor', required: true },
+  studentIds: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  startTime: { type: Date, required: true },
+  endTime: { type: Date, required: true },
+  status: { type: String, enum: ['scheduled', 'ongoing', 'completed', 'cancelled'] },
+  meetingLink: { type: String },
+  maxParticipants: { type: Number, default: 1 }
+}
+```
 
-### List Sessions
-- **GET /api/tutors/{tutorId}/sessions**
-  - Response: List of sessions
-
-### Create Session
-- **POST /api/tutors/{tutorId}/sessions**
-  - Request: Session details
-  - Response: Created session
-
-### Update Session
-- **PUT /api/tutors/{tutorId}/sessions/{sessionId}**
-  - Request: Updated session fields
-  - Response: Updated session
-
-### Delete Session
-- **DELETE /api/tutors/{tutorId}/sessions/{sessionId}**
-  - Response: Success/failure
-
----
-
-## 4. Students Management
-
-### List Students
-- **GET /api/tutors/{tutorId}/students**
-  - Response: List of students
-
-### Add Student
-- **POST /api/tutors/{tutorId}/students**
-  - Request: Student details
-  - Response: Created student
-
-### View Student
-- **GET /api/tutors/{tutorId}/students/{studentId}**
-  - Response: Student profile & progress
-
-### Bulk Message Students
-- **POST /api/tutors/{tutorId}/students/bulk-message**
-  - Request: `{ studentIds, message }`
-  - Response: Success/failure
-
----
-
-## 5. Messages
-
-### List Conversations
-- **GET /api/tutors/{tutorId}/conversations**
-  - Response: List of conversations
-
-### Fetch Messages
-- **GET /api/tutors/{tutorId}/conversations/{conversationId}/messages**
-  - Response: List of messages
-
-### Send Message
-- **POST /api/tutors/{tutorId}/conversations/{conversationId}/messages**
-  - Request: `{ text }`
-  - Response: Sent message
+### 1.4 Payment & Earnings Model
+Tracks transactions and tutor income.
+```javascript
+{
+  tutorId: { type: Schema.Types.ObjectId, ref: 'Tutor', required: true },
+  amount: { type: Number, required: true },
+  type: { type: String, enum: ['credit', 'payout'] },
+  status: { type: String, enum: ['pending', 'completed', 'failed'] },
+  referenceId: { type: String }, // SessionId or TransactionId
+  createdAt: { type: Date, default: Date.now }
+}
+```
 
 ---
 
-## 6. Reviews
+## 2. Tutor API Endpoints
 
-### List Reviews
-- **GET /api/tutors/{tutorId}/reviews**
-  - Response: List of reviews
+### 2.1 Authentication & Registration
+- **POST /api/v1/tutor/auth/register**
+  - **Description**: Specialized registration for tutor accounts.
+  - **Body**: `{ name, email, password, bio, subjects, hourlyRate }`
+  - **Response**: `201 Created` with `{ status: "success", data: { tutor, token } }`
 
-### Respond to Review
-- **POST /api/tutors/{tutorId}/reviews/{reviewId}/response**
-  - Request: `{ response }`
-  - Response: Success/failure
+### 2.2 Profile Management
+- **GET /api/v1/tutor/me**
+  - **Description**: Fetch the logged-in tutor's full profile and stats.
+- **PATCH /api/v1/tutor/me**
+  - **Description**: Update profile details, availability, and rates.
+  - **Body**: `{ bio, subjects, hourlyRate, availability }`
 
----
+### 2.3 Session Scheduling
+- **POST /api/v1/tutor/sessions**
+  - **Description**: Create a new session (1-on-1 or Group).
+  - **Body**: `{ title, startTime, duration, maxParticipants, price }`
+- **GET /api/v1/tutor/sessions**
+  - **Description**: List all sessions managed by the tutor.
+  - **Query**: `?status=scheduled&startDate=...&endDate=...`
+- **PATCH /api/v1/tutor/sessions/:id**
+  - **Description**: Update session details or cancel.
+- **DELETE /api/v1/tutor/sessions/:id**
+  - **Description**: Remove a session (if no students enrolled).
 
-## 7. Earnings & Payments
+### 2.4 Student Management
+- **GET /api/v1/tutor/students**
+  - **Description**: List all students who have enrolled in this tutor's sessions.
+- **GET /api/v1/tutor/students/:studentId/progress**
+  - **Description**: View progress and history for a specific student.
 
-### Fetch Earnings
-- **GET /api/tutors/{tutorId}/earnings**
-  - Response: Earnings summary
+### 2.5 Performance Analytics
+- **GET /api/v1/tutor/analytics/overview**
+  - **Description**: High-level stats for the dashboard.
+  - **Response**: `{ totalEarnings, activeSessions, totalStudents, avgRating }`
+- **GET /api/v1/tutor/analytics/earnings**
+  - **Description**: Detailed earnings breakdown by month/week.
+- **GET /api/v1/tutor/analytics/reviews**
+  - **Description**: List of all reviews with sentiment analysis.
 
-### List Transactions
-- **GET /api/tutors/{tutorId}/transactions**
-  - Response: List of payment transactions
-
-### Request Payout
-- **POST /api/tutors/{tutorId}/payout**
-  - Request: `{ amount, method }`
-  - Response: Success/failure
-
----
-
-## 8. Settings
-
-### Get Settings
-- **GET /api/tutors/{tutorId}/settings**
-  - Response: Settings data
-
-### Update Settings
-- **PUT /api/tutors/{tutorId}/settings**
-  - Request: Updated settings
-  - Response: Updated settings
-
----
-
-## 9. Notifications
-
-### List Notifications
-- **GET /api/tutors/{tutorId}/notifications**
-  - Response: List of notifications
-
-### Mark Notification as Read
-- **PUT /api/tutors/{tutorId}/notifications/{notificationId}**
-  - Response: Success/failure
+### 2.6 Reviews & Feedback
+- **GET /api/v1/tutor/reviews**
+  - **Description**: Get all reviews received.
+- **POST /api/v1/tutor/reviews/:id/respond**
+  - **Description**: Publicly respond to a student's review.
+  - **Body**: `{ responseText }`
 
 ---
 
-## Notes
-- All endpoints require authentication (token in headers).
-- Replace `{tutorId}` and other IDs with actual values.
-- Pagination, filtering, and sorting parameters should be supported where relevant.
+## 3. Data Validation & Response Standards
 
----
+### 3.1 Error Handling
+All tutor-related endpoints return a standardized error object:
+```json
+{
+  "status": "error",
+  "code": "TUTOR_AUTH_FAILED",
+  "message": "Detailed error message",
+  "timestamp": "2024-06-01T10:00:00Z"
+}
+```
 
-This API reference covers all tutor features: dashboard, sessions, students, messages, reviews, earnings, settings, and notifications. Adjust endpoint paths and request/response formats as needed for your backend implementation.
+### 3.2 Success Response Format
+```json
+{
+  "status": "success",
+  "data": { ... },
+  "metadata": {
+    "page": 1,
+    "limit": 10,
+    "total": 100
+  }
+}
+```
+**HTTP Status Codes:**
+- **GET**: `200 OK`
+- **POST**: `201 Created`
+- **PATCH/PUT**: `200 OK`
+- **DELETE**: `204 No Content`
