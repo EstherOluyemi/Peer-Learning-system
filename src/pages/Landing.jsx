@@ -277,7 +277,7 @@ const Landing = () => {
                 to="/role-selection" 
                 className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-lg hover:scale-105"
               >
-                Get Started Free
+                Get Started For Free
               </Link>
             </div>
           </div>

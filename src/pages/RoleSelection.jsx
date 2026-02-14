@@ -10,8 +10,8 @@ const RoleCard = ({ title, description, icon: Icon, isSelected, onClick, id }) =
     id={id}
     type="button"
     onClick={onClick}
-    className={`w-full p-6 rounded-2xl border-2 text-left transition-all duration-300 group ${isSelected
-      ? 'border-blue-600 bg-blue-50 shadow-md shadow-blue-100'
+    className={`w-full p-6 rounded-2xl border-2 text-left transition-all duration-300 group focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 ${isSelected
+      ? 'border-blue-600 bg-blue-50 shadow-none'
       : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-lg hover:shadow-slate-100'
       }`}
     aria-pressed={isSelected}
@@ -47,8 +47,18 @@ const RoleSelection = () => {
   const containerClass = highContrast ? 'bg-white text-black contrast-more' : 'bg-slate-50';
 
   return (
-    <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300`}>
+    <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300 relative`}>
       <AccessibilityToolbar />
+
+      <div className="absolute top-6 left-6">
+        <Link
+          to="/"
+          className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors group"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+          Back to Home
+        </Link>
+      </div>
 
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-xl space-y-8">

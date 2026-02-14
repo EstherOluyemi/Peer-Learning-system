@@ -1,7 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../services/api';
+import { mockUsers } from '../data/mockdata';
 
 const AuthContext = createContext();
+const USE_MOCK_AUTH = true; // Set to false when backend is ready
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -39,6 +41,31 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (credentials, role = null) => {
+    // Mock authentication
+    if (USE_MOCK_AUTH) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const foundUser = Object.values(mockUsers).find(
+            u => u.email === credentials.email && u.password === credentials.password
+          );
+          
+          if (foundUser) {
+            const userData = { ...foundUser };
+            setUser(userData);
+            localStorage.setItem('peerlearn_user', JSON.stringify({ 
+              id: userData.id, 
+              role: userData.role,
+              name: userData.name 
+            }));
+            resolve(userData);
+          } else {
+            reject(new Error('Invalid email or password'));
+          }
+        }, 500); // Simulate network delay
+      });
+    }
+
+    // Real API authentication
     try {
       // If role is provided, use the specific endpoint
       if (role) {

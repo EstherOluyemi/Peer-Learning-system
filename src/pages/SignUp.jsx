@@ -160,16 +160,19 @@ const SignUp = () => {
             <div>
               <button
                 onClick={() => navigate('/role-selection', { state: formData })}
-                className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-8 group"
+                className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-8 group focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                style={{ outline: 'none', boxShadow: 'none' }}
               >
                 <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
                 Back to Role Selection
               </button>
 
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
+                <img
+                  src={peerlearnLogo}
+                  alt="PeerLearn"
+                  className="w-10 h-10 object-contain"
+                />
                 <span className="text-2xl font-bold text-slate-900 tracking-tight">PeerLearn</span>
               </div>
 
@@ -208,9 +211,10 @@ const SignUp = () => {
                     value={formData.fullName}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-3 py-3 rounded-xl border text-slate-900 ${errors.fullName
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
-                      } focus:outline-none focus:ring-4 transition-all duration-200 sm:text-sm`}
+                      ? 'border-red-300'
+                      : 'border-slate-200'
+                      } focus:outline-none transition-all duration-200 sm:text-sm`}
+                    style={{ outline: 'none', boxShadow: 'none' }}
                     placeholder="John Doe"
                     disabled={isLoading}
                     aria-invalid={!!errors.fullName}
@@ -240,9 +244,10 @@ const SignUp = () => {
                     value={formData.email}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-3 py-3 rounded-xl border text-slate-900 ${errors.email
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
-                      } focus:outline-none focus:ring-4 transition-all duration-200 sm:text-sm`}
+                      ? 'border-red-300'
+                      : 'border-slate-200'
+                      } focus:outline-none transition-all duration-200 sm:text-sm`}
+                    style={{ outline: 'none', boxShadow: 'none' }}
                     placeholder="you@example.com"
                     disabled={isLoading}
                     aria-invalid={!!errors.email}
@@ -272,9 +277,10 @@ const SignUp = () => {
                     value={formData.password}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-10 py-3 rounded-xl border text-slate-900 ${errors.password
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
-                      } focus:outline-none focus:ring-4 transition-all duration-200 sm:text-sm`}
+                      ? 'border-red-300'
+                      : 'border-slate-200'
+                      } focus:outline-none transition-all duration-200 sm:text-sm`}
+                    style={{ outline: 'none', boxShadow: 'none' }}
                     placeholder="••••••••"
                     disabled={isLoading}
                     aria-invalid={!!errors.password}
@@ -282,7 +288,8 @@ const SignUp = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                    style={{ outline: 'none', boxShadow: 'none' }}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -312,9 +319,10 @@ const SignUp = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className={`block w-full pl-10 pr-10 py-3 rounded-xl border text-slate-900 ${errors.confirmPassword
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
-                      } focus:outline-none focus:ring-4 transition-all duration-200 sm:text-sm`}
+                      ? 'border-red-300'
+                      : 'border-slate-200'
+                      } focus:outline-none transition-all duration-200 sm:text-sm`}
+                    style={{ outline: 'none', boxShadow: 'none' }}
                     placeholder="••••••••"
                     disabled={isLoading}
                     aria-invalid={!!errors.confirmPassword}
@@ -322,7 +330,8 @@ const SignUp = () => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                    style={{ outline: 'none', boxShadow: 'none' }}
                     aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                   >
                     {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -340,7 +349,7 @@ const SignUp = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full relative overflow-hidden bg-linear-to-r from-blue-600 to-blue-700 text-white font-bold py-3.5 px-4 rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/30 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 ${isLoading ? 'cursor-not-allowed opacity-80' : 'transform hover:-translate-y-0.5'
+                className={`w-full relative overflow-hidden bg-linear-to-r from-blue-600 to-blue-700 text-white font-bold py-3.5 px-4 rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-0 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 ${isLoading ? 'cursor-not-allowed opacity-80' : 'transform hover:-translate-y-0.5'
                   }`}
               >
                 <div className="flex items-center justify-center">
