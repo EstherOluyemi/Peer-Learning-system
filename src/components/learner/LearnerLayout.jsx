@@ -21,6 +21,7 @@ const LearnerLayout = ({ children }) => {
     const navItems = [
         { label: 'Dashboard', icon: BookOpen, to: '/dashboard-learner' },
         { label: 'My Sessions', icon: Calendar, to: '/dashboard-learner/sessions' },
+        { label: 'Browse Sessions', icon: Search, to: '/dashboard-learner/browse-sessions' },
         { label: 'Create Session', icon: Plus, to: '/dashboard-learner/create-session' },
         { label: 'Profile', icon: User, to: '/dashboard-learner/profile' },
     ];

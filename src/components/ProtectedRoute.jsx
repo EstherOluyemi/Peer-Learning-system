@@ -19,13 +19,18 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
   // Role-based protection (optional)
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Redirect to correct dashboard based on user role
-    if (user.role === 'tutor') {
-      return <Navigate to="/dashboard-tutor" replace />;
-    } else if (user.role === 'learner') {
-      return <Navigate to="/dashboard-learner" replace />;
-    } else {
-      return <Navigate to="/login" replace />;
+    // Normalize role check: treat "student" as "learner"
+    const normalizedRole = user.role === 'student' ? 'learner' : user.role;
+    
+    if (!allowedRoles.includes(normalizedRole)) {
+      // Redirect to correct dashboard based on user role
+      if (normalizedRole === 'tutor') {
+        return <Navigate to="/dashboard-tutor" replace />;
+      } else if (normalizedRole === 'learner') {
+        return <Navigate to="/dashboard-learner" replace />;
+      } else {
+        return <Navigate to="/login" replace />;
+      }
     }
   }
 

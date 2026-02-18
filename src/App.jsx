@@ -32,6 +32,7 @@ import TutorCreateSessionPage from './components/tutor/CreateSessionPage';
 
 // Sub-pages (Learner)
 import LearnerSessionsPage from './components/learner/SessionsPage';
+import BrowseSessionsPage from './components/learner/BrowseSessionsPage';
 import ProfilePage from './components/learner/ProfilePage';
 import LearnerSettingsPage from './components/learner/SettingsPage';
 import CreateSessionPage from './components/learner/CreateSessionPage';
@@ -54,10 +55,11 @@ function App() {
                 <Route path="/role-selection" element={<RoleSelection />} />
 
                 {/* Learner Routes */}
-                <Route element={<ProtectedRoute allowedRoles={["learner"]} />}>
+                <Route element={<ProtectedRoute allowedRoles={["learner", "student"]} />}>
                   <Route path="/dashboard-learner" element={<LearnerLayout />}>
                     <Route index element={<DashboardLearner />} />
                     <Route path="sessions" element={<LearnerSessionsPage />} />
+                    <Route path="browse-sessions" element={<BrowseSessionsPage />} />
                     <Route path="create-session" element={<CreateSessionPage />} />
                     <Route path="profile" element={<ProfilePage />} />
                     <Route path="settings" element={<LearnerSettingsPage />} />
@@ -78,7 +80,7 @@ function App() {
                   </Route>
                 </Route>
 
-                <Route element={<ProtectedRoute allowedRoles={["learner", "tutor"]} />}>
+                <Route element={<ProtectedRoute allowedRoles={["learner", "student", "tutor"]} />}>
                   <Route path="/profile" element={<Profile />} />
                 </Route>
 

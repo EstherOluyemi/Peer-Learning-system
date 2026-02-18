@@ -27,21 +27,33 @@ const DashboardLearner = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // Fetch progress and enrolled courses/sessions
-        const [progressRes, sessionsRes] = await Promise.all([
-          api.get('/v1/learner/me/progress'),
-          api.get('/v1/learner/courses?enrolled=true')
-        ]);
+        console.log('Fetching learner dashboard data...');
+        
+        // Try to fetch learner sessions - use the endpoint that exists
+        try {
+          const sessionsRes = await api.get('/v1/learner/sessions');
+          console.log('Learner sessions response:', sessionsRes);
+          const sessionsData = sessionsRes.data || [];
+          
+          setStats({
+            totalSessions: sessionsData.length || 0,
+            upcoming: sessionsData.filter(s => s.status === 'scheduled' || s.status === 'upcoming').length || 0,
+            completed: sessionsData.filter(s => s.status === 'completed').length || 0,
+            avgRating: '4.8'
+          });
 
-        // Mocking some data transformation until backends are fully populated
-        setStats({
-          totalSessions: progressRes.data?.totalSessions || 0,
-          upcoming: sessionsRes.data?.length || 0,
-          completed: progressRes.data?.completedSessions || 0,
-          avgRating: progressRes.data?.avgRating || '5.0'
-        });
-
-        setUpcomingSessions(sessionsRes.data?.slice(0, 3) || []);
+          setUpcomingSessions(sessionsData.slice(0, 3) || []);
+        } catch (sessionErr) {
+          console.warn('Could not fetch sessions:', sessionErr);
+          // Set default empty state
+          setStats({
+            totalSessions: 0,
+            upcoming: 0,
+            completed: 0,
+            avgRating: '0.0'
+          });
+          setUpcomingSessions([]);
+        }
         
         // Mock activity for now as there's no dedicated endpoint yet
         setRecentActivity([
@@ -49,8 +61,8 @@ const DashboardLearner = () => {
         ]);
         
       } catch (err) {
+        console.error('Dashboard error:', err);
         setError('Failed to load dashboard data. Please try again later.');
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -80,7 +92,7 @@ const DashboardLearner = () => {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            Welcome back, {user?.name?.split(' ')[0] || 'Learner'}! 👋
+            Welcome back, {user?.name?.split(' ')[0] || 'Learner'}! :)
           </h1>
           <p style={{ color: 'var(--text-secondary)' }} className="mt-1">
             Ready to continue your learning journey?

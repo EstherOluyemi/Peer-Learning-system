@@ -5,29 +5,33 @@ import {
     ChevronLeft, ChevronRight, Eye, MessageSquare, Bookmark,
     TrendingUp, TrendingDown, MapPin, Video, BookOpen, AlertCircle
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
 const SessionsPage = () => {
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
-    const [filterStatus, setFilterStatus] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [leavingSessionId, setLeavingSessionId] = useState(null);
     const itemsPerPage = 8;
 
     useEffect(() => {
         const fetchSessions = async () => {
             try {
                 setLoading(true);
-                const response = await api.get('/v1/learner/courses?enrolled=true');
-                // The API might return sessions in a slightly different format, 
-                // but we'll map them to what the UI expects or adjust the UI.
-                setSessions(response.data || []);
+                console.log('Fetching enrolled sessions...');
+                const response = await api.get('/v1/learner/sessions');
+                console.log('Enrolled sessions response:', response);
+                const sessionsData = response.data || [];
+                setSessions(sessionsData);
             } catch (err) {
                 setError('Failed to fetch your sessions. Please try again later.');
-                console.error(err);
+                console.error('Error fetching sessions:', err);
             } finally {
                 setLoading(false);
             }
@@ -36,13 +40,36 @@ const SessionsPage = () => {
         fetchSessions();
     }, []);
 
+    const handleLeaveSession = async (sessionId) => {
+        if (!window.confirm('Are you sure you want to leave this session?')) {
+            return;
+        }
+
+        try {
+            setLeavingSessionId(sessionId);
+            setError(null);
+            await api.post(`/v1/learner/sessions/${sessionId}/leave`);
+            
+            // Remove session from local state
+            setSessions(prev => prev.filter(s => s._id !== sessionId));
+            setSuccessMessage('Successfully left the session');
+            
+            // Clear success message after 3 seconds
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (err) {
+            setError('Failed to leave session. Please try again.');
+            console.error('Error leaving session:', err);
+        } finally {
+            setLeavingSessionId(null);
+        }
+    };
+
     const filteredSessions = sessions.filter(session => {
         const matchesSearch = (session.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.tutorName || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = filterType === 'all' || (session.type || '').toLowerCase() === filterType.toLowerCase();
-        const matchesStatus = filterStatus === 'all' || session.status === filterStatus;
-        return matchesSearch && matchesType && matchesStatus;
+        return matchesSearch && matchesType;
     });
 
     const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
@@ -53,28 +80,32 @@ const SessionsPage = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'upcoming': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-            case 'completed': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-            case 'cancelled': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-            default: return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+            case 'upcoming':
+            case 'scheduled': 
+                return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+            case 'ongoing':
+                return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+            case 'completed': 
+                return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+            case 'cancelled': 
+                return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+            default: 
+                return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
         }
     };
 
-    const getTypeColor = (type) => {
-        switch (type) {
-            case 'Workshop': return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400';
-            case '1-on-1': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
-            case 'Group': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-            default: return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
-        }
-    };
-
-    const getLevelColor = (level) => {
-        switch (level) {
-            case 'Beginner': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-            case 'Intermediate': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-            case 'Advanced': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
-            default: return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+    const formatDateTime = (dateString) => {
+        if (!dateString) return { date: 'TBD', time: '--', dayMonth: 'TBD', hour: '--' };
+        try {
+            const date = new Date(dateString);
+            return {
+                date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                dayMonth: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                hour: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+            };
+        } catch {
+            return { date: 'Invalid date', time: '--', dayMonth: 'TBD', hour: '--' };
         }
     };
 
@@ -85,7 +116,9 @@ const SessionsPage = () => {
                     <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Sessions</h1>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your learning sessions and track progress.</p>
                 </div>
-                <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+                <button 
+                    onClick={() => navigate('/dashboard-learner/browse-sessions')}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95">
                     <Plus className="w-5 h-5" />
                     Browse Sessions
                 </button>
@@ -96,11 +129,18 @@ const SessionsPage = () => {
                     <AlertCircle className="w-5 h-5 shrink-0" />
                     <p className="text-sm font-medium">{error}</p>
                     <button 
-                        onClick={() => window.location.reload()}
+                        onClick={() => setError(null)}
                         className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline"
                     >
-                        Retry
+                        Dismiss
                     </button>
+                </div>
+            )}
+
+            {successMessage && (
+                <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3 text-green-700 dark:text-green-400">
+                    <BookOpen className="w-5 h-5 shrink-0" />
+                    <p className="text-sm font-medium">{successMessage}</p>
                 </div>
             )}
 
@@ -145,9 +185,13 @@ const SessionsPage = () => {
                                 <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Loading sessions...</p>
                             </div>
                         ) : currentSessions.length > 0 ? (
-                            currentSessions.map(session => (
+                            currentSessions.map(session => {
+                                const startDate = formatDateTime(session.startTime);
+                                const endDate = formatDateTime(session.endTime);
+                                
+                                return (
                                 <div
-                                    key={session.id}
+                                    key={session._id || session.id}
                                     className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                                     style={{
                                         backgroundColor: 'var(--card-bg)',
@@ -157,83 +201,95 @@ const SessionsPage = () => {
                                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                                         <div className="flex items-start gap-4">
                                             <div className="flex flex-col items-center justify-center w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                                                <span className="text-xs font-bold uppercase">{session.date?.split(' ')[0] || 'TBD'}</span>
-                                                <span className="text-lg font-bold">{session.time?.split(':')[0] || '--'}</span>
+                                                <span className="text-xs font-bold uppercase">{startDate.dayMonth.split(' ')[0]}</span>
+                                                <span className="text-lg font-bold">{startDate.dayMonth.split(' ')[1]}</span>
                                             </div>
                                             <div className="flex-1">
-                                                <div className="flex items-center gap-3 mb-2">
+                                                <div className="flex items-center gap-3 mb-2 flex-wrap">
                                                     <h4 className="font-bold text-lg group-hover:text-blue-600 transition-colors" style={{ color: 'var(--text-primary)' }}>
-                                                        {session.title}
+                                                        {session.title || 'Untitled Session'}
                                                     </h4>
-                                                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(session.type || 'Workshop')}`}>
-                                                        {session.type || 'Workshop'}
-                                                    </span>
-                                                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getLevelColor(session.level || 'Beginner')}`}>
-                                                        {session.level || 'Beginner'}
-                                                    </span>
                                                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(session.status || 'upcoming')}`}>
-                                                        {(session.status || 'upcoming').charAt(0).toUpperCase() + (session.status || 'upcoming').slice(1)}
+                                                        {(session.status || 'scheduled').charAt(0).toUpperCase() + (session.status || 'scheduled').slice(1)}
                                                     </span>
                                                 </div>
-                                                <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{session.description}</p>
+                                                <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{session.description || 'No description available'}</p>
                                                 <div className="flex flex-wrap items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                                                    <div className="flex items-center gap-1">
-                                                        <img
-                                                            src={session.tutorAvatar || `https://ui-avatars.com/api/?name=${session.tutorName || 'Tutor'}&background=random`}
-                                                            alt={session.tutorName || 'Tutor'}
-                                                            className="w-5 h-5 rounded-full"
-                                                        />
-                                                        <span>{session.tutorName || 'Unknown Tutor'}</span>
-                                                    </div>
                                                     <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" /> {session.subject || 'General'}</span>
-                                                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {session.duration || '1h'}</span>
-                                                    <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {session.date || 'TBD'} at {session.time || '--'}</span>
-                                                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {session.location || 'Online'}</span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-2 mt-3">
-                                                    {(session.skills || []).map(skill => (
-                                                        <span key={skill} className="px-2 py-1 text-xs rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                                                            {skill}
-                                                        </span>
-                                                    ))}
+                                                    <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {startDate.date}</span>
+                                                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {startDate.time} - {endDate.time}</span>
+                                                    <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {session.studentIds?.length || 0}/{session.maxParticipants || 0}</span>
+                                                    {session.meetingLink && (
+                                                        <a 
+                                                            href={session.meetingLink} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-1 text-blue-600 hover:underline"
+                                                        >
+                                                            <Video className="w-3.5 h-3.5" /> Join
+                                                        </a>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-3">
                                             <div className="flex gap-2">
-                                                <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                                <button 
+                                                    className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                                    title="View details"
+                                                >
                                                     <Eye className="w-5 h-5" />
                                                 </button>
-                                                <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                                <button 
+                                                    className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                                    title="Message tutor"
+                                                >
                                                     <MessageSquare className="w-5 h-5" />
                                                 </button>
-                                                <button className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
-                                                    <Bookmark className="w-5 h-5" />
-                                                </button>
                                             </div>
+                                            <button
+                                                onClick={() => handleLeaveSession(session._id || session.id)}
+                                                disabled={leavingSessionId === (session._id || session.id)}
+                                                className="px-4 py-2 text-sm font-medium text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {leavingSessionId === (session._id || session.id) ? 'Leaving...' : 'Leave Session'}
+                                            </button>
                                             <div className="text-right">
                                                 <div className="flex items-center justify-end gap-2 mb-2">
                                                     <Star className="w-4 h-4 text-yellow-500" />
                                                     <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{session.rating || '5.0'}</span>
                                                 </div>
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{session.enrolled || 0}/{session.capacity || 0} enrolled</span>
-                                                    <span className="font-bold text-green-600 dark:text-green-400">{session.price || 'Free'}</span>
+                                                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{session.studentIds?.length || 0}/{session.maxParticipants || 0} enrolled</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            ))
+                                );
+                            })
                         ) : (
                             <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)' }}>
                                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
                                     <Calendar className="w-8 h-8 text-slate-400" />
                                 </div>
-                                <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No sessions found</h3>
-                                <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
-                                    We couldn't find any sessions matching your filters. Try adjusting your search or browse all sessions.
+                                <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                                    {searchTerm || filterType !== 'all' ? 'No sessions found' : 'No enrolled sessions yet'}
+                                </h3>
+                                <p className="text-sm max-w-xs mx-auto mb-6" style={{ color: 'var(--text-secondary)' }}>
+                                    {searchTerm || filterType !== 'all' 
+                                        ? "We couldn't find any sessions matching your filters. Try adjusting your search." 
+                                        : "You haven't joined any sessions yet. Browse available sessions to get started!"}
                                 </p>
+                                {!searchTerm && filterType === 'all' && (
+                                    <button
+                                        onClick={() => navigate('/dashboard-learner/browse-sessions')}
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95"
+                                    >
+                                        <Search className="w-4 h-4" />
+                                        Browse Sessions
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>

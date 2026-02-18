@@ -13,6 +13,7 @@ import {
     Users
 } from 'lucide-react';
 import { useAccessibility } from '../context/hooks';
+import { useAuth } from '../context/AuthContext';
 import AccessibilityToolbar from '../components/AccessibilityToolbar';
 import signupLogo from '../assets/signup-logo.webp';
 
@@ -20,13 +21,15 @@ const ProfileSetup = () => {
     const { highContrast, textSize } = useAccessibility();
     const navigate = useNavigate();
     const location = useLocation();
+    const { user, loading: authLoading } = useAuth();
 
     // Redirect if no role or userId is present (meaning they skipped previous steps)
+    // But only after auth context has checked for saved user
     useEffect(() => {
-        if (!location.state?.role || !location.state?.userId) {
+        if (!authLoading && !location.state?.role && !user) {
             navigate('/role-selection', { replace: true });
         }
-    }, [location.state, navigate]);
+    }, [location.state, user, authLoading, navigate]);
 
     const [formData, setFormData] = useState({
         bio: '',
@@ -39,7 +42,7 @@ const ProfileSetup = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
-    const role = location.state?.role || 'learner';
+    const role = location.state?.role || user?.role || 'learner';
     const isTutor = role === 'tutor';
 
     const handleChange = (e) => {
@@ -100,11 +103,17 @@ const ProfileSetup = () => {
         if (validateForm()) {
             setIsLoading(true);
             try {
+                // Get the role from location.state or user context
+                const profileRole = location.state?.role || user?.role || 'learner';
+                
                 // Mock API call to update profile
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 setIsSuccess(true);
+                
+                // Redirect after success message is shown
+                const isTutor = profileRole === 'tutor';
                 setTimeout(() => {
-                    navigate(isTutor ? '/dashboard-tutor' : '/dashboard-learner');
+                    navigate(isTutor ? '/dashboard-tutor' : '/dashboard-learner', { replace: true });
                 }, 2000);
             } catch (error) {
                 setErrors({ general: 'Failed to update profile. Please try again.' });
@@ -129,6 +138,18 @@ const ProfileSetup = () => {
                     <div className="flex justify-center">
                         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Show loading while auth context is checking for saved user
+    if (authLoading && !location.state?.role) {
+        return (
+            <div className={`min-h-screen flex items-center justify-center ${containerClass}`}>
+                <div className="text-center space-y-4">
+                    <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className="text-slate-600">Checking your session...</p>
                 </div>
             </div>
         );

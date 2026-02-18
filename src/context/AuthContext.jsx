@@ -1,13 +1,33 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../services/api';
-import { mockUsers } from '../data/mockdata';
 
 const AuthContext = createContext();
-const USE_MOCK_AUTH = true; // Set to false when backend is ready
+const USE_MOCK_AUTH = false; // Set to false when backend is ready
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const getUserFromResponse = (response, fallbackRole) => {
+    if (!response) return null;
+    const data = response.data || response;
+    const userPayload = data.user || data?.data?.user || data?.data || null;
+    if (!userPayload) return null;
+    
+    // Normalize role: backend returns "student" but frontend uses "learner"
+    let normalizedRole = userPayload.role || fallbackRole;
+    if (normalizedRole === 'student') {
+      normalizedRole = 'learner';
+    }
+    
+    return { ...userPayload, role: normalizedRole };
+  };
+
+  const getTokenFromResponse = (response) => {
+    if (!response) return null;
+    const data = response.data || response;
+    return data.token || data?.data?.token || null;
+  };
 
   // Check for stored user on app load
   useEffect(() => {
@@ -21,7 +41,13 @@ export const AuthProvider = ({ children }) => {
           try {
             const response = await api.get(endpoint);
             // Backend should return user data if cookie is valid
-            setUser({ ...response.data.user, role: parsedUser.role });
+            const userData = getUserFromResponse(response, parsedUser.role);
+            if (userData) {
+              setUser(userData);
+            } else {
+              localStorage.removeItem('peerlearn_user');
+              setUser(null);
+            }
           } catch (err) {
             console.error('Session expired or invalid:', err);
             // If 401 or other error, clear the role from localStorage
@@ -67,11 +93,23 @@ export const AuthProvider = ({ children }) => {
 
     // Real API authentication
     try {
+      console.log('🔐 Login attempt with credentials:', { email: credentials.email, role });
+      
       // If role is provided, use the specific endpoint
       if (role) {
         const endpoint = role === 'tutor' ? '/v1/tutor/auth/login' : '/v1/learner/auth/login';
+        console.log('📍 Using endpoint:', endpoint);
         const response = await api.post(endpoint, credentials);
-        const userData = { ...response.data.user, role };
+        console.log('✅ Login response:', response);
+        const userData = getUserFromResponse(response, role);
+        console.log('👤 Extracted user data:', userData);
+        if (!userData) {
+          throw new Error('Invalid auth response');
+        }
+        const token = getTokenFromResponse(response);
+        if (token) {
+          localStorage.setItem('peerlearn_token', token);
+        }
         setUser(userData);
         localStorage.setItem('peerlearn_user', JSON.stringify({ 
           id: userData.id, 
@@ -82,9 +120,19 @@ export const AuthProvider = ({ children }) => {
       }
 
       // If no role is provided, try learner first, then tutor
+      console.log('📍 No role specified, trying learner first...');
       try {
         const response = await api.post('/v1/learner/auth/login', credentials);
-        const userData = { ...response.data.user, role: 'learner' };
+        console.log('✅ Learner login response:', response);
+        const userData = getUserFromResponse(response, 'learner');
+        console.log('👤 Learner user data:', userData);
+        if (!userData) {
+          throw new Error('Invalid auth response');
+        }
+        const token = getTokenFromResponse(response);
+        if (token) {
+          localStorage.setItem('peerlearn_token', token);
+        }
         setUser(userData);
         localStorage.setItem('peerlearn_user', JSON.stringify({ 
           id: userData.id, 
@@ -94,9 +142,19 @@ export const AuthProvider = ({ children }) => {
         return userData;
       } catch (learnerError) {
         // If learner login fails, try tutor
+        console.log('❌ Learner login failed, trying tutor...');
         try {
           const response = await api.post('/v1/tutor/auth/login', credentials);
-          const userData = { ...response.data.user, role: 'tutor' };
+          console.log('✅ Tutor login response:', response);
+          const userData = getUserFromResponse(response, 'tutor');
+          console.log('👤 Tutor user data:', userData);
+          if (!userData) {
+            throw new Error('Invalid auth response');
+          }
+          const token = getTokenFromResponse(response);
+          if (token) {
+            localStorage.setItem('peerlearn_token', token);
+          }
           setUser(userData);
           localStorage.setItem('peerlearn_user', JSON.stringify({ 
             id: userData.id, 
@@ -118,17 +176,30 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData, role = 'learner') => {
     try {
       const endpoint = role === 'tutor' ? '/v1/tutor/auth/register' : '/v1/learner/auth/register';
+      console.log('Registering as:', role, 'to endpoint:', endpoint);
       const response = await api.post(endpoint, userData);
+      console.log('Registration response:', response);
       
       // Token is now in HTTP-only cookie
-      const newUser = { ...response.data.user, role };
+      const newUser = getUserFromResponse(response, role);
+      console.log('Extracted user from response:', newUser);
+      if (!newUser) {
+        throw new Error('Invalid auth response');
+      }
+      const token = getTokenFromResponse(response);
+      if (token) {
+        localStorage.setItem('peerlearn_token', token);
+        console.log('Token saved to localStorage');
+      }
       setUser(newUser);
       // Store only non-sensitive user info and role
-      localStorage.setItem('peerlearn_user', JSON.stringify({ 
+      const storedData = { 
         id: newUser.id, 
         role: newUser.role,
         name: newUser.name 
-      }));
+      };
+      localStorage.setItem('peerlearn_user', JSON.stringify(storedData));
+      console.log('User data saved to localStorage:', storedData);
       return newUser;
     } catch (error) {
       throw error;
@@ -146,6 +217,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setUser(null);
       localStorage.removeItem('peerlearn_user');
+      localStorage.removeItem('peerlearn_token');
     }
   };
 

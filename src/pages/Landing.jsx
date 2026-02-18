@@ -155,7 +155,51 @@ const Landing = () => {
   return (
     <div className={`min-h-screen bg-linear-to-b from-slate-50 to-white transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
       <AccessibilityToolbar />
+      
+      {/* Skip Link - Always First Interactive Element */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus-not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
+      >
+        Skip to main content
+      </a>
+      
       <style jsx global>{`
+        /* Accessibility utilities */
+        .sr-only {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border-width: 0;
+        }
+        
+        .focus-not-sr-only:focus {
+          position: static;
+          width: auto;
+          height: auto;
+          padding: inherit;
+          margin: inherit;
+          overflow: visible;
+          clip: auto;
+          white-space: normal;
+        }
+        
+        /* Visual text hidden from screen readers */
+        .aria-hidden-text {
+          /* Visible to all, but not announced by screen readers if parent is hidden */
+        }
+        
+        /* Focus visible styles */
+        *:focus-visible {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
+        }
+        
         @keyframes fadeInUp {
           from {
             opacity: 0;
@@ -242,7 +286,7 @@ const Landing = () => {
         </div>
 
         {/* Navigation - UPDATED LOGO SIZE */}
-        <nav className="relative z-10 container mx-auto px-6 py-6">
+        <nav className="relative z-10 container mx-auto px-6 py-6" aria-label="Main navigation">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {/* Updated Logo - Bigger size */}
@@ -250,32 +294,33 @@ const Landing = () => {
                 <>
                   <img 
                     src={peerlearnLogo} 
-                    alt="PeerLearn Logo" 
+                    alt="PeerLearn" 
                     className="h-12 w-auto"  // Increased from h-10 to h-12
                   />
-                  <Link to="/" onClick={() => window.location.reload()} className="text-2xl font-bold text-white ml-2 hover:text-blue-300 transition-colors">PeerLearn</Link>
+                  <Link to="/" onClick={() => window.location.reload()} className="text-2xl font-bold text-white ml-2 hover:text-blue-300 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded">PeerLearn</Link>
                 </>
               ) : (
                 <>
                   <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
-                    <Users className="w-7 h-7 text-white" />
+                    <Users className="w-7 h-7 text-white" aria-hidden="true" />
                   </div>
-                  <Link to="/" onClick={() => window.location.reload()} className="text-2xl font-bold text-white ml-2 hover:text-blue-300 transition-colors">PeerLearn</Link>
+                  <Link to="/" onClick={() => window.location.reload()} className="text-2xl font-bold text-white ml-2 hover:text-blue-300 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded">PeerLearn</Link>
                 </>
               )}
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-white/90 hover:text-white font-medium transition hover:scale-105">Features</a>
+              <a href="#features" className="text-white/90 hover:text-white font-medium transition hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded">Features</a>
               <button 
                 onClick={scrollToTestimonials}
-                className="text-white/90 hover:text-white font-medium transition hover:scale-105 bg-transparent border-none cursor-pointer"
+                className="text-white/90 hover:text-white font-medium transition hover:scale-105 bg-transparent border-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded"
+                aria-label="Scroll to testimonials section"
               >
                 Testimonials
               </button>
-              <Link to="/login" className="text-white/90 hover:bg-blue-100 hover:text-blue-500 font-medium transition hover:scale-105 rounded-lg px-3 py-1">Login</Link>
+              <Link to="/login" className="text-white/90 hover:bg-blue-100 hover:text-blue-500 font-medium transition hover:scale-105 rounded-lg px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Login</Link>
               <Link 
                 to="/role-selection" 
-                className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-lg hover:scale-105"
+                className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-lg hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Get Started For Free
               </Link>
@@ -283,8 +328,8 @@ const Landing = () => {
           </div>
         </nav>
         {/* Hero Content */}
-        <div className="relative z-10 container mx-auto px-6 pt-20 pb-16 flex flex-col items-start">
-          <span className="block text-white text-lg mb-4">🎓 Transform Your Learning Journey</span>
+        <div className="relative z-10 container mx-auto px-6 pt-20 pb-16 flex flex-col items-start" id="main-content">
+          <span className="block text-white text-lg mb-4" role="doc-subtitile">🎓 Transform Your Learning Journey</span>
           <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
             Learn <span className="text-blue-300">Together,</span>
             <span className="block">Grow <span className="text-emerald-300">Together</span></span>
@@ -295,7 +340,7 @@ const Landing = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link 
               to="/role-selection" 
-              className="inline-flex items-center justify-center bg-white text-slate-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg"
+              className="inline-flex items-center justify-center bg-white text-slate-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Start Learning For Free
               <ArrowRight className="ml-3 w-5 h-5" />
@@ -304,25 +349,29 @@ const Landing = () => {
         </div>
 
       </header>
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
+      {/* Stats Section - ACCESSIBLE */}
+      <section className="py-16 bg-white" aria-label="Platform statistics">
         <div className="container mx-auto px-6">
           <div 
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
             ref={el => sectionRefs.current[2] = el}
+            role="list"
           >
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
                 <div 
-                  key={index} 
-                  className="text-center p-6 rounded-2xl bg-linear-to-b from-white to-slate-50 border border-slate-100 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 animate-fade-in-up"
+                  key={index}
+                  role="listitem"
+                  tabIndex={0} 
+                  className="text-center p-6 rounded-2xl bg-linear-to-b from-white to-slate-50 border border-slate-100 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   style={{ animationDelay: `${index * 100}ms` }}
+                  aria-label={`${stat.label}: ${stat.number}`}
                 >
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-blue-50 to-white rounded-2xl mb-4 border border-slate-100">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-blue-50 to-white rounded-2xl mb-4 border border-slate-100" aria-hidden="true">
                     <Icon className="w-8 h-8 text-blue-600" />
                   </div>
-                  <div className="text-4xl font-bold text-slate-900 mb-2">{stat.number}</div>
+                  <div className="text-4xl font-bold text-slate-900 mb-2" aria-hidden="true">{stat.number}</div>
                   <div className="text-slate-600 font-medium">{stat.label}</div>
                 </div>
               );
@@ -331,14 +380,14 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section - ACCESSIBLE */}
       <section id="features" className="py-20 bg-linear-to-b from-white to-slate-50">
         <div className="container mx-auto px-6">
           <div 
             className="text-center max-w-3xl mx-auto mb-16"
             ref={el => sectionRefs.current[3] = el}
           >
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            <h2 id="features-heading" className="text-4xl font-bold text-slate-900 mb-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded" tabIndex={-1}>
               Everything You Need for
               <span className="text-blue-600"> Effective Learning</span>
             </h2>
@@ -350,35 +399,41 @@ const Landing = () => {
           <div 
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
             ref={el => sectionRefs.current[4] = el}
+            aria-labelledby="features-heading"
+            role="list"
           >
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <div 
+                <article 
                   key={index} 
-                  className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-blue-200 animate-fade-in-up"
+                  className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-blue-200 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-within:shadow-xl"
                   style={{ animationDelay: `${index * 100}ms` }}
+                  role="listitem"
+                  tabIndex={0}
+                  aria-label={`Feature: ${feature.title}`}
+                  aria-describedby={`feature-desc-${index}`}
                 >
-                  <div className={`w-14 h-14 ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className="w-7 h-7" />
+                  <div className={`w-14 h-14 ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`} aria-hidden="true">
+                    <Icon className="w-7 h-7" aria-hidden="true" />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-900 mb-4">{feature.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
-                </div>
+                  <p id={`feature-desc-${index}`} className="text-slate-600 leading-relaxed">{feature.desc}</p>
+                </article>
               );
             })}
           </div>
         </div>
       </section>
 
-      {/* Testimonials Marquee Section - UPDATED */}
+      {/* Testimonials Marquee Section - UPDATED & ACCESSIBLE */}
       <section id="testimonials" className="py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-6">
           <div 
             className="text-center max-w-3xl mx-auto mb-16"
             ref={el => sectionRefs.current[5] = el}
           >
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            <h2 id="testimonials-heading" className="text-4xl font-bold text-slate-900 mb-4" tabIndex={-1}>
               What Our Community Says
             </h2>
             <p className="text-xl text-slate-600 leading-relaxed">
@@ -386,79 +441,92 @@ const Landing = () => {
             </p>
           </div>
           
-          {/* Marquee Container */}
-          <div className="relative overflow-hidden py-4 pause-on-hover">
+          {/* Testimonials - Now Keyboard Accessible */}
+          <div 
+            className="relative py-4"
+            role="region"
+            aria-labelledby="testimonials-heading"
+            aria-label="Customer testimonials carousel - Use arrow keys to navigate"
+          >
             {/* linear overlay on edges */}
-            <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white via-white to-transparent z-10 pointer-events-none"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white via-white to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white via-white to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white via-white to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
             
             {/* Marquee Row 1 - Moves LEFT (faster: 30s) */}
-            <div className="flex animate-marquee-left mb-10">
+            <div className="flex animate-marquee-left mb-10" role="list" aria-label="Testimonials - Row 1">
               {duplicatedTestimonials.map((testimonial, index) => (
-                <div 
-                  key={`first-${testimonial.id}-${index}`} 
-                  className="shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md"
+                <article 
+                  key={`first-${testimonial.id}-${index}`}
+                  role="listitem"
+                  tabIndex={0}
+                  className="shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 >
-                  <Quote className="w-8 h-8 text-blue-400 mb-4 quote-icon transition-transform duration-300" />
+                  <Quote className="w-8 h-8 text-blue-400 mb-4 quote-icon transition-transform duration-300" aria-hidden="true" />
                   <p className="text-slate-700 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
                   <div className="flex items-center">
                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-100 shadow-sm mr-4 profile-img transition-transform duration-300">
                       <img 
                         src={testimonial.image} 
-                        alt={testimonial.name}
+                        alt={`${testimonial.name}, ${testimonial.role}`}
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
                     </div>
                     <div>
                       <h4 className="font-semibold text-slate-900 text-base">{testimonial.name}</h4>
-                      <p className="text-sm text-slate-600">{testimonial.role}</p>
-                      <div className="flex mt-1">
+                      <p className="text-sm text-slate-600 sr-only">{testimonial.role}</p>
+                      <p className="text-sm text-slate-600 aria-hidden-text">{testimonial.role}</p>
+                      <div className="flex mt-1" aria-label={`Rating: ${testimonial.rating} out of 5 stars`} role="img">
                         {[...Array(5)].map((_, i) => (
                           <Star 
                             key={i} 
-                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-300'}`} 
+                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-300'}`}
+                            aria-hidden="true"
                           />
                         ))}
                       </div>
                     </div>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
             
             {/* Marquee Row 2 - Moves RIGHT (faster: 30s) */}
-            <div className="flex animate-marquee-right">
+            <div className="flex animate-marquee-right" role="list" aria-label="Testimonials - Row 2">
               {[...duplicatedTestimonials].reverse().map((testimonial, index) => (
-                <div 
-                  key={`second-${testimonial.id}-${index}`} 
-                  className="shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md"
+                <article 
+                  key={`second-${testimonial.id}-${index}`}
+                  role="listitem"
+                  tabIndex={0}
+                  className="shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 >
-                  <Quote className="w-8 h-8 text-emerald-400 mb-4 quote-icon transition-transform duration-300" />
+                  <Quote className="w-8 h-8 text-emerald-400 mb-4 quote-icon transition-transform duration-300" aria-hidden="true" />
                   <p className="text-slate-700 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
                   <div className="flex items-center">
                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-100 shadow-sm mr-4 profile-img transition-transform duration-300">
                       <img 
                         src={testimonial.image} 
-                        alt={testimonial.name}
+                        alt={`${testimonial.name}, ${testimonial.role}`}
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
                     </div>
                     <div>
                       <h4 className="font-semibold text-slate-900 text-base">{testimonial.name}</h4>
-                      <p className="text-sm text-slate-600">{testimonial.role}</p>
-                      <div className="flex mt-1">
+                      <p className="text-sm text-slate-600 sr-only">{testimonial.role}</p>
+                      <p className="text-sm text-slate-600 aria-hidden-text">{testimonial.role}</p>
+                      <div className="flex mt-1" aria-label={`Rating: ${testimonial.rating} out of 5 stars`} role="img">
                         {[...Array(5)].map((_, i) => (
                           <Star 
                             key={i} 
-                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-300'}`} 
+                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-300'}`}
+                            aria-hidden="true"
                           />
                         ))}
                       </div>
                     </div>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           </div>
@@ -467,7 +535,8 @@ const Landing = () => {
           <div className="text-center mt-16">
             <Link 
               to="/role-selection" 
-              className="inline-flex items-center justify-center bg-linear-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-blue-100 hover:text-blue-700 hover:shadow-xl hover:scale-105 transition-all shadow-md"
+              className="inline-flex items-center justify-center bg-linear-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-blue-100 hover:text-blue-700 hover:shadow-xl hover:scale-105 transition-all shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              aria-label="Get started with PeerLearn - Journey to your learning destination starts here"
             >
               Join Our Community
               <ArrowRight className="ml-3 w-5 h-5" />
@@ -479,20 +548,20 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Footer - UPDATED LOGO SIZE */}
-      <footer className="bg-gray-900 text-gray-300 py-10 reveal">
+      {/* Footer - UPDATED LOGO SIZE & ACCESSIBLE */}
+      <footer className="bg-gray-900 text-gray-300 py-10 reveal" role="contentinfo">
         <div className="max-w-2xl mx-auto text-center px-4">
-          <div className="flex items-center justify-center gap-3 mb-4" aria-hidden="true">
+          <div className="flex items-center justify-center gap-3 mb-4">
             {peerlearnLogo ? (
               <img 
                 src={peerlearnLogo} 
-                alt="PeerLearn Logo" 
+                alt="PeerLearn" 
                 className="h-10 w-auto"  // Increased footer logo size
               />
             ) : (
-              <Users className="w-6 h-6 text-blue-500" />
+              <Users className="w-6 h-6 text-blue-500" aria-hidden="true" />
             )}
-            <Link to="/" onClick={() => window.location.reload()} className="text-white font-bold text-xl hover:text-blue-300 transition-colors">PeerLearn</Link>
+            <Link to="/" onClick={() => window.location.reload()} className="text-white font-bold text-xl hover:text-blue-300 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded">PeerLearn</Link>
           </div>
 
           <p className="text-sm text-gray-400 mb-3">
@@ -505,21 +574,22 @@ const Landing = () => {
         </div>
       </footer>
 
-      {/* Video Modal */}
+      {/* Video Modal - ACCESSIBLE */}
       {videoPlaying && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-fade-in-up">
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-fade-in-up" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
           <div className="relative w-full max-w-4xl">
             <button 
               onClick={() => setVideoPlaying(false)}
-              className="absolute -top-12 right-0 text-white hover:text-blue-300 text-lg transition hover:scale-110"
+              className="absolute -top-12 right-0 text-white hover:text-blue-300 text-lg transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-white rounded"
+              aria-label="Close video modal"
             >
               Close ×
             </button>
             <div className="aspect-video bg-linear-to-br from-slate-800 to-slate-900 rounded-2xl overflow-hidden border border-white/10">
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
-                  <Play className="w-20 h-20 text-white mx-auto mb-6" />
-                  <p className="text-white text-xl mb-2">Platform Demo Video</p>
+                  <Play className="w-20 h-20 text-white mx-auto mb-6" aria-hidden="true" />
+                  <p id="video-modal-title" className="text-white text-xl mb-2">Platform Demo Video</p>
                   <p className="text-slate-400">See how PeerLearn transforms learning experiences</p>
                 </div>
               </div>
