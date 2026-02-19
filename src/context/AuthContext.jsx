@@ -49,10 +49,14 @@ export const AuthProvider = ({ children }) => {
               setUser(null);
             }
           } catch (err) {
-            console.error('Session expired or invalid:', err);
-            // If 401 or other error, clear the role from localStorage
-            localStorage.removeItem('peerlearn_user');
-            setUser(null);
+            console.error('Session check failed:', err);
+            const status = err?.status;
+            if (status === 401 || status === 403) {
+              localStorage.removeItem('peerlearn_user');
+              setUser(null);
+            } else {
+              setUser(parsedUser);
+            }
           }
         } catch (error) {
           console.error('Error parsing stored user role:', error);

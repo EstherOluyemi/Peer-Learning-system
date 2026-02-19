@@ -148,7 +148,7 @@ const SignUp = () => {
         Skip to signup form
       </a>
       
-      <style jsx>{`
+      <style>{`
         .sr-only {
           position: absolute;
           width: 1px;

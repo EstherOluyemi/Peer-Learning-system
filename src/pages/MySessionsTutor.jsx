@@ -49,7 +49,7 @@ const MySessionsTutor = () => {
       setSuccessMessage('Session deleted successfully');
       setDeleteConfirm(null);
       setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (err) {
+    } catch {
       setError('Failed to delete session. Please try again.');
     }
   };
@@ -252,7 +252,7 @@ const MySessionsTutor = () => {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .sr-only {
           position: absolute;
           width: 1px;

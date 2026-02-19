@@ -33,7 +33,9 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
     }
-    return Promise.reject(new Error(message));
+    const wrappedError = new Error(message);
+    wrappedError.status = error.response?.status;
+    return Promise.reject(wrappedError);
   }
 );
 

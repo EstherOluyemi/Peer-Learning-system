@@ -20,7 +20,7 @@ const RoleCard = ({ title, description, icon: Icon, isSelected, onClick, id }) =
     <div className="flex items-center gap-5">
       <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-colors duration-300 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600'
         }`} aria-hidden="true">
-        <Icon className="w-7 h-7" />
+        {Icon && <Icon className="w-7 h-7" />}
       </div>
       <div className="flex-1">
         <h3 className={`font-bold text-lg ${isSelected ? 'text-blue-900' : 'text-slate-900'}`}>{title}</h3>
@@ -59,7 +59,7 @@ const RoleSelection = () => {
         Skip to role selection
       </a>
       
-      <style jsx>{`
+      <style>{`
         .sr-only {
           position: absolute;
           width: 1px;

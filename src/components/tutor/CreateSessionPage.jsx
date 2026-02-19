@@ -72,8 +72,25 @@ const CreateSessionPage = () => {
       try {
         setIsSubmitting(true);
         setApiError(null);
-        
-        await api.post('/v1/tutor/sessions', formData);
+        const startDateTime = new Date(`${formData.date}T${formData.time}`);
+        if (Number.isNaN(startDateTime.getTime())) {
+          setApiError('Please provide a valid date and time.');
+          return;
+        }
+        const durationMinutes = Number(formData.duration) || 0;
+        const endDateTime = new Date(startDateTime.getTime() + durationMinutes * 60000);
+
+        const payload = {
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          subject: formData.subject,
+          startTime: startDateTime.toISOString(),
+          endTime: endDateTime.toISOString(),
+          maxParticipants: Number(formData.maxParticipants),
+          meetingLink: formData.meetingLink?.trim() || undefined,
+        };
+
+        await api.post('/v1/tutor/sessions', payload);
         
         navigate('/dashboard-tutor/sessions');
       } catch (err) {
