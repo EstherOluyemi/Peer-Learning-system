@@ -90,7 +90,9 @@ const CreateSessionPage = () => {
           meetingLink: formData.meetingLink?.trim() || undefined,
         };
 
-        await api.post('/v1/tutor/sessions', payload);
+        console.log('🚀 Creating session with payload:', payload);
+        const response = await api.post('/v1/tutor/sessions', payload);
+        console.log('✅ Session created, response:', response.data);
         
         navigate('/dashboard-tutor/sessions');
       } catch (err) {

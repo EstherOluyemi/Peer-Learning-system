@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Users, Calendar, Star, TrendingUp, DollarSign,
   Clock, ChevronRight, ArrowUpRight, MessageSquare,
-  BookOpen, Settings, AlertCircle
+  BookOpen, Settings, AlertCircle, Video, X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -22,6 +22,32 @@ const DashboardTutor = () => {
     earnings: '$0'
   });
   const [upcomingSessions, setUpcomingSessions] = useState([]);
+  const [selectedSession, setSelectedSession] = useState(null);
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return { date: 'TBD', time: '--', dayMonth: 'TBD', timeLabel: '--' };
+    try {
+      const date = new Date(dateString);
+      return {
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        dayMonth: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        timeLabel: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+      };
+    } catch {
+      return { date: 'Invalid date', time: '--', dayMonth: 'TBD', timeLabel: '--' };
+    }
+  };
+
+  const getStatusColor = (status) => {
+    const statusMap = {
+      'scheduled': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+      'ongoing': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+      'completed': 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600',
+      'cancelled': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800'
+    };
+    return statusMap[status?.toLowerCase()] || 'bg-slate-100 text-slate-700 border-slate-200';
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -39,6 +65,14 @@ const DashboardTutor = () => {
           earnings: `$${overviewRes.data?.earnings || 0}`
         });
 
+        console.log('📊 Sessions data from API:', sessionsRes.data);
+        if (sessionsRes.data?.[0]) {
+          const session = sessionsRes.data[0];
+          console.log('📊 SESSION TITLE:', session.title);
+          console.log('📊 SESSION SUBJECT:', session.subject);
+          console.log('📊 ALL SESSION KEYS:', Object.keys(session));
+          console.log('📊 FULL SESSION:', JSON.stringify(session, null, 2));
+        }
         setUpcomingSessions(sessionsRes.data || []);
       } catch (err) {
         setError('Failed to load dashboard data. Please try again later.');
@@ -134,39 +168,64 @@ const DashboardTutor = () => {
             </div>
             <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
               {upcomingSessions.length > 0 ? (
-                upcomingSessions.map(session => (
-                  <div key={session.id} className="p-6 transition-colors group"
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-start gap-4">
-                        <div className="flex flex-col items-center justify-center w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400 shrink-0">
-                          <span className="text-xs font-bold uppercase">{session.date?.split(' ')[0] || 'TBD'}</span>
-                          <span className="text-lg font-bold">{session.time?.split(':')[0] || '--'}</span>
-                        </div>
-                        <div>
-                          <h4 className="font-bold group-hover:text-blue-600 transition-colors" style={{ color: 'var(--text-primary)' }}>{session.title}</h4>
-                          <div className="flex items-center gap-3 mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                            <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {session.learners || 0} students</span>
-                            <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
-                            <span>{session.type || 'Group'}</span>
+                upcomingSessions.map(session => {
+                  const startDate = formatDateTime(session.startTime);
+                  const endTime = formatDateTime(session.endTime).timeLabel;
+                  const participantCount = session.studentIds?.length || 0;
+                  const maxParticipants = session.maxParticipants || 0;
+                  
+                  return (
+                    <div key={session._id || session.id} className="p-6 transition-colors group cursor-pointer"
+                      onClick={() => setSelectedSession(session)}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          <div className="flex flex-col items-center justify-center w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400 shrink-0">
+                            <span className="text-xs font-bold uppercase">{startDate.dayMonth}</span>
+                            <span className="text-sm font-bold mt-0.5">{startDate.time}</span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-bold group-hover:text-blue-600 transition-colors" style={{ color: 'var(--text-primary)' }}>
+                                {session.title || 'Untitled Session'}
+                              </h4>
+                              <span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${getStatusColor(session.status)}`}>
+                                {(session.status || 'scheduled').charAt(0).toUpperCase() + (session.status || 'scheduled').slice(1)}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                              <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" /> {session.subject || 'General'}</span>
+                              <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
+                              <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {participantCount}/{maxParticipants} students</span>
+                              <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
+                              <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {startDate.time} - {endTime}</span>
+                            </div>
+                            {session.meetingLink && (
+                              <a
+                                href={session.meetingLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline mt-2"
+                              >
+                                <Video className="w-3 h-3" /> Join Meeting
+                              </a>
+                            )}
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                        {session.status === 'confirmed' ? (
-                          <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-50 dark:bg-green-900/30 dark:text-green-400 rounded-full border border-green-100 dark:border-green-800">Confirmed</span>
-                        ) : (
-                          <span className="px-3 py-1 text-xs font-semibold text-amber-700 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-400 rounded-full border border-amber-100 dark:border-amber-800">Pending</span>
-                        )}
-                        <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setSelectedSession(session); }}
+                          className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          aria-label="View session details"
+                        >
                           <ArrowUpRight className="w-5 h-5" />
                         </button>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="p-12 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
@@ -199,6 +258,126 @@ const DashboardTutor = () => {
           </div>
         </div>
       </div>
+
+      {/* Session Details Modal */}
+      {selectedSession && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setSelectedSession(null)}>
+          <div className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="px-6 py-5 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                  {selectedSession.title || 'Session Details'}
+                </h3>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(selectedSession.status)}`}>
+                    {(selectedSession.status || 'scheduled').charAt(0).toUpperCase() + (selectedSession.status || 'scheduled').slice(1)}
+                  </span>
+                  <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <BookOpen className="w-3.5 h-3.5 inline mr-1" />
+                    {selectedSession.subject || 'General'}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedSession(null)}
+                className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+              {/* Description */}
+              {selectedSession.description && (
+                <div>
+                  <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Description</h4>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                    {selectedSession.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Date & Time */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Start Time</h4>
+                  <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <Calendar className="w-4 h-4" />
+                    {formatDateTime(selectedSession.startTime).date} at {formatDateTime(selectedSession.startTime).timeLabel}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>End Time</h4>
+                  <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <Clock className="w-4 h-4" />
+                    {formatDateTime(selectedSession.endTime).date} at {formatDateTime(selectedSession.endTime).timeLabel}
+                  </div>
+                </div>
+              </div>
+
+              {/* Participants */}
+              <div>
+                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Participants</h4>
+                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  <Users className="w-4 h-4" />
+                  <span>
+                    {selectedSession.studentIds?.length || 0} / {selectedSession.maxParticipants || 0} enrolled
+                    {(selectedSession.maxParticipants - (selectedSession.studentIds?.length || 0)) > 0 && (
+                      <span className="text-green-600 dark:text-green-400 ml-1">
+                        ({selectedSession.maxParticipants - (selectedSession.studentIds?.length || 0)} spots available)
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              {/* Meeting Link */}
+              {selectedSession.meetingLink && (
+                <div>
+                  <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Meeting Link</h4>
+                  <a
+                    href={selectedSession.meetingLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                  >
+                    <Video className="w-4 h-4" />
+                    Join Video Call
+                  </a>
+                </div>
+              )}
+
+              {/* Session ID */}
+              <div className="pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                  Session ID: {selectedSession._id || selectedSession.id || 'N/A'}
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
+              <button
+                onClick={() => setSelectedSession(null)}
+                className="px-4 py-2 rounded-lg border font-medium transition-colors"
+                style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+              >
+                Close
+              </button>
+              <button
+                onClick={() => navigate(`/dashboard-tutor/sessions?edit=${selectedSession._id}`)}
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+              >
+                Edit Session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
