@@ -25,14 +25,20 @@ api.interceptors.response.use(
   (error) => {
     const message = error.response?.data?.message || 'Something went wrong';
     
-    // Auto-logout on 401 Unauthorized
+    // On 401, clear auth and redirect to login (session expired/invalid)
     if (error.response?.status === 401) {
       localStorage.removeItem('peerlearn_user');
       localStorage.removeItem('peerlearn_token');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      
+      // Only redirect if not already on login page
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+        // Use a small delay to prevent race conditions with React state updates
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 100);
       }
     }
+    
     const wrappedError = new Error(message);
     wrappedError.status = error.response?.status;
     return Promise.reject(wrappedError);

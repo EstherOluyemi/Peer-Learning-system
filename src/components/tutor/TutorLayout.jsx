@@ -1,6 +1,6 @@
 // src/components/tutor/TutorLayout.jsx
-import React, { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import {
@@ -14,7 +14,35 @@ const TutorLayout = () => {
   const { user, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setSearchTerm(params.get('q') || '');
+  }, [location.search]);
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    const params = new URLSearchParams(location.search);
+    const trimmed = value.trim();
+
+    if (trimmed) {
+      params.set('q', trimmed);
+    } else {
+      params.delete('q');
+    }
+
+    const search = params.toString();
+    navigate(
+      {
+        pathname: location.pathname,
+        search: search ? `?${search}` : ''
+      },
+      { replace: true }
+    );
+  };
 
   const navItems = [
     { label: 'Dashboard', icon: BookOpen, to: '/dashboard-tutor' },
@@ -68,6 +96,8 @@ const TutorLayout = () => {
               <input
                 type="text"
                 placeholder="Search students, sessions..."
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all"
                 style={{
                   backgroundColor: 'var(--input-bg)',

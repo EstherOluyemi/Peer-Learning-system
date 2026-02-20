@@ -205,7 +205,7 @@ const MySessionsTutor = () => {
                   {/* Actions */}
                   <div className="flex gap-2">
                     <button
-                      onClick={() => navigate(`/edit-session/${session._id}`)}
+                      onClick={() => navigate(`/dashboard-tutor/create-session?edit=${session._id}`, { state: { sessionData: session } })}
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                       aria-label={`Edit session: ${session.title}`}
                     >

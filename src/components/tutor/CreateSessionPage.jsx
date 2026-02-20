@@ -79,7 +79,7 @@ const CreateSessionPage = () => {
       const fetchSession = async () => {
         try {
           const response = await api.get(`/v1/tutor/sessions/${editId}`);
-          const session = response.data;
+          const session = response?.data || response;
           
           const startDate = new Date(session.startTime);
           const endDate = new Date(session.endTime);
@@ -160,7 +160,7 @@ const CreateSessionPage = () => {
 
         if (editId) {
           // Update existing session
-          await api.put(`/v1/tutor/sessions/${editId}`, payload);
+          await api.patch(`/v1/tutor/sessions/${editId}`, payload);
         } else {
           // Create new session
           await api.post('/v1/tutor/sessions', payload);

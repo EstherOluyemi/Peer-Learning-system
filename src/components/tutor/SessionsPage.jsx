@@ -30,13 +30,19 @@ const SessionsPage = () => {
   // Redirect to edit page if edit param is present
   useEffect(() => {
     const editId = searchParams.get('edit');
-    if (editId) {
-      navigate(`/dashboard-tutor/create-session?edit=${editId}`, { 
-        replace: true, 
-        state: location.state 
-      });
-    }
-  }, [searchParams, navigate, location.state]);
+    if (!editId) return;
+
+    const stateSession = location.state?.sessionData;
+    const sessionFromList = sessions.find(
+      (session) => (session._id || session.id) === editId
+    );
+    const sessionData = stateSession || sessionFromList;
+
+    navigate(`/dashboard-tutor/create-session?edit=${editId}`, {
+      replace: true,
+      state: sessionData ? { sessionData } : undefined
+    });
+  }, [searchParams, navigate, location.state, sessions]);
 
   const formatDateTime = (dateString) => {
     if (!dateString) return { date: 'TBD', time: '--', dayMonth: 'TBD', timeLabel: '--' };
@@ -461,7 +467,7 @@ const SessionsPage = () => {
                 {deletingSessionId === selectedSession._id ? 'Deleting...' : 'Delete Session'}
               </button>
               <button
-                onClick={() => navigate(`/dashboard-tutor/sessions?edit=${selectedSession._id}`, { state: { sessionData: selectedSession } })}
+                onClick={() => navigate(`/dashboard-tutor/create-session?edit=${selectedSession._id}`, { state: { sessionData: selectedSession } })}
                 className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
               >
                 Edit Session

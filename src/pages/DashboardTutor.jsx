@@ -1,6 +1,6 @@
 // src/pages/DashboardTutor.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Users, Calendar, Star, Trash2,
   Clock, ChevronRight, ArrowUpRight, MessageSquare,
@@ -13,6 +13,7 @@ import api from '../services/api';
 const DashboardTutor = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState({
@@ -20,9 +21,13 @@ const DashboardTutor = () => {
     rating: '0.0',
     hoursTaught: '0h'
   });
+  const [allSessions, setAllSessions] = useState([]);
   const [upcomingSessions, setUpcomingSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [deletingSessionId, setDeletingSessionId] = useState(null);
+  const [upcomingFilter, setUpcomingFilter] = useState('all');
+
+  const searchQuery = (searchParams.get('q') || '').trim().toLowerCase();
 
   const formatDateTime = (dateString) => {
     if (!dateString) return { date: 'TBD', time: '--', dayMonth: 'TBD', timeLabel: '--' };
@@ -55,7 +60,7 @@ const DashboardTutor = () => {
         setLoading(true);
         const [overviewRes, sessionsRes] = await Promise.all([
           api.get('/v1/tutor/analytics/overview'),
-          api.get('/v1/tutor/sessions?status=scheduled')
+          api.get('/v1/tutor/sessions')
         ]);
 
         setStats({
@@ -64,7 +69,9 @@ const DashboardTutor = () => {
           hoursTaught: overviewRes.data?.hoursTaught || '0h'
         });
 
-        setUpcomingSessions(sessionsRes.data || []);
+        const sessions = sessionsRes.data || [];
+        setAllSessions(sessions);
+        setUpcomingSessions(sessions.filter((session) => session.status === 'scheduled'));
       } catch (err) {
         setError('Failed to load dashboard data. Please try again later.');
         console.error(err);
@@ -93,6 +100,46 @@ const DashboardTutor = () => {
       setDeletingSessionId(null);
     }
   };
+
+  const isSameDay = (dateA, dateB) =>
+    dateA.getFullYear() === dateB.getFullYear() &&
+    dateA.getMonth() === dateB.getMonth() &&
+    dateA.getDate() === dateB.getDate();
+
+  const isWithinDays = (date, days) => {
+    const now = new Date();
+    const end = new Date();
+    end.setDate(now.getDate() + days);
+    return date >= now && date <= end;
+  };
+
+  const sessionsForList = searchQuery ? allSessions : upcomingSessions;
+  const filteredSessions = sessionsForList.filter((session) => {
+    const startDate = session.startTime ? new Date(session.startTime) : null;
+    if (!startDate) return false;
+
+    if (upcomingFilter === 'today' && !isSameDay(startDate, new Date())) {
+      return false;
+    }
+    if (upcomingFilter === 'week' && !isWithinDays(startDate, 7)) {
+      return false;
+    }
+
+    if (!searchQuery) return true;
+    const haystack = [session.title, session.subject, session.description]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(searchQuery);
+  });
+
+  const recentSessions = [...allSessions]
+    .sort((a, b) => {
+      const aDate = new Date(a.updatedAt || a.createdAt || a.startTime || 0);
+      const bDate = new Date(b.updatedAt || b.createdAt || b.startTime || 0);
+      return bDate - aDate;
+    })
+    .slice(0, 3);
 
   const performanceStats = [
     { label: "Total Students", value: stats.totalStudents, icon: Users, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30" },
@@ -164,15 +211,32 @@ const DashboardTutor = () => {
         <div className="lg:col-span-2 space-y-8">
           <div className="rounded-2xl shadow-sm border overflow-hidden"
             style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <div className="p-6 border-b flex justify-between items-center" style={{ borderColor: 'var(--border-color)' }}>
-              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Upcoming Sessions</h2>
+            <div className="p-6 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style={{ borderColor: 'var(--border-color)' }}>
+              <div>
+                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Upcoming Sessions</h2>
+                <div className="mt-3 flex items-center gap-2">
+                  {['all', 'today', 'week'].map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setUpcomingFilter(filter)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                        upcomingFilter === filter
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                      }`}
+                    >
+                      {filter === 'all' ? 'All' : filter === 'today' ? 'Today' : 'This Week'}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <Link to="/dashboard-tutor/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
                 View All <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
-              {upcomingSessions.length > 0 ? (
-                upcomingSessions.map(session => {
+              {filteredSessions.length > 0 ? (
+                filteredSessions.map(session => {
                   const startDate = formatDateTime(session.startTime);
                   const endTime = formatDateTime(session.endTime).timeLabel;
                   const participantCount = session.studentIds?.length || 0;
@@ -235,13 +299,29 @@ const DashboardTutor = () => {
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
                     <Calendar className="w-8 h-8 text-slate-400" />
                   </div>
-                  <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No upcoming sessions</h3>
+                  <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                    {searchQuery ? 'No sessions found' : 'No upcoming sessions'}
+                  </h3>
                   <p className="text-sm max-w-xs mx-auto mb-6" style={{ color: 'var(--text-secondary)' }}>
-                    You don't have any sessions scheduled for today. Start by creating a new one!
+                    {searchQuery
+                      ? "We couldn't find any sessions matching your search. Try a different keyword."
+                      : "You don't have any sessions scheduled for today. Start by creating a new one!"}
                   </p>
-                  <button className="text-sm font-bold text-blue-600 hover:underline">
-                    Create your first session
-                  </button>
+                  {searchQuery ? (
+                    <button
+                      onClick={() => setSearchParams({})}
+                      className="text-sm font-bold text-blue-600 hover:underline"
+                    >
+                      Clear search
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => navigate('/dashboard-tutor/create-session')}
+                      className="text-sm font-bold text-blue-600 hover:underline"
+                    >
+                      Create your first session
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -254,11 +334,66 @@ const DashboardTutor = () => {
             style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Actions</h2>
             <div className="grid grid-cols-2 gap-3">
-              <ActionButton icon={MessageSquare} label="Message" color="bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" />
-              <ActionButton icon={BookOpen} label="Materials" color="bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400" />
-              <ActionButton icon={Calendar} label="Schedule" color="bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400" />
-              <ActionButton icon={Settings} label="Settings" color="bg-slate-50 text-slate-600 dark:bg-slate-700 dark:text-slate-300" />
+              <ActionButton
+                icon={MessageSquare}
+                label="Message"
+                color="bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
+                onClick={() => navigate('/dashboard-tutor/messages')}
+              />
+              <ActionButton
+                icon={BookOpen}
+                label="Materials"
+                color="bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400"
+                onClick={() => navigate('/dashboard-tutor/materials')}
+              />
+              <ActionButton
+                icon={Calendar}
+                label="Schedule"
+                color="bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400"
+                onClick={() => navigate('/dashboard-tutor/sessions')}
+              />
+              <ActionButton
+                icon={Settings}
+                label="Settings"
+                color="bg-slate-50 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                onClick={() => navigate('/dashboard-tutor/settings')}
+              />
             </div>
+          </div>
+
+          <div className="rounded-2xl shadow-sm border p-6"
+            style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Recent Activity</h2>
+            {recentSessions.length > 0 ? (
+              <div className="space-y-4">
+                {recentSessions.map((session) => {
+                  const activityDate = formatDateTime(session.startTime).date;
+                  return (
+                    <button
+                      key={session._id || session.id}
+                      onClick={() => setSelectedSession(session)}
+                      className="w-full text-left flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
+                        <Calendar className="w-4 h-4 text-slate-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                          {session.title || 'Untitled Session'}
+                        </p>
+                        <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                          {activityDate} • {session.subject || 'General'}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                No recent activity yet.
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -381,7 +516,7 @@ const DashboardTutor = () => {
                 {deletingSessionId === selectedSession._id ? 'Deleting...' : 'Delete Session'}
               </button>
               <button
-                onClick={() => navigate(`/dashboard-tutor/sessions?edit=${selectedSession._id}`)}
+                onClick={() => navigate(`/dashboard-tutor/create-session?edit=${selectedSession._id}`, { state: { sessionData: selectedSession } })}
                 className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
               >
                 Edit Session
@@ -394,8 +529,11 @@ const DashboardTutor = () => {
   );
 };
 
-const ActionButton = ({ icon: Icon, label, color }) => (
-  <button className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all hover:scale-105 active:scale-95 ${color}`}>
+const ActionButton = ({ icon: Icon, label, color, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all hover:scale-105 active:scale-95 ${color}`}
+  >
     <Icon className="w-6 h-6 mb-2" />
     <span className="text-xs font-bold">{label}</span>
   </button>

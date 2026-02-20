@@ -36,31 +36,14 @@ export const AuthProvider = ({ children }) => {
       if (storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
-          // Verify session with backend using HTTP-only cookies
-          const endpoint = parsedUser.role === 'tutor' ? '/v1/tutor/auth/me' : '/v1/learner/auth/me';
-          try {
-            const response = await api.get(endpoint);
-            // Backend should return user data if cookie is valid
-            const userData = getUserFromResponse(response, parsedUser.role);
-            if (userData) {
-              setUser(userData);
-            } else {
-              localStorage.removeItem('peerlearn_user');
-              setUser(null);
-            }
-          } catch (err) {
-            console.error('Session check failed:', err);
-            const status = err?.status;
-            if (status === 401 || status === 403) {
-              localStorage.removeItem('peerlearn_user');
-              setUser(null);
-            } else {
-              setUser(parsedUser);
-            }
-          }
+          // Trust localStorage on refresh - don't verify with backend
+          // Backend auth will be checked on actual API calls via 401 responses
+          setUser(parsedUser);
         } catch (error) {
-          console.error('Error parsing stored user role:', error);
+          console.error('Error parsing stored user:', error);
           localStorage.removeItem('peerlearn_user');
+          localStorage.removeItem('peerlearn_token');
+          setUser(null);
         }
       }
       setLoading(false);
@@ -140,7 +123,7 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         localStorage.setItem('peerlearn_user', JSON.stringify({ 
           id: userData.id, 
-          role: 'learner',
+          role: userData.role,
           name: userData.name 
         }));
         return userData;

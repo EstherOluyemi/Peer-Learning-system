@@ -29,6 +29,7 @@ import ReviewsPage from './components/tutor/ReviewsPage';
 import EarningsPage from './components/tutor/EarningsPage';
 import TutorSettingsPage from './components/tutor/SettingsPage';
 import TutorCreateSessionPage from './components/tutor/CreateSessionPage';
+import TutorMaterialsPage from './components/tutor/MaterialsPage';
 
 // Sub-pages (Learner)
 import LearnerSessionsPage from './components/learner/SessionsPage';
@@ -74,6 +75,7 @@ function App() {
                     <Route path="create-session" element={<TutorCreateSessionPage />} />
                     <Route path="students" element={<StudentsPage />} />
                     <Route path="messages" element={<MessagesPage />} />
+                    <Route path="materials" element={<TutorMaterialsPage />} />
                     <Route path="reviews" element={<ReviewsPage />} />
                     <Route path="earnings" element={<EarningsPage />} />
                     <Route path="settings" element={<TutorSettingsPage />} />
