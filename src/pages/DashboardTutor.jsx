@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Users, Calendar, Star, TrendingUp, DollarSign,
+  Users, Calendar, Star, Trash2,
   Clock, ChevronRight, ArrowUpRight, MessageSquare,
   BookOpen, Settings, AlertCircle, Video, X
 } from 'lucide-react';
@@ -18,11 +18,11 @@ const DashboardTutor = () => {
   const [stats, setStats] = useState({
     totalStudents: 0,
     rating: '0.0',
-    hoursTaught: '0h',
-    earnings: '$0'
+    hoursTaught: '0h'
   });
   const [upcomingSessions, setUpcomingSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
+  const [deletingSessionId, setDeletingSessionId] = useState(null);
 
   const formatDateTime = (dateString) => {
     if (!dateString) return { date: 'TBD', time: '--', dayMonth: 'TBD', timeLabel: '--' };
@@ -61,18 +61,9 @@ const DashboardTutor = () => {
         setStats({
           totalStudents: overviewRes.data?.totalStudents || 0,
           rating: overviewRes.data?.rating || '0.0',
-          hoursTaught: overviewRes.data?.hoursTaught || '0h',
-          earnings: `$${overviewRes.data?.earnings || 0}`
+          hoursTaught: overviewRes.data?.hoursTaught || '0h'
         });
 
-        console.log('📊 Sessions data from API:', sessionsRes.data);
-        if (sessionsRes.data?.[0]) {
-          const session = sessionsRes.data[0];
-          console.log('📊 SESSION TITLE:', session.title);
-          console.log('📊 SESSION SUBJECT:', session.subject);
-          console.log('📊 ALL SESSION KEYS:', Object.keys(session));
-          console.log('📊 FULL SESSION:', JSON.stringify(session, null, 2));
-        }
         setUpcomingSessions(sessionsRes.data || []);
       } catch (err) {
         setError('Failed to load dashboard data. Please try again later.');
@@ -85,11 +76,28 @@ const DashboardTutor = () => {
     fetchDashboardData();
   }, []);
 
+  const handleDeleteSession = async (sessionId) => {
+    if (!window.confirm('Are you sure you want to delete this session?')) {
+      return;
+    }
+
+    try {
+      setDeletingSessionId(sessionId);
+      await api.delete(`/v1/tutor/sessions/${sessionId}`);
+      setUpcomingSessions(prev => prev.filter(s => s._id !== sessionId));
+      setSelectedSession(null);
+    } catch (err) {
+      setError('Failed to delete session. Please try again.');
+      console.error('Error deleting session:', err);
+    } finally {
+      setDeletingSessionId(null);
+    }
+  };
+
   const performanceStats = [
-    { label: "Total Students", value: stats.totalStudents, change: "+0%", icon: Users, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30", trend: "up" },
-    { label: "Rating", value: stats.rating, change: "+0.0", icon: Star, color: "text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/30", trend: "up" },
-    { label: "Hours Taught", value: stats.hoursTaught, change: "+0%", icon: Clock, color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30", trend: "up" },
-    { label: "Earnings", value: stats.earnings, change: "+0%", icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900/30", trend: "up" },
+    { label: "Total Students", value: stats.totalStudents, icon: Users, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30" },
+    { label: "Rating", value: stats.rating, icon: Star, color: "text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/30" },
+    { label: "Hours Taught", value: stats.hoursTaught, icon: Clock, color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30" },
   ];
 
   if (loading) {
@@ -142,10 +150,6 @@ const DashboardTutor = () => {
               <div className={`p-3 rounded-xl ${stat.bg}`}>
                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
               </div>
-              <span className="flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-full">
-                <TrendingUp className="w-3 h-3 mr-1" />
-                {stat.change}
-              </span>
             </div>
             <div>
               <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</h3>
@@ -367,6 +371,14 @@ const DashboardTutor = () => {
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
               >
                 Close
+              </button>
+              <button
+                onClick={() => handleDeleteSession(selectedSession._id)}
+                disabled={deletingSessionId === selectedSession._id}
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+                {deletingSessionId === selectedSession._id ? 'Deleting...' : 'Delete Session'}
               </button>
               <button
                 onClick={() => navigate(`/dashboard-tutor/sessions?edit=${selectedSession._id}`)}

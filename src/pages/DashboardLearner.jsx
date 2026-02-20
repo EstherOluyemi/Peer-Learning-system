@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import {
   BookOpen, Clock, TrendingUp, Star, Calendar,
-  User, Search, Bell, ChevronRight, AlertCircle
+  User, Search, Bell, ChevronRight, AlertCircle, Video, X, Users
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -22,6 +22,51 @@ const DashboardLearner = () => {
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [leavingSessionId, setLeavingSessionId] = useState(null);
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return { date: 'TBD', time: '--', dayMonth: 'TBD', timeLabel: '--' };
+    try {
+      const date = new Date(dateString);
+      return {
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        dayMonth: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        timeLabel: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+      };
+    } catch {
+      return { date: 'Invalid date', time: '--', dayMonth: 'TBD', timeLabel: '--' };
+    }
+  };
+
+  const getStatusColor = (status) => {
+    const statusMap = {
+      'scheduled': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+      'ongoing': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+      'completed': 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600',
+      'cancelled': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800'
+    };
+    return statusMap[status?.toLowerCase()] || 'bg-slate-100 text-slate-700 border-slate-200';
+  };
+
+  const handleLeaveSession = async (sessionId) => {
+    if (!window.confirm('Are you sure you want to leave this session?')) {
+      return;
+    }
+
+    try {
+      setLeavingSessionId(sessionId);
+      await api.post(`/v1/learner/sessions/${sessionId}/leave`);
+      setUpcomingSessions(prev => prev.filter(s => s._id !== sessionId));
+      setSelectedSession(null);
+    } catch (err) {
+      setError('Failed to leave session. Please try again.');
+      console.error('Error leaving session:', err);
+    } finally {
+      setLeavingSessionId(null);
+    }
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -149,28 +194,37 @@ const DashboardLearner = () => {
             </div>
             <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
               {upcomingSessions.length > 0 ? (
-                upcomingSessions.map((session, i) => (
-                  <div key={i} className="p-6 transition-colors" style={{ backgroundColor: 'var(--card-bg)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-start gap-4">
-                        <div className="flex flex-col items-center justify-center w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                          <Calendar className="w-6 h-6" />
+                upcomingSessions.map((session, i) => {
+                  const startDate = formatDateTime(session.startTime);
+                  const endTime = formatDateTime(session.endTime).timeLabel;
+                  return (
+                    <div key={i} onClick={() => setSelectedSession(session)} className="p-6 cursor-pointer transition-colors" style={{ backgroundColor: 'var(--card-bg)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="flex flex-col items-center justify-center w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400 shrink-0">
+                            <span className="text-xs font-bold">{startDate.dayMonth}</span>
+                            <span className="text-sm font-bold">{startDate.timeLabel}</span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-1">
+                              <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{session.title || 'Untitled Session'}</h4>
+                              <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(session.status)}`}>
+                                {(session.status || 'scheduled').charAt(0).toUpperCase() + (session.status || 'scheduled').slice(1)}
+                              </span>
+                            </div>
+                            {session.subject && (
+                              <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{session.subject}</p>
+                            )}
+                            <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>{startDate.timeLabel} - {endTime}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{session.title || 'Untitled Session'}</h4>
-                          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{session.tutorName || 'Tutor'}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{session.date || 'TBD'}</p>
-                        <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{session.time || ''}</p>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="p-12 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
@@ -244,6 +298,119 @@ const DashboardLearner = () => {
           </div>
         </div>
       </div>
+
+    {/* Session Details Modal */}
+    {selectedSession && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setSelectedSession(null)}>
+        <div className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
+          {/* Modal Header */}
+          <div className="px-6 py-5 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
+                <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(selectedSession.status)}`}>
+                  {(selectedSession.status || 'scheduled').charAt(0).toUpperCase() + (selectedSession.status || 'scheduled').slice(1)}
+                </span>
+              </div>
+              {selectedSession.subject && (
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedSession.subject}</p>
+              )}
+            </div>
+            <button
+              onClick={() => setSelectedSession(null)}
+              className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              style={{ color: 'var(--text-secondary)' }}
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Modal Body */}
+          <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+            {/* Description */}
+            {selectedSession.description && (
+              <div>
+                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Description</h4>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  {selectedSession.description}
+                </p>
+              </div>
+            )}
+
+            {/* Date & Time */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Start Time</h4>
+                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  <Calendar className="w-4 h-4" />
+                  {formatDateTime(selectedSession.startTime).date} at {formatDateTime(selectedSession.startTime).timeLabel}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>End Time</h4>
+                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  <Clock className="w-4 h-4" />
+                  {formatDateTime(selectedSession.endTime).date} at {formatDateTime(selectedSession.endTime).timeLabel}
+                </div>
+              </div>
+            </div>
+
+            {/* Participants */}
+            <div>
+              <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Session Details</h4>
+              <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                <Users className="w-4 h-4" />
+                <span>
+                  {selectedSession.studentIds?.length || 0} / {selectedSession.maxParticipants || 0} enrolled
+                </span>
+              </div>
+            </div>
+
+            {/* Meeting Link */}
+            {selectedSession.meetingLink && (
+              <div>
+                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Meeting Link</h4>
+                <a
+                  href={selectedSession.meetingLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                >
+                  <Video className="w-4 h-4" />
+                  Join Video Call
+                </a>
+              </div>
+            )}
+
+            {/* Session ID */}
+            <div className="pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                Session ID: {selectedSession._id || 'N/A'}
+              </p>
+            </div>
+          </div>
+
+          {/* Modal Footer */}
+          <div className="px-6 py-4 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
+            <button
+              onClick={() => setSelectedSession(null)}
+              className="px-4 py-2 rounded-lg border font-medium transition-colors"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+            >
+              Close
+            </button>
+            <button
+              onClick={() => handleLeaveSession(selectedSession._id)}
+              disabled={leavingSessionId === selectedSession._id}
+              className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors disabled:opacity-50"
+            >
+              {leavingSessionId === selectedSession._id ? 'Leaving...' : 'Leave Session'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 };

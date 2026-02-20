@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import {
   Users, Calendar, Star, MessageSquare,
-  BookOpen, DollarSign, Bell, Menu, Search, Settings,
+  BookOpen, Bell, Menu, Search, Settings,
   Sun, Moon
 } from 'lucide-react';
 import Navbar from '../Navbar';
@@ -22,7 +22,7 @@ const TutorLayout = () => {
     { label: 'Students', icon: Users, to: '/dashboard-tutor/students' },
     { label: 'Messages', icon: MessageSquare, to: '/dashboard-tutor/messages', badge: '3' },
     { label: 'Reviews', icon: Star, to: '/dashboard-tutor/reviews' },
-    { label: 'Earnings', icon: DollarSign, to: '/dashboard-tutor/earnings' },
+
   ];
 
   const bottomItems = [

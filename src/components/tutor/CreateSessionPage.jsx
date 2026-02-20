@@ -1,7 +1,7 @@
 // src/components/tutor/CreateSessionPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { 
   ArrowLeft, Calendar, Clock, Users, BookOpen, 
   Video, Globe, Target, Zap, Save, X,
@@ -13,6 +13,9 @@ import api from '../../services/api';
 const CreateSessionPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
   
   const [formData, setFormData] = useState({
     title: '',
@@ -22,6 +25,7 @@ const CreateSessionPage = () => {
     time: '',
     duration: 60,
     maxParticipants: 10,
+    meetingLink: '',
     difficulty: 'beginner',
     sessionType: 'video',
     accessibilityFeatures: {
@@ -36,18 +40,82 @@ const CreateSessionPage = () => {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(!!editId);
   const [apiError, setApiError] = useState(null);
-
-  const subjects = [
-    'Computer Science', 'Mathematics', 'Physics', 'Chemistry',
-    'Biology', 'English Literature', 'History', 'Economics',
-    'Business Studies', 'Programming', 'Web Development', 'Data Science'
-  ];
 
   const difficulties = [
     { value: 'beginner', label: 'Beginner', color: 'bg-emerald-100 text-emerald-700' },
     { value: 'intermediate', label: 'Intermediate', color: 'bg-blue-100 text-blue-700' },
     { value: 'advanced', label: 'Advanced', color: 'bg-purple-100 text-purple-700' }
+  ];
+
+  // Load session data when editing (from navigation state)
+  useEffect(() => {
+    if (editId && location.state?.sessionData) {
+      const session = location.state.sessionData;
+      
+      const startDate = new Date(session.startTime);
+      const endDate = new Date(session.endTime);
+      const durationMs = endDate - startDate;
+      const durationMinutes = Math.round(durationMs / 60000);
+      
+      const dateStr = startDate.toISOString().split('T')[0];
+      const timeStr = startDate.toTimeString().slice(0, 5);
+      
+      setFormData(prev => ({
+        ...prev,
+        title: session.title || '',
+        description: session.description || '',
+        subject: session.subject || '',
+        date: dateStr,
+        time: timeStr,
+        duration: durationMinutes,
+        maxParticipants: session.maxParticipants || 10,
+        meetingLink: session.meetingLink || ''
+      }));
+      setIsLoading(false);
+    } else if (editId) {
+      // Fallback: try to fetch if state not available (e.g., page refresh)
+      const fetchSession = async () => {
+        try {
+          const response = await api.get(`/v1/tutor/sessions/${editId}`);
+          const session = response.data;
+          
+          const startDate = new Date(session.startTime);
+          const endDate = new Date(session.endTime);
+          const durationMs = endDate - startDate;
+          const durationMinutes = Math.round(durationMs / 60000);
+          
+          const dateStr = startDate.toISOString().split('T')[0];
+          const timeStr = startDate.toTimeString().slice(0, 5);
+          
+          setFormData(prev => ({
+            ...prev,
+            title: session.title || '',
+            description: session.description || '',
+            subject: session.subject || '',
+            date: dateStr,
+            time: timeStr,
+            duration: durationMinutes,
+            maxParticipants: session.maxParticipants || 10,
+            meetingLink: session.meetingLink || ''
+          }));
+        } catch (err) {
+          setApiError('Failed to load session. Please navigate back and try again.');
+          console.error('Error loading session:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      fetchSession();
+    }
+  }, [editId, location.state?.sessionData]);
+
+  const subjects = [
+    'Computer Science', 'Mathematics', 'Physics', 'Chemistry',
+    'Biology', 'English Literature', 'History', 'Economics',
+    'Business Studies', 'Programming', 'Web Development', 'Data Science'
   ];
 
   const validateForm = () => {
@@ -90,14 +158,18 @@ const CreateSessionPage = () => {
           meetingLink: formData.meetingLink?.trim() || undefined,
         };
 
-        console.log('🚀 Creating session with payload:', payload);
-        const response = await api.post('/v1/tutor/sessions', payload);
-        console.log('✅ Session created, response:', response.data);
+        if (editId) {
+          // Update existing session
+          await api.put(`/v1/tutor/sessions/${editId}`, payload);
+        } else {
+          // Create new session
+          await api.post('/v1/tutor/sessions', payload);
+        }
         
         navigate('/dashboard-tutor/sessions');
       } catch (err) {
-        console.error('Failed to create session:', err);
-        setApiError(err.message || 'Failed to create session. Please try again.');
+        console.error('Failed to save session:', err);
+        setApiError(err.message || 'Failed to save session. Please try again.');
       } finally {
         setIsSubmitting(false);
       }
@@ -166,7 +238,7 @@ const CreateSessionPage = () => {
             </div>
             <div className="flex items-center space-x-3">
               <div className="hidden md:block">
-                <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Creating session as:</span>
+                <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>{editId ? 'Editing' : 'Creating'} session as:</span>
                 <span className="ml-2 px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-full text-sm font-medium">
                   {user?.name || 'Tutor'}
                 </span>
@@ -176,21 +248,29 @@ const CreateSessionPage = () => {
         </div>
       </header>
 
-      <main id="main-content" className="container mx-auto px-6 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Page Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-              Create Learning Session
-            </h1>
-            <p style={{ color: 'var(--text-secondary)' }}>
-              Design an accessible, engaging learning experience for your students
-            </p>
+      {isLoading ? (
+        <main id="main-content" className="container mx-auto px-6 py-8">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading session...</p>
           </div>
+        </main>
+      ) : (
+        <main id="main-content" className="container mx-auto px-6 py-8">
+          <div className="max-w-4xl mx-auto">
+            {/* Page Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                {editId ? 'Edit Learning Session' : 'Create Learning Session'}
+              </h1>
+              <p style={{ color: 'var(--text-secondary)' }}>
+                {editId ? 'Update your session details' : 'Design an accessible, engaging learning experience for your students'}
+              </p>
+            </div>
 
-          {apiError && (
-            <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-              <AlertCircle className="w-5 h-5 shrink-0" />
+            {apiError && (
+              <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
+                <AlertCircle className="w-5 h-5 shrink-0" />
               <p className="text-sm font-medium">{apiError}</p>
             </div>
           )}
@@ -573,12 +653,12 @@ const CreateSessionPage = () => {
                         {isSubmitting ? (
                           <>
                             <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                            Creating Session...
+                            {editId ? 'Saving Changes...' : 'Creating Session...'}
                           </>
                         ) : (
                           <>
                             <Save className="w-5 h-5 mr-2" />
-                            Create Session
+                            {editId ? 'Save Changes' : 'Create Session'}
                           </>
                         )}
                       </button>
@@ -590,6 +670,7 @@ const CreateSessionPage = () => {
           </div>
         </div>
       </main>
+      )}
     </div>
   );
 };
