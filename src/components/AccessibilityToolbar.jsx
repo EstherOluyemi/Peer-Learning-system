@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAccessibility } from '../context/AccessibilityContext';
 import { useTheme } from '../context/ThemeContext';
-import { Settings, X, Eye, EyeOff, Plus, Minus, RotateCcw, Sun, Moon } from 'lucide-react';
+import { X, Eye, EyeOff, Plus, Minus, RotateCcw, Sun, Moon } from 'lucide-react';
+import AccessibilityIcon from './icons/AccessibilityIcon';
 
 const AccessibilityToolbar = () => {
   const {
@@ -24,7 +25,7 @@ const AccessibilityToolbar = () => {
         aria-label="Open accessibility options"
         title="Accessibility Options"
       >
-        <Eye size={24} />
+        <AccessibilityIcon size={24} color="white" />
       </button>
 
 
@@ -51,7 +52,7 @@ const AccessibilityToolbar = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-            <Settings size={20} className="text-blue-600" />
+            <AccessibilityIcon size={20} color="#2563eb" />
             Accessibility
           </h2>
           <button

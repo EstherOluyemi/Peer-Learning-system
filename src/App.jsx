@@ -26,10 +26,10 @@ import TutorSessionsPage from './components/tutor/SessionsPage';
 import StudentsPage from './components/tutor/StudentsPage';
 import MessagesPage from './components/tutor/MessagesPage';
 import ReviewsPage from './components/tutor/ReviewsPage';
-import EarningsPage from './components/tutor/EarningsPage';
 import TutorSettingsPage from './components/tutor/SettingsPage';
 import TutorCreateSessionPage from './components/tutor/CreateSessionPage';
 import TutorMaterialsPage from './components/tutor/MaterialsPage';
+import TutorProfilePage from './components/tutor/ProfilePage';
 
 // Sub-pages (Learner)
 import LearnerSessionsPage from './components/learner/SessionsPage';
@@ -37,6 +37,7 @@ import BrowseSessionsPage from './components/learner/BrowseSessionsPage';
 import ProfilePage from './components/learner/ProfilePage';
 import LearnerSettingsPage from './components/learner/SettingsPage';
 import CreateSessionPage from './components/learner/CreateSessionPage';
+import LearnerMaterialsPage from './components/learner/MaterialsPage';
 
 import './App.css';
 
@@ -60,6 +61,7 @@ function App() {
                   <Route path="/dashboard-learner" element={<LearnerLayout />}>
                     <Route index element={<DashboardLearner />} />
                     <Route path="sessions" element={<LearnerSessionsPage />} />
+                    <Route path="materials" element={<LearnerMaterialsPage />} />
                     <Route path="browse-sessions" element={<BrowseSessionsPage />} />
                     <Route path="create-session" element={<CreateSessionPage />} />
                     <Route path="profile" element={<ProfilePage />} />
@@ -77,7 +79,7 @@ function App() {
                     <Route path="messages" element={<MessagesPage />} />
                     <Route path="materials" element={<TutorMaterialsPage />} />
                     <Route path="reviews" element={<ReviewsPage />} />
-                    <Route path="earnings" element={<EarningsPage />} />
+                    <Route path="profile" element={<TutorProfilePage />} />
                     <Route path="settings" element={<TutorSettingsPage />} />
                   </Route>
                 </Route>

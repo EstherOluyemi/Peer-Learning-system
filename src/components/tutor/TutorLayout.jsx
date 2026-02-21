@@ -112,7 +112,10 @@ const TutorLayout = () => {
               <Bell className="w-6 h-6" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
             </button>
-            <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate('/dashboard-tutor/profile')}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+            >
               <div className="text-right hidden md:block">
                 <div className="text-sm font-bold">{user?.name || 'Jane Doe'}</div>
                 <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Senior Tutor</div>
@@ -123,7 +126,7 @@ const TutorLayout = () => {
                 className="w-10 h-10 rounded-full border-2 object-cover"
                 style={{ borderColor: 'var(--border-color)' }}
               />
-            </div>
+            </button>
           </div>
         </header>
 

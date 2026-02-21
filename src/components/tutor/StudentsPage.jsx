@@ -2,17 +2,20 @@
 import React, { useState, useEffect } from 'react';
 import {
   Users, Search, Filter, MessageSquare, Star, Calendar,
-  ChevronLeft, ChevronRight, Eye, Plus, UserPlus, AlertCircle
+  ChevronLeft, ChevronRight, Eye, Plus, UserPlus, AlertCircle, BookOpen, UserCheck
 } from 'lucide-react';
 import api from '../../services/api';
 
 const StudentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLevel, setFilterLevel] = useState('all');
+  const [selectedSession, setSelectedSession] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [students, setStudents] = useState([]);
+  const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [viewMode, setViewMode] = useState('all'); // 'all' or 'by-session'
   const [stats, setStats] = useState({
     total: 0,
     beginner: 0,
@@ -22,12 +25,19 @@ const StudentsPage = () => {
   const itemsPerPage = 8;
 
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/v1/tutor/students');
-        const studentData = response.data || [];
+        
+        // Fetch students
+        const studentRes = await api.get('/v1/tutor/students');
+        const studentData = Array.isArray(studentRes) ? studentRes : (studentRes?.data && Array.isArray(studentRes.data) ? studentRes.data : []);
         setStudents(studentData);
+        
+        // Fetch sessions
+        const sessionsRes = await api.get('/v1/tutor/sessions');
+        const sessionsData = Array.isArray(sessionsRes) ? sessionsRes : (sessionsRes?.data && Array.isArray(sessionsRes.data) ? sessionsRes.data : []);
+        setSessions(sessionsData);
         
         // Calculate stats from data
         setStats({
@@ -37,22 +47,39 @@ const StudentsPage = () => {
           advanced: studentData.filter(s => s.level?.toLowerCase() === 'advanced').length
         });
       } catch (err) {
-        setError('Failed to fetch students. Please try again later.');
-        console.error(err);
+        setError('Failed to fetch data. Please try again later.');
+        console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStudents();
+    fetchData();
   }, []);
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = (student.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       (student.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesLevel = filterLevel === 'all' || student.level?.toLowerCase() === filterLevel.toLowerCase();
-    return matchesSearch && matchesLevel;
+    
+    // Filter by session if in session view mode
+    let matchesSession = true;
+    if (viewMode === 'by-session' && selectedSession !== 'all') {
+      const session = sessions.find(s => s._id === selectedSession || s.id === selectedSession);
+      if (session) {
+        const studentIds = session.studentIds || [];
+        matchesSession = studentIds.some(id => 
+          (typeof id === 'string' ? id : id._id) === (student._id || student.id)
+        );
+      }
+    }
+    
+    return matchesSearch && matchesLevel && matchesSession;
   });
+
+  // Get the selected session info
+  const currentSessionData = sessions.find(s => s._id === selectedSession || s.id === selectedSession);
+  const sessionStudentCount = currentSessionData?.studentIds?.length || 0;
 
   const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
   const currentStudents = filteredStudents.slice(
@@ -95,9 +122,13 @@ const StudentsPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Students</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your students and track their progress.</p>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            {viewMode === 'by-session' && selectedSession !== 'all'
+              ? `Students in ${currentSessionData?.title || 'Session'}`
+              : 'Manage your students and track their progress.'}
+          </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95">
             <UserPlus className="w-5 h-5" />
             Add Student
@@ -109,8 +140,95 @@ const StudentsPage = () => {
         </div>
       </div>
 
+      {/* View Mode Toggle & Session Selector */}
+      <div className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl border"
+        style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
+      >
+        <div className="flex gap-2">
+          <button
+            onClick={() => setViewMode('all')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              viewMode === 'all'
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            All Students ({students.length})
+          </button>
+          <button
+            onClick={() => setViewMode('by-session')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              viewMode === 'by-session'
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            By Session
+          </button>
+        </div>
+
+        {viewMode === 'by-session' && (
+          <select
+            value={selectedSession}
+            onChange={(e) => {
+              setSelectedSession(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="px-4 py-2 rounded-lg border text-sm flex-1 sm:flex-initial"
+            style={{
+              borderColor: 'var(--border-color)',
+              backgroundColor: 'var(--input-bg)',
+              color: 'var(--text-primary)'
+            }}
+          >
+            <option value="all">All Sessions</option>
+            {sessions.map(session => (
+              <option key={session._id || session.id} value={session._id || session.id}>
+                {session.title} ({session.studentIds?.length || 0} students)
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-6">
+          {/* Session Info Panel */}
+          {viewMode === 'by-session' && selectedSession !== 'all' && currentSessionData && (
+            <div className="p-4 rounded-xl border-l-4 border-blue-600 bg-blue-50 dark:bg-blue-900/20"
+              style={{ borderColor: 'var(--accent)' }}
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
+                    {currentSessionData.title}
+                  </h3>
+                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                    {currentSessionData.description}
+                  </p>
+                  <div className="flex flex-wrap gap-4 mt-3 text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {new Date(currentSessionData.startTime).toLocaleDateString()}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      {sessionStudentCount} / {currentSessionData.maxParticipants} students
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold" style={{ color: 'var(--accent)' }}>
+                    {sessionStudentCount}
+                  </div>
+                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Enrolled</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />

@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
     BookOpen, Clock, TrendingUp, Star, Users, Calendar,
     User, Settings, Plus, Menu, Search, Bell,
-    ChevronRight, ArrowUpRight, Sun, Moon
+    ChevronRight, ArrowUpRight, Sun, Moon, FileText
 } from 'lucide-react';
 import Navbar from '../Navbar';
 
@@ -21,6 +21,7 @@ const LearnerLayout = ({ children }) => {
     const navItems = [
         { label: 'Dashboard', icon: BookOpen, to: '/dashboard-learner' },
         { label: 'My Sessions', icon: Calendar, to: '/dashboard-learner/sessions' },
+        { label: 'Materials', icon: FileText, to: '/dashboard-learner/materials' },
         { label: 'Browse Sessions', icon: Search, to: '/dashboard-learner/browse-sessions' },
         { label: 'Create Session', icon: Plus, to: '/dashboard-learner/create-session' },
         { label: 'Profile', icon: User, to: '/dashboard-learner/profile' },
@@ -90,7 +91,10 @@ const LearnerLayout = ({ children }) => {
                             <Bell className="w-6 h-6" />
                             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
                         </button>
-                        <div className="flex items-center gap-3">
+                        <button 
+                            onClick={() => navigate('/dashboard-learner/profile')}
+                            className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+                        >
                             <div className="text-right hidden md:block">
                                 <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{user?.name || 'Student'}</div>
                                 <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Learner</div>
@@ -101,7 +105,7 @@ const LearnerLayout = ({ children }) => {
                                 className="w-10 h-10 rounded-full border-2 object-cover"
                                 style={{ borderColor: 'var(--border-color)' }}
                             />
-                        </div>
+                        </button>
                     </div>
                 </header>
 

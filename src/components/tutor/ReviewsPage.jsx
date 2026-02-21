@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Star, Users, Calendar, TrendingUp, Filter, Search,
-  ChevronLeft, ChevronRight, Eye, ThumbsUp, ThumbsDown, MessageCircle, AlertCircle
+  ChevronLeft, ChevronRight, Eye, ThumbsUp, ThumbsDown, MessageCircle, AlertCircle, X, Send
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -13,6 +13,10 @@ const ReviewsPage = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showResponseModal, setShowResponseModal] = useState(false);
+  const [responseText, setResponseText] = useState('');
+  const [selectedReviewId, setSelectedReviewId] = useState(null);
+  const [submittingResponse, setSubmittingResponse] = useState(false);
   const [stats, setStats] = useState({
     average: '0.0',
     total: 0,
@@ -26,7 +30,7 @@ const ReviewsPage = () => {
       try {
         setLoading(true);
         const response = await api.get('/v1/tutor/reviews');
-        const reviewData = response.data || [];
+        const reviewData = Array.isArray(response) ? response : (response?.data && Array.isArray(response.data) ? response.data : []);
         setReviews(reviewData);
 
         // Calculate stats
@@ -73,8 +77,12 @@ const ReviewsPage = () => {
     currentPage * itemsPerPage
   );
 
-  const handleResponse = async (reviewId, responseText) => {
+  const handleResponse = async (reviewId, text) => {
+    if (!text.trim()) return;
+    
     try {
+      setSubmittingResponse(true);
+      
       // Optimistic update
       const updatedReviews = reviews.map(r => {
         if (r.id === reviewId) {
@@ -82,7 +90,7 @@ const ReviewsPage = () => {
             ...r,
             responses: [...(r.responses || []), {
               id: Date.now(),
-              text: responseText,
+              text: text,
               date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
             }]
           };
@@ -90,11 +98,18 @@ const ReviewsPage = () => {
         return r;
       });
       setReviews(updatedReviews);
+      
+      // Reset modal
+      setShowResponseModal(false);
+      setResponseText('');
+      setSelectedReviewId(null);
 
       // Real API call
-      await api.post(`/v1/tutor/reviews/${reviewId}/response`, { text: responseText });
+      await api.post(`/v1/tutor/reviews/${reviewId}/response`, { text: text });
     } catch (err) {
       console.error('Failed to send response:', err);
+    } finally {
+      setSubmittingResponse(false);
     }
   };
 
@@ -332,8 +347,8 @@ const ReviewsPage = () => {
                     <div className="mt-4">
                       <button 
                         onClick={() => {
-                          const text = prompt('Enter your response:');
-                          if (text) handleResponse(review.id, text);
+                          setSelectedReviewId(review.id);
+                          setShowResponseModal(true);
                         }}
                         className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
                       >
@@ -388,6 +403,117 @@ const ReviewsPage = () => {
           )}
         </div>
       </div>
+
+      {/* Response Modal */}
+      {showResponseModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-xl w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Respond to Review</h2>
+              <button
+                onClick={() => {
+                  setShowResponseModal(false);
+                  setResponseText('');
+                  setSelectedReviewId(null);
+                }}
+                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Review Preview */}
+            {selectedReviewId && reviews.find(r => r.id === selectedReviewId) && (
+              <div className="mb-6 p-4 rounded-lg border"
+                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <img
+                    src={reviews.find(r => r.id === selectedReviewId)?.student?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(reviews.find(r => r.id === selectedReviewId)?.student?.name || 'Student')}&background=random`}
+                    alt=""
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <div>
+                    <h4 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                      {reviews.find(r => r.id === selectedReviewId)?.student?.name}
+                    </h4>
+                    <div className="flex gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-3 h-3 ${i < (reviews.find(r => r.id === selectedReviewId)?.rating || 0) ? 'text-yellow-500' : 'text-slate-300 dark:text-slate-600'}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  {reviews.find(r => r.id === selectedReviewId)?.comment}
+                </p>
+              </div>
+            )}
+
+            {/* Response Text Area */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                Your Response
+              </label>
+              <textarea
+                value={responseText}
+                onChange={(e) => setResponseText(e.target.value)}
+                placeholder="Write a thoughtful response to this review..."
+                className="w-full p-3 rounded-lg border-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
+                rows="5"
+                style={{
+                  backgroundColor: 'var(--input-bg)',
+                  color: 'var(--input-text)',
+                  borderColor: 'var(--input-border)'
+                }}
+              />
+              <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                {responseText.length}/500 characters
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowResponseModal(false);
+                  setResponseText('');
+                  setSelectedReviewId(null);
+                }}
+                className="px-4 py-2 rounded-lg border transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+                disabled={submittingResponse}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (selectedReviewId && responseText.trim()) {
+                    handleResponse(selectedReviewId, responseText);
+                  }
+                }}
+                disabled={!responseText.trim() || submittingResponse}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {submittingResponse ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Response
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

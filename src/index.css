@@ -125,14 +125,44 @@ body {
   font-size: 20px;
 }
 
-/* Focus styles for keyboard navigation */
+/* Focus styles for keyboard navigation - Subtle and rounded */
 *:focus {
-  outline: 3px solid #3b82f6 !important;
-  outline-offset: 2px;
+  outline: none !important;
 }
 
-.high-contrast *:focus {
+*:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.3) !important;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.3) !important;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.high-contrast *:focus-visible {
   outline: 3px solid #ffff00 !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 0, 0.2);
+}
+
+/* Override Tailwind's ring utilities globally to be more subtle */
+[class*="focus:ring-blue-500"]:focus,
+[class*="focus:ring-blue-500"]:focus-visible {
+  --tw-ring-color: rgba(59, 130, 246, 0.2) !important;
+  --tw-ring-offset-shadow: 0 0 0 0px transparent !important;
+}
+
+[class*="focus:ring-red-500"]:focus,
+[class*="focus:ring-red-500"]:focus-visible {
+  --tw-ring-color: rgba(239, 68, 68, 0.2) !important;
+  --tw-ring-offset-shadow: 0 0 0 0px transparent !important;
 }
 
 /* Skip to content button */
