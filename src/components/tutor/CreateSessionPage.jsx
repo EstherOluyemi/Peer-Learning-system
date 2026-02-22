@@ -31,7 +31,6 @@ const CreateSessionPage = () => {
     meetingLink: '',
     studentId: '',
     enableGoogleMeet: true,
-    difficulty: 'beginner',
     sessionType: 'video',
     accessibilityFeatures: {
       captions: true,
@@ -50,12 +49,6 @@ const CreateSessionPage = () => {
   const [googleMeetStatus, setGoogleMeetStatus] = useState({ connected: false, expiresAt: null, scopes: [] });
   const [googleMeetLoading, setGoogleMeetLoading] = useState(false);
   const [googleMeetError, setGoogleMeetError] = useState('');
-
-  const difficulties = [
-    { value: 'beginner', label: 'Beginner', color: 'bg-emerald-100 text-emerald-700' },
-    { value: 'intermediate', label: 'Intermediate', color: 'bg-blue-100 text-blue-700' },
-    { value: 'advanced', label: 'Advanced', color: 'bg-purple-100 text-purple-700' }
-  ];
 
   // Load session data when editing (from navigation state)
   useEffect(() => {
@@ -144,18 +137,12 @@ const CreateSessionPage = () => {
     };
   }, []);
 
-  const subjects = [
-    'Computer Science', 'Mathematics', 'Physics', 'Chemistry',
-    'Biology', 'English Literature', 'History', 'Economics',
-    'Business Studies', 'Programming', 'Web Development', 'Data Science'
-  ];
-
   const validateForm = () => {
     const newErrors = {};
     
     if (!formData.title.trim()) newErrors.title = 'Session title is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
-    if (!formData.subject) newErrors.subject = 'Please select a subject';
+    if (!formData.subject.trim()) newErrors.subject = 'Please enter a subject';
     if (!formData.date) newErrors.date = 'Please select a date';
     if (!formData.time) newErrors.time = 'Please select a time';
     if (formData.duration < 15) newErrors.duration = 'Minimum duration is 15 minutes';
@@ -494,53 +481,25 @@ const CreateSessionPage = () => {
                       <label htmlFor="subject" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                         Subject *
                       </label>
-                      <select
+                      <input
                         id="subject"
                         name="subject"
+                        type="text"
                         value={formData.subject}
                         onChange={handleChange}
                         className={`w-full px-4 py-3 rounded-lg border ${errors.subject ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500' : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-500'} focus:outline-none transition-all`}
                         style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
+                        placeholder="e.g., Mathematics"
                         aria-required="true"
                         aria-invalid={!!errors.subject}
                         aria-describedby={errors.subject ? 'subject-error' : undefined}
-                      >
-                        <option value="">Select a subject</option>
-                        {subjects.map((subject) => (
-                          <option key={subject} value={subject}>
-                            {subject}
-                          </option>
-                        ))}
-                      </select>
+                      />
                       {errors.subject && (
                         <p id="subject-error" className="mt-2 text-sm text-red-600 flex items-center">
                           <AlertCircle className="w-4 h-4 mr-1" />
                           {errors.subject}
                         </p>
                       )}
-                    </div>
-
-                    {/* Difficulty */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                        Difficulty Level *
-                      </label>
-                      <div className="flex space-x-3">
-                        {difficulties.map((level) => (
-                          <button
-                            key={level.value}
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, difficulty: level.value }))}
-                            className={`flex-1 px-4 py-3 rounded-lg border transition-all ${formData.difficulty === level.value ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-700 hover:border-slate-400'}`}
-                            style={{ color: 'var(--text-primary)' }}
-                            aria-pressed={formData.difficulty === level.value}
-                          >
-                            <span className={`px-2 py-1 ${level.color} rounded text-xs font-medium mb-2 inline-block`}>
-                              {level.label}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
                     </div>
                   </div>
                 </section>
