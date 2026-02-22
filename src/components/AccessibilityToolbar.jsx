@@ -21,11 +21,11 @@ const AccessibilityToolbar = () => {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-40"
+        className="fixed bottom-6 right-6 p-2 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all duration-200 hover:scale-110 z-40"
         aria-label="Open accessibility options"
         title="Accessibility Options"
       >
-        <AccessibilityIcon size={24} color="white" />
+        <AccessibilityIcon size={32} />
       </button>
 
 
@@ -52,7 +52,7 @@ const AccessibilityToolbar = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-            <AccessibilityIcon size={20} color="#2563eb" />
+            <AccessibilityIcon size={20} />
             Accessibility
           </h2>
           <button

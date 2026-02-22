@@ -35,7 +35,6 @@ const ProfileSetup = () => {
         bio: '',
         subjects: [],
         currentSubject: '',
-        hourlyRate: '',
     });
 
     const [errors, setErrors] = useState({});
@@ -84,12 +83,6 @@ const ProfileSetup = () => {
             newErrors.subjects = isTutor
                 ? 'Please add at least one subject you teach'
                 : 'Please add at least one subject you want to learn';
-        }
-
-        if (isTutor && !formData.hourlyRate) {
-            newErrors.hourlyRate = 'Please set your hourly rate';
-        } else if (isTutor && isNaN(formData.hourlyRate)) {
-            newErrors.hourlyRate = 'Please enter a valid number';
         }
 
         setErrors(newErrors);
@@ -296,33 +289,7 @@ const ProfileSetup = () => {
                                 )}
                             </div>
 
-                            {/* Hourly Rate (Tutor Only) */}
-                            {isTutor && (
-                                <div className="space-y-2">
-                                    <label htmlFor="hourlyRate" className={`block font-semibold text-slate-900 ${baseFontSize}`}>
-                                        Hourly Rate (USD) <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <DollarSign className={`w-5 h-5 ${errors.hourlyRate ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'}`} />
-                                        </div>
-                                        <input
-                                            type="number"
-                                            id="hourlyRate"
-                                            name="hourlyRate"
-                                            value={formData.hourlyRate}
-                                            onChange={handleChange}
-                                            className={`block w-full pl-10 pr-4 py-3 rounded-xl border text-slate-900 ${errors.hourlyRate ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 focus:ring-blue-100 focus:border-blue-500'} focus:outline-none focus:ring-4 transition-all text-sm`}
-                                            placeholder="0.00"
-                                            min="0"
-                                            step="0.01"
-                                        />
-                                    </div>
-                                    {errors.hourlyRate && (
-                                        <p className="text-xs text-red-600 mt-1">{errors.hourlyRate}</p>
-                                    )}
-                                </div>
-                            )}
+
 
                             {/* Submit Button */}
                             <button

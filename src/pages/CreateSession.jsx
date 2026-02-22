@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -7,6 +7,7 @@ import {
   CheckCircle, AlertCircle, HelpCircle, Eye, EyeOff
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import api from '../services/api';
 
 const CreateSession = () => {
   const { user } = useAuth();
@@ -21,17 +22,38 @@ const CreateSession = () => {
     duration: 60,
     maxParticipants: 10,
     difficulty: 'beginner',
-    sessionType: 'video',
+    meetingLink: '',
     accessibilityFeatures: {
       captions: true,
       transcript: false,
-      highContrast: true,
-      keyboardNav: true
+      recordSession: false
     }
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generatingLink, setGeneratingLink] = useState(false);
+
+  // Generate Zoom meeting link when form is filled
+  const generateZoomLink = () => {
+    setGeneratingLink(true);
+    // In production, this would call your backend API which integrates with Zoom API
+    // Backend endpoint: POST /api/v1/tutor/zoom/create-meeting
+    // Returns: { meetingLink, meetingId, passcode }
+    setTimeout(() => {
+      const mockMeetingId = Math.random().toString(36).substring(2, 12);
+      const mockLink = `https://zoom.us/j/${mockMeetingId}`;
+      setFormData(prev => ({ ...prev, meetingLink: mockLink }));
+      setGeneratingLink(false);
+    }, 1000);
+  };
+
+  // Auto-generate meeting link when title is provided
+  useEffect(() => {
+    if (formData.title && !formData.meetingLink) {
+      generateZoomLink();
+    }
+  }, [formData.title]);
 
   const subjects = [
     'Computer Science', 'Mathematics', 'Physics', 'Chemistry',
@@ -66,12 +88,51 @@ const CreateSession = () => {
     if (validateForm()) {
       setIsSubmitting(true);
       
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Session created:', formData);
+      try {
+        // Step 1: Create Zoom meeting via backend API
+        const startDateTime = new Date(`${formData.date}T${formData.time}`).toISOString();
+        
+        const zoomResponse = await api.post('/v1/tutor/zoom/create-meeting', {
+          topic: formData.title,
+          duration: formData.duration,
+          startTime: startDateTime,
+          settings: {
+            auto_recording: formData.accessibilityFeatures.recordSession ? 'cloud' : 'none',
+            enable_live_captions: formData.accessibilityFeatures.captions,
+            enable_transcript: formData.accessibilityFeatures.transcript,
+          },
+        });
+
+        // Step 2: Create session with Zoom meeting link
+        const sessionData = {
+          title: formData.title,
+          description: formData.description,
+          subject: formData.subject,
+          startTime: startDateTime,
+          duration: formData.duration,
+          maxParticipants: formData.maxParticipants,
+          difficulty: formData.difficulty,
+          meetingLink: zoomResponse.joinUrl || zoomResponse.meetingLink,
+          meetingId: zoomResponse.meetingId,
+          meetingPasscode: zoomResponse.passcode,
+          hostStartUrl: zoomResponse.startUrl,
+          accessibilityFeatures: formData.accessibilityFeatures,
+          status: 'scheduled',
+        };
+
+        const sessionResponse = await api.post('/v1/tutor/sessions', sessionData);
+
+        console.log('Session created successfully:', sessionResponse);
         setIsSubmitting(false);
-        navigate('/dashboard');
-      }, 1500);
+        
+        // Show success message and redirect
+        alert(`✅ Session created! Zoom link: ${zoomResponse.joinUrl}`);
+        navigate('/dashboard-tutor');
+      } catch (error) {
+        console.error('Error creating session:', error);
+        setIsSubmitting(false);
+        alert(`Error: ${error.message || 'Failed to create session'}`);
+      }
     }
   };
 
@@ -99,16 +160,6 @@ const CreateSession = () => {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
-
-  // Accessibility Features Checklist
-  const accessibilityFeatures = [
-    { id: 'captions', label: 'Live Captions', description: 'Real-time captioning for hearing impaired' },
-    { id: 'transcript', label: 'Transcript', description: 'Session transcript available' },
-    { id: 'highContrast', label: 'High Contrast Mode', description: 'Supports high contrast display' },
-    { id: 'keyboardNav', label: 'Keyboard Navigation', description: 'Full keyboard accessibility' },
-    { id: 'screenReader', label: 'Screen Reader Ready', description: 'Compatible with screen readers' },
-    { id: 'altText', label: 'Alt Text for Images', description: 'Descriptive text for visual content' }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -426,87 +477,139 @@ const CreateSession = () => {
                       )}
                     </div>
 
-                    {/* Session Type */}
-                    <div>
-                      <label className="block text-sm font-medium text-slate-900 mb-2">
-                        Session Type *
+                    {/* Meeting Link */}
+                    <div className="md:col-span-2">
+                      <label htmlFor="meetingLink" className="block text-sm font-medium text-slate-900 mb-2">
+                        Video Meeting Link
+                        <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">Auto-generated</span>
                       </label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, sessionType: 'video' }))}
-                          className={`p-4 rounded-lg border ${formData.sessionType === 'video' ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'} transition-colors`}
-                          aria-pressed={formData.sessionType === 'video'}
-                        >
-                          <Video className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-sm font-medium text-slate-900">Video Call</div>
-                          <div className="text-xs text-slate-600">Real-time video</div>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, sessionType: 'text' }))}
-                          className={`p-4 rounded-lg border ${formData.sessionType === 'text' ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'} transition-colors`}
-                          aria-pressed={formData.sessionType === 'text'}
-                        >
-                          <BookOpen className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-sm font-medium text-slate-900">Text-Based</div>
-                          <div className="text-xs text-slate-600">Chat & resources</div>
-                        </button>
+                      <div className="relative">
+                        <Video className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                        <input
+                          id="meetingLink"
+                          name="meetingLink"
+                          type="text"
+                          value={formData.meetingLink}
+                          readOnly
+                          className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-700 cursor-not-allowed"
+                          placeholder={generatingLink ? "Generating Zoom link..." : "Zoom link will be auto-generated"}
+                        />
+                        {generatingLink && (
+                          <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                            <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
                       </div>
+                      <p className="mt-2 text-sm text-slate-500">
+                        <span className="font-medium">Note:</span> Meeting link automatically created via Zoom API. Students will access this after enrollment.
+                      </p>
                     </div>
                   </div>
                 </section>
 
-                {/* Accessibility Features Section */}
-                <section aria-labelledby="accessibility-heading" className="pt-8 border-t border-slate-200">
+                {/* Video Meeting Settings */}
+                <section aria-labelledby="meeting-settings-heading" className="pt-8 border-t border-slate-200">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Zap className="w-5 h-5 text-blue-600" />
+                        <Video className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <h2 id="accessibility-heading" className="text-xl font-bold text-slate-900">
-                          Accessibility Features
+                        <h2 id="meeting-settings-heading" className="text-xl font-bold text-slate-900">
+                          Video Meeting Settings
                         </h2>
                         <p className="text-sm text-slate-600 mt-1">
-                          Make your session inclusive for all learners
+                          Configure Zoom meeting options for accessibility and recording
                         </p>
                       </div>
                     </div>
                     <div className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
-                      Accessibility First
+                      Zoom Powered
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {accessibilityFeatures.map((feature) => (
-                      <label
-                        key={feature.id}
-                        className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors ${formData.accessibilityFeatures[feature.id] ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'}`}
-                      >
-                        <input
-                          type="checkbox"
-                          name={`accessibilityFeatures.${feature.id}`}
-                          checked={formData.accessibilityFeatures[feature.id] || false}
-                          onChange={handleChange}
-                          className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
-                          aria-describedby={`${feature.id}-description`}
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium text-slate-900">
-                              {feature.label}
-                            </span>
-                            {formData.accessibilityFeatures[feature.id] && (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            )}
-                          </div>
-                          <p id={`${feature.id}-description`} className="text-sm text-slate-600 mt-1">
-                            {feature.description}
-                          </p>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors ${
+                      formData.accessibilityFeatures.captions ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'
+                    }`}>
+                      <input
+                        type="checkbox"
+                        name="accessibilityFeatures.captions"
+                        checked={formData.accessibilityFeatures.captions}
+                        onChange={handleChange}
+                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-slate-900">Live Captions</span>
+                          {formData.accessibilityFeatures.captions && (
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          )}
                         </div>
-                      </label>
-                    ))}
+                        <p className="text-sm text-slate-600 mt-1">
+                          Enable real-time closed captions during the session
+                        </p>
+                      </div>
+                    </label>
+
+                    <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors ${
+                      formData.accessibilityFeatures.transcript ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'
+                    }`}>
+                      <input
+                        type="checkbox"
+                        name="accessibilityFeatures.transcript"
+                        checked={formData.accessibilityFeatures.transcript}
+                        onChange={handleChange}
+                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-slate-900">Auto Transcript</span>
+                          {formData.accessibilityFeatures.transcript && (
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-600 mt-1">
+                          Generate text transcript after session ends
+                        </p>
+                      </div>
+                    </label>
+
+                    <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors ${
+                      formData.accessibilityFeatures.recordSession ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'
+                    }`}>
+                      <input
+                        type="checkbox"
+                        name="accessibilityFeatures.recordSession"
+                        checked={formData.accessibilityFeatures.recordSession}
+                        onChange={handleChange}
+                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-slate-900">Record Session</span>
+                          {formData.accessibilityFeatures.recordSession && (
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-600 mt-1">
+                          Save recording for students to review later
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                  
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start">
+                      <AlertCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-slate-700">
+                        <p className="font-medium text-blue-900 mb-1">Zoom API Integration Required</p>
+                        <p>
+                          These settings are configured via Zoom API when the meeting is created. 
+                          Your backend should handle: <code className="bg-white px-1.5 py-0.5 rounded text-xs">POST /api/v1/tutor/zoom/create-meeting</code>
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </section>
 

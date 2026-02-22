@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import {
   BookOpen, Clock, TrendingUp, Star, Calendar,
-  User, Search, Bell, ChevronRight, AlertCircle, Video, X, Users
+  User, Search, Bell, ChevronRight, AlertCircle, Video, X, Users, Zap
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -16,9 +16,12 @@ const DashboardLearner = () => {
     totalSessions: 0,
     upcoming: 0,
     completed: 0,
-    avgRating: '0.0'
+    hoursLearned: '0h',
+    coursesInProgress: 0
   });
   const [upcomingSessions, setUpcomingSessions] = useState([]);
+  const [recommendedSessions, setRecommendedSessions] = useState([]);
+  const [topTutors, setTopTutors] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -80,14 +83,37 @@ const DashboardLearner = () => {
           console.log('Learner sessions response:', sessionsRes);
           const sessionsData = sessionsRes.data || [];
           
+          const upcoming = sessionsData.filter(s => s.status === 'scheduled' || s.status === 'upcoming') || [];
+          const completed = sessionsData.filter(s => s.status === 'completed') || [];
+          
+          // Calculate hours learned from completed sessions
+          const totalHours = completed.reduce((sum, s) => sum + (s.duration || 0), 0);
+          const hoursLearned = totalHours >= 60 ? `${Math.floor(totalHours / 60)}h` : `${totalHours}m`;
+          
           setStats({
             totalSessions: sessionsData.length || 0,
-            upcoming: sessionsData.filter(s => s.status === 'scheduled' || s.status === 'upcoming').length || 0,
-            completed: sessionsData.filter(s => s.status === 'completed').length || 0,
-            avgRating: '4.8'
+            upcoming: upcoming.length || 0,
+            completed: completed.length || 0,
+            hoursLearned: hoursLearned,
+            coursesInProgress: upcoming.length || 0
           });
 
-          setUpcomingSessions(sessionsData.slice(0, 3) || []);
+          setUpcomingSessions(upcoming.slice(0, 3) || []);
+          
+          // Mock recommended sessions - in production, backend would return personalized recommendations
+          const mockRecommended = [
+            { title: 'Advanced Python', subject: 'Programming', tutor: 'John Smith', rating: 4.8, students: 120 },
+            { title: 'Data Science Fundamentals', subject: 'Data Science', tutor: 'Sarah Lee', rating: 4.9, students: 95 },
+            { title: 'Business English', subject: 'English Literature', tutor: 'Emma Wilson', rating: 4.7, students: 78 }
+          ];
+          setRecommendedSessions(mockRecommended);
+          
+          // Mock top tutors - in production, backend would return actual tutors
+          setTopTutors([
+            { name: 'Dr. Alex Johnson', subject: 'Mathematics', rating: 5.0, students: 250, image: '👨‍🏫' },
+            { name: 'Prof. Maria Garcia', subject: 'Physics', rating: 4.9, students: 200, image: '👩‍🏫' },
+            { name: 'James Wilson', subject: 'Computer Science', rating: 4.8, students: 180, image: '👨‍💻' }
+          ]);
         } catch (sessionErr) {
           console.warn('Could not fetch sessions:', sessionErr);
           // Set default empty state
@@ -95,7 +121,8 @@ const DashboardLearner = () => {
             totalSessions: 0,
             upcoming: 0,
             completed: 0,
-            avgRating: '0.0'
+            hoursLearned: '0h',
+            coursesInProgress: 0
           });
           setUpcomingSessions([]);
         }
@@ -118,9 +145,9 @@ const DashboardLearner = () => {
 
   const statCards = [
     { icon: BookOpen, label: 'Total Sessions', value: stats.totalSessions, color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' },
-    { icon: Clock, label: 'Upcoming', value: stats.upcoming, color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' },
+    { icon: Clock, label: 'Hours Learned', value: stats.hoursLearned, color: 'text-purple-600', bg: 'bg-purple-100 dark:bg-purple-900/30' },
     { icon: TrendingUp, label: 'Completed', value: stats.completed, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
-    { icon: Star, label: 'Avg Rating', value: stats.avgRating, color: 'text-purple-600', bg: 'bg-purple-100 dark:bg-purple-900/30' },
+    { icon: Calendar, label: 'Upcoming', value: stats.upcoming, color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' },
   ];
 
   if (loading) {
@@ -177,6 +204,61 @@ const DashboardLearner = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Recommended Sessions Section */}
+      <div className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+        <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
+          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Recommended for You</h2>
+          <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
+            View All <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+          {recommendedSessions.map((session, idx) => (
+            <div key={idx} className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400"
+              style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
+              onClick={() => navigate('/dashboard-learner/sessions')}
+            >
+              <div className="mb-3">
+                <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{session.title}</h3>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{session.subject}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                  <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{session.rating}</span>
+                </div>
+                <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{session.students} students</p>
+              </div>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>with {session.tutor}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Top Tutors Section */}
+      <div className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+        <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Top Rated Tutors</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+          {topTutors.map((tutor, idx) => (
+            <div key={idx} className="p-4 rounded-xl border text-center transition-all hover:shadow-md"
+              style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
+            >
+              <div className="text-4xl mb-2">{tutor.image}</div>
+              <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>{tutor.name}</h3>
+              <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>{tutor.subject}</p>
+              <div className="flex items-center justify-center gap-1 mb-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                ))}
+              </div>
+              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{tutor.students} students</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -273,6 +355,34 @@ const DashboardLearner = () => {
                 </div>
                 Edit Profile
               </button>
+            </div>
+          </div>
+
+          <div className="rounded-2xl shadow-sm border p-6"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--card-border)'
+            }}>
+            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Learning Progress</h2>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>This Month</p>
+                  <p className="text-sm font-bold text-emerald-600">{Math.floor(Math.random() * 80 + 20)}%</p>
+                </div>
+                <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.floor(Math.random() * 80 + 20)}%` }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Engagement</p>
+                  <p className="text-sm font-bold text-blue-600">8/10</p>
+                </div>
+                <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: '80%' }}></div>
+                </div>
+              </div>
             </div>
           </div>
 

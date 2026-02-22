@@ -23,6 +23,7 @@ import TutorLayout from './components/tutor/TutorLayout';
 
 // Sub-pages (Tutor)
 import TutorSessionsPage from './components/tutor/SessionsPage';
+import CalendarPage from './components/tutor/CalendarPage';
 import StudentsPage from './components/tutor/StudentsPage';
 import MessagesPage from './components/tutor/MessagesPage';
 import ReviewsPage from './components/tutor/ReviewsPage';
@@ -36,8 +37,8 @@ import LearnerSessionsPage from './components/learner/SessionsPage';
 import BrowseSessionsPage from './components/learner/BrowseSessionsPage';
 import ProfilePage from './components/learner/ProfilePage';
 import LearnerSettingsPage from './components/learner/SettingsPage';
-import CreateSessionPage from './components/learner/CreateSessionPage';
 import LearnerMaterialsPage from './components/learner/MaterialsPage';
+import LearnerReviewsPage from './components/learner/ReviewsPage';
 
 import './App.css';
 
@@ -60,10 +61,10 @@ function App() {
                 <Route element={<ProtectedRoute allowedRoles={["learner", "student"]} />}>
                   <Route path="/dashboard-learner" element={<LearnerLayout />}>
                     <Route index element={<DashboardLearner />} />
-                    <Route path="sessions" element={<LearnerSessionsPage />} />
+                  <Route path="sessions" element={<LearnerSessionsPage />} />
                     <Route path="materials" element={<LearnerMaterialsPage />} />
+                    <Route path="reviews" element={<LearnerReviewsPage />} />
                     <Route path="browse-sessions" element={<BrowseSessionsPage />} />
-                    <Route path="create-session" element={<CreateSessionPage />} />
                     <Route path="profile" element={<ProfilePage />} />
                     <Route path="settings" element={<LearnerSettingsPage />} />
                   </Route>
@@ -77,8 +78,8 @@ function App() {
                     <Route path="create-session" element={<TutorCreateSessionPage />} />
                     <Route path="students" element={<StudentsPage />} />
                     <Route path="messages" element={<MessagesPage />} />
-                    <Route path="materials" element={<TutorMaterialsPage />} />
                     <Route path="reviews" element={<ReviewsPage />} />
+                    <Route path="materials" element={<TutorMaterialsPage />} />
                     <Route path="profile" element={<TutorProfilePage />} />
                     <Route path="settings" element={<TutorSettingsPage />} />
                   </Route>

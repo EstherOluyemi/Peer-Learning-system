@@ -110,7 +110,7 @@ const SignUp = () => {
           password: formData.password
         };
         const rolePayload = formData.role === 'tutor'
-          ? { bio: 'New tutor', subjects: [], hourlyRate: 0 }
+          ? { bio: 'New tutor', subjects: [] }
           : { interests: [] };
         const userData = await register({
           ...basePayload,

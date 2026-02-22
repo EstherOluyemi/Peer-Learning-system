@@ -85,14 +85,6 @@ const LearnerMaterialsPage = () => {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start gap-3 text-amber-700 dark:text-amber-400 mb-4">
-        <div className="text-xl">⏱️</div>
-        <div>
-          <p className="font-semibold text-sm">Coming Soon</p>
-          <p className="text-xs mt-1">Materials feature is in development. We'll come back to this after implementing other core features.</p>
-        </div>
-      </div>
-
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Course Materials</h1>

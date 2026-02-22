@@ -22,11 +22,8 @@ const TutorProfilePage = () => {
     bio: user?.bio || '',
     expertise: user?.expertise || [],
     qualifications: user?.qualifications || '',
-    hourlyRate: user?.hourlyRate || '0',
     totalStudents: 0,
     totalSessions: 0,
-    averageRating: 0,
-    totalReviews: 0,
     joinedDate: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Recently',
     responseTime: '2 hours',
     completionRate: '98%'
@@ -49,11 +46,8 @@ const TutorProfilePage = () => {
           bio: tutorData.bio || prev.bio,
           expertise: tutorData.expertise || prev.expertise,
           qualifications: tutorData.qualifications || prev.qualifications,
-          hourlyRate: tutorData.hourlyRate || prev.hourlyRate,
           totalStudents: tutorData.totalStudents || 0,
-          totalSessions: tutorData.totalSessions || 0,
-          averageRating: tutorData.averageRating || 0,
-          totalReviews: tutorData.totalReviews || 0
+          totalSessions: tutorData.totalSessions || 0
         }));
       } catch (err) {
         console.error('Error fetching profile:', err);
@@ -79,8 +73,7 @@ const TutorProfilePage = () => {
         name: editedProfile.name,
         bio: editedProfile.bio,
         expertise: editedProfile.expertise,
-        qualifications: editedProfile.qualifications,
-        hourlyRate: editedProfile.hourlyRate
+        qualifications: editedProfile.qualifications
       });
 
       setProfile(prev => ({
@@ -184,16 +177,7 @@ const TutorProfilePage = () => {
                   </button>
                 </div>
                 <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{profile.name}</h2>
-                <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>Senior Tutor</p>
-                
-                <div className="flex items-center justify-center gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-4 h-4 ${i < Math.floor(profile.averageRating) ? 'text-yellow-500' : 'text-slate-300 dark:text-slate-600'}`} />
-                  ))}
-                  <span className="text-sm font-medium ml-2" style={{ color: 'var(--text-secondary)' }}>
-                    {profile.averageRating} ({profile.totalReviews} reviews)
-                  </span>
-                </div>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Senior Tutor</p>
 
                 <div className="w-full space-y-2 pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
                   <div className="flex items-center justify-between">
@@ -325,11 +309,6 @@ const TutorProfilePage = () => {
           <div className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Qualifications</h3>
             <p style={{ color: 'var(--text-secondary)' }}>{editedProfile.qualifications || 'No qualifications added yet.'}</p>
-          </div>
-
-          <div className="p-6 rounded-2xl shadow-sm border col-span-1 lg:col-span-2" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Hourly Rate</h3>
-            <div className="text-3xl font-bold text-green-600">${editedProfile.hourlyRate}/hour</div>
           </div>
         </div>
       )}

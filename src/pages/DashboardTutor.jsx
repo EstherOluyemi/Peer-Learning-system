@@ -9,6 +9,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
+import CalendarPage from '../components/tutor/CalendarPage';
 
 const DashboardTutor = () => {
   const { user } = useAuth();
@@ -18,7 +19,6 @@ const DashboardTutor = () => {
   const [error, setError] = useState(null);
   const [stats, setStats] = useState({
     totalStudents: 0,
-    rating: '0.0',
     hoursTaught: '0h'
   });
   const [allSessions, setAllSessions] = useState([]);
@@ -26,6 +26,8 @@ const DashboardTutor = () => {
   const [selectedSession, setSelectedSession] = useState(null);
   const [deletingSessionId, setDeletingSessionId] = useState(null);
   const [upcomingFilter, setUpcomingFilter] = useState('all');
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [recentReviews, setRecentReviews] = useState([]);
 
   const searchQuery = (searchParams.get('q') || '').trim().toLowerCase();
 
@@ -65,13 +67,22 @@ const DashboardTutor = () => {
 
         setStats({
           totalStudents: overviewRes.data?.totalStudents || 0,
-          rating: overviewRes.data?.rating || '0.0',
           hoursTaught: overviewRes.data?.hoursTaught || '0h'
         });
 
         const sessions = sessionsRes.data || [];
         setAllSessions(sessions);
         setUpcomingSessions(sessions.filter((session) => session.status === 'scheduled'));
+
+        // Fetch recent reviews
+        try {
+          const reviewsRes = await api.get('/v1/tutor/reviews');
+          const reviews = Array.isArray(reviewsRes) ? reviewsRes : (reviewsRes?.data && Array.isArray(reviewsRes.data) ? reviewsRes.data : []);
+          setRecentReviews(reviews.slice(0, 3));
+        } catch (err) {
+          console.error('Error fetching reviews:', err);
+          setRecentReviews([]);
+        }
       } catch (err) {
         setError('Failed to load dashboard data. Please try again later.');
         console.error(err);
@@ -141,10 +152,14 @@ const DashboardTutor = () => {
     })
     .slice(0, 3);
 
+  const averageRating = recentReviews.length > 0 
+    ? (recentReviews.reduce((sum, r) => sum + (r.rating || 0), 0) / recentReviews.length).toFixed(1)
+    : '0.0';
+
   const performanceStats = [
     { label: "Total Students", value: stats.totalStudents, icon: Users, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30" },
-    { label: "Rating", value: stats.rating, icon: Star, color: "text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/30" },
     { label: "Hours Taught", value: stats.hoursTaught, icon: Clock, color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30" },
+    { label: "Average Rating", value: averageRating, icon: Star, color: "text-yellow-600", bg: "bg-yellow-100 dark:bg-yellow-900/30", link: "/dashboard-tutor/reviews" },
   ];
 
   if (loading) {
@@ -189,21 +204,29 @@ const DashboardTutor = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {performanceStats.map((stat, index) => (
-          <div key={index} className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
-            style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-xl ${stat.bg}`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {performanceStats.map((stat, index) => {
+          const CardWrapper = stat.link ? Link : 'div';
+          const wrapperProps = stat.link ? { to: stat.link } : {};
+          
+          return (
+            <CardWrapper key={index} {...wrapperProps} className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+              style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-xl ${stat.bg}`}>
+                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                </div>
+                {stat.link && (
+                  <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-tertiary)' }} />
+                )}
               </div>
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</h3>
-              <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</p>
-            </div>
-          </div>
-        ))}
+              <div>
+                <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</h3>
+                <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</p>
+              </div>
+            </CardWrapper>
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -350,7 +373,7 @@ const DashboardTutor = () => {
                 icon={Calendar}
                 label="Schedule"
                 color="bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400"
-                onClick={() => navigate('/dashboard-tutor/sessions')}
+                onClick={() => setShowCalendarModal(true)}
               />
               <ActionButton
                 icon={Settings}
@@ -521,6 +544,26 @@ const DashboardTutor = () => {
               >
                 Edit Session
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Calendar Modal */}
+      {showCalendarModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setShowCalendarModal(false)}>
+          <div className="w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-5 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
+              <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Session Calendar</h3>
+              <button
+                onClick={() => setShowCalendarModal(false)}
+                className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 h-[calc(100%-80px)] overflow-y-auto">
+              <CalendarPage />
             </div>
           </div>
         </div>

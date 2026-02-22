@@ -21,8 +21,7 @@ const SettingsPage = () => {
     email: user?.email || "",
     bio: user?.bio || "",
     expertise: user?.expertise || [],
-    availability: user?.availability || "Mon-Fri, 9 AM - 6 PM",
-    hourlyRate: user?.hourlyRate || 0
+    availability: user?.availability || "Mon-Fri, 9 AM - 6 PM"
   });
 
   useEffect(() => {
@@ -32,8 +31,7 @@ const SettingsPage = () => {
         email: user.email || "",
         bio: user.bio || "",
         expertise: user.expertise || [],
-        availability: user.availability || "Mon-Fri, 9 AM - 6 PM",
-        hourlyRate: user.hourlyRate || 0
+        availability: user.availability || "Mon-Fri, 9 AM - 6 PM"
       });
     }
   }, [user]);
@@ -47,8 +45,7 @@ const SettingsPage = () => {
         name: profile.name,
         bio: profile.bio,
         expertise: profile.expertise,
-        availability: profile.availability,
-        hourlyRate: profile.hourlyRate
+        availability: profile.availability
       });
       
       updateUser(response.data.user);
@@ -66,8 +63,7 @@ const SettingsPage = () => {
     emailNotifications: true,
     pushNotifications: true,
     sessionReminders: true,
-    newStudentAlerts: true,
-    reviewNotifications: true
+    newStudentAlerts: true
   });
 
   const [schedule, setSchedule] = useState({
@@ -82,13 +78,6 @@ const SettingsPage = () => {
     twoFactorAuth: true,
     passwordLastChanged: "2 weeks ago",
     activeSessions: 3
-  });
-
-  const [payment, setPayment] = useState({
-    payoutMethod: "Bank Transfer",
-    payoutEmail: "jane.doe@example.com",
-    lastPayout: "$1,200 - Dec 15, 2024",
-    nextPayout: "Jan 1, 2025"
   });
 
   const handleProfileChange = (field, value) => {
@@ -107,8 +96,7 @@ const SettingsPage = () => {
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'schedule', label: 'Schedule', icon: Calendar },
-    { id: 'security', label: 'Security', icon: Shield },
-    { id: 'payment', label: 'Payment', icon: CreditCard }
+    { id: 'security', label: 'Security', icon: Shield }
   ];
 
   const renderProfileTab = () => (
@@ -178,21 +166,7 @@ const SettingsPage = () => {
               }}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Hourly Rate ($)</label>
-            <input
-              type="number"
-              value={profile.hourlyRate}
-              onChange={(e) => handleProfileChange('hourlyRate', e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
-              style={{
-                backgroundColor: 'var(--input-bg)',
-                color: 'var(--input-text)',
-                borderColor: 'var(--input-border)'
-              }}
-            />
-          </div>
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Availability</label>
             <input
               type="text"
@@ -286,7 +260,6 @@ const SettingsPage = () => {
                   {key === 'pushNotifications' && 'Get push notifications on your devices'}
                   {key === 'sessionReminders' && 'Get reminders before your scheduled sessions'}
                   {key === 'newStudentAlerts' && 'Notify when new students sign up for your sessions'}
-                  {key === 'reviewNotifications' && 'Get notified when students leave reviews'}
                 </div>
               </div>
               <button
@@ -514,117 +487,12 @@ const SettingsPage = () => {
     </div>
   );
 
-  const renderPaymentTab = () => (
-    <div className="space-y-6">
-      <div className="p-6 rounded-2xl shadow-sm border"
-        style={{
-          backgroundColor: 'var(--card-bg)',
-          borderColor: 'var(--card-border)'
-        }}
-      >
-        <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Payout Settings</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Payout Method</label>
-            <select
-              value={payment.payoutMethod}
-              onChange={(e) => setPayment(prev => ({ ...prev, payoutMethod: e.target.value }))}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
-              style={{
-                backgroundColor: 'var(--input-bg)',
-                color: 'var(--input-text)',
-                borderColor: 'var(--input-border)'
-              }}
-            >
-              <option>Bank Transfer</option>
-              <option>PayPal</option>
-              <option>Stripe</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Payout Email</label>
-            <input
-              type="email"
-              value={payment.payoutEmail}
-              onChange={(e) => setPayment(prev => ({ ...prev, payoutEmail: e.target.value }))}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
-              style={{
-                backgroundColor: 'var(--input-bg)',
-                color: 'var(--input-text)',
-                borderColor: 'var(--input-border)'
-              }}
-            />
-          </div>
-        </div>
-        <div className="mt-4 flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-            <Save className="w-4 h-4" />
-            Save Payout Settings
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-6 rounded-2xl shadow-sm border"
-          style={{
-            backgroundColor: 'var(--card-bg)',
-            borderColor: 'var(--card-border)'
-          }}
-        >
-          <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Last Payout</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span style={{ color: 'var(--text-secondary)' }}>Amount</span>
-              <span className="font-bold text-green-600 dark:text-green-400">{payment.lastPayout.split(' - ')[0]}</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ color: 'var(--text-secondary)' }}>Date</span>
-              <span style={{ color: 'var(--text-primary)' }}>{payment.lastPayout.split(' - ')[1]}</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ color: 'var(--text-secondary)' }}>Status</span>
-              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                Completed
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl shadow-sm border"
-          style={{
-            backgroundColor: 'var(--card-bg)',
-            borderColor: 'var(--card-border)'
-          }}
-        >
-          <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Next Payout</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span style={{ color: 'var(--text-secondary)' }}>Estimated Amount</span>
-              <span className="font-bold text-blue-600 dark:text-blue-400">$1,500</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ color: 'var(--text-secondary)' }}>Date</span>
-              <span style={{ color: 'var(--text-primary)' }}>{payment.nextPayout}</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ color: 'var(--text-secondary)' }}>Status</span>
-              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                Pending
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   const renderTabContent = () => {
     switch (activeTab) {
       case 'profile': return renderProfileTab();
       case 'notifications': return renderNotificationsTab();
       case 'schedule': return renderScheduleTab();
       case 'security': return renderSecurityTab();
-      case 'payment': return renderPaymentTab();
       default: return renderProfileTab();
     }
   };

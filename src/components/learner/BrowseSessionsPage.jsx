@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     Search, Filter, Calendar, Clock, Users, Star, Plus, X,
     ChevronLeft, ChevronRight, AlertCircle, CheckCircle, MapPin, BookOpen,
-    TrendingUp, DollarSign, Info, Check
+    TrendingUp, Info, Check
 } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -15,8 +15,7 @@ const BrowseSessionsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterSubject, setFilterSubject] = useState('all');
     const [filterLevel, setFilterLevel] = useState('all');
-    const [sortBy, setSortBy] = useState('upcoming'); // upcoming, popular, newest, price-low, price-high
-    const [priceRange, setPriceRange] = useState([0, 200]);
+    const [sortBy, setSortBy] = useState('upcoming'); // upcoming, popular, newest
     const [currentPage, setCurrentPage] = useState(1);
     const [sessions, setSessions] = useState([]);
     const [enrolledSessions, setEnrolledSessions] = useState([]);
@@ -73,11 +72,7 @@ const BrowseSessionsPage = () => {
         const matchesSubject = filterSubject === 'all' || session.subject === filterSubject;
         const matchesLevel = filterLevel === 'all' || session.level === filterLevel;
         
-        // Price filter
-        const sessionPrice = session.tutor?.hourlyRate || 0;
-        const matchesPrice = sessionPrice >= priceRange[0] && sessionPrice <= priceRange[1];
-        
-        return matchesSearch && matchesSubject && matchesLevel && matchesPrice;
+        return matchesSearch && matchesSubject && matchesLevel;
     });
 
     // Sort sessions
@@ -89,10 +84,6 @@ const BrowseSessionsPage = () => {
                 return (b.studentIds?.length || 0) - (a.studentIds?.length || 0);
             case 'newest':
                 return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-            case 'price-low':
-                return (a.tutor?.hourlyRate || 0) - (b.tutor?.hourlyRate || 0);
-            case 'price-high':
-                return (b.tutor?.hourlyRate || 0) - (a.tutor?.hourlyRate || 0);
             default:
                 return 0;
         }

@@ -22,8 +22,8 @@ const LearnerLayout = ({ children }) => {
         { label: 'Dashboard', icon: BookOpen, to: '/dashboard-learner' },
         { label: 'My Sessions', icon: Calendar, to: '/dashboard-learner/sessions' },
         { label: 'Materials', icon: FileText, to: '/dashboard-learner/materials' },
+        { label: 'Reviews', icon: Star, to: '/dashboard-learner/reviews' },
         { label: 'Browse Sessions', icon: Search, to: '/dashboard-learner/browse-sessions' },
-        { label: 'Create Session', icon: Plus, to: '/dashboard-learner/create-session' },
         { label: 'Profile', icon: User, to: '/dashboard-learner/profile' },
     ];
 
