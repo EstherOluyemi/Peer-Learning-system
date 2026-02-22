@@ -147,6 +147,32 @@ const CreateSessionPage = () => {
         }
         const durationMinutes = Number(formData.duration) || 0;
         const endDateTime = new Date(startDateTime.getTime() + durationMinutes * 60000);
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        let meetingLink = formData.meetingLink?.trim();
+        let meetingId;
+        let meetingCode;
+
+        if (!editId) {
+          try {
+            const meetingResponse = await api.post('/v1/tutor/google-meet/create-meeting', {
+              topic: formData.title.trim(),
+              startTime: startDateTime.toISOString(),
+              endTime: endDateTime.toISOString(),
+              timezone
+            });
+            const meetingData = meetingResponse?.data || meetingResponse;
+            meetingLink = meetingData?.joinUrl || meetingData?.meetingLink || meetingData?.meetUrl || meetingData?.meetingUri || meetingLink;
+            meetingId = meetingData?.meetingId || meetingData?.spaceId;
+            meetingCode = meetingData?.meetingCode || meetingData?.meetingId;
+            if (!meetingLink) {
+              setApiError('Google Meet creation succeeded but no join link was returned.');
+              return;
+            }
+          } catch (err) {
+            setApiError(err.message || 'Failed to create Google Meet session. Please try again.');
+            return;
+          }
+        }
 
         const payload = {
           title: formData.title.trim(),
@@ -155,18 +181,25 @@ const CreateSessionPage = () => {
           startTime: startDateTime.toISOString(),
           endTime: endDateTime.toISOString(),
           maxParticipants: Number(formData.maxParticipants),
-          meetingLink: formData.meetingLink?.trim() || undefined,
+          meetingLink: meetingLink || undefined,
+          meetingProvider: meetingLink ? 'google_meet' : undefined,
+          meetingId: meetingId || undefined,
+          meetingCode: meetingCode || undefined,
         };
 
         if (editId) {
-          // Update existing session
           await api.patch(`/v1/tutor/sessions/${editId}`, payload);
+          navigate('/dashboard-tutor/sessions');
         } else {
-          // Create new session
-          await api.post('/v1/tutor/sessions', payload);
+          const createdSession = await api.post('/v1/tutor/sessions', payload);
+          const createdPayload = createdSession?.data || createdSession;
+          const createdId = createdPayload?._id || createdPayload?.id;
+          if (createdId) {
+            navigate(`/session/${createdId}`);
+          } else {
+            navigate('/dashboard-tutor/sessions');
+          }
         }
-        
-        navigate('/dashboard-tutor/sessions');
       } catch (err) {
         console.error('Failed to save session:', err);
         setApiError(err.message || 'Failed to save session. Please try again.');

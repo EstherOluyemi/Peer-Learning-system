@@ -294,15 +294,12 @@ const DashboardTutor = () => {
                               <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {startDate.time} - {endTime}</span>
                             </div>
                             {session.meetingLink && (
-                              <a
-                                href={session.meetingLink}
-                                target="_blank"
-                                rel="noreferrer"
-                                onClick={(e) => e.stopPropagation()}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); navigate(`/session/${session._id || session.id}`); }}
                                 className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline mt-2"
                               >
-                                <Video className="w-3 h-3" /> Join Meeting
-                              </a>
+                                <Video className="w-3 h-3" /> Open Session Room
+                              </button>
                             )}
                           </div>
                         </div>
@@ -497,19 +494,16 @@ const DashboardTutor = () => {
                 </div>
               </div>
 
-              {/* Meeting Link */}
               {selectedSession.meetingLink && (
                 <div>
-                  <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Meeting Link</h4>
-                  <a
-                    href={selectedSession.meetingLink}
-                    target="_blank"
-                    rel="noreferrer"
+                  <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Meeting</h4>
+                  <button
+                    onClick={() => navigate(`/session/${selectedSession._id || selectedSession.id}`)}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
                   >
                     <Video className="w-4 h-4" />
-                    Join Video Call
-                  </a>
+                    Open Session Room
+                  </button>
                 </div>
               )}
 

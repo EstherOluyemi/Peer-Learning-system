@@ -39,6 +39,7 @@ import ProfilePage from './components/learner/ProfilePage';
 import LearnerSettingsPage from './components/learner/SettingsPage';
 import LearnerMaterialsPage from './components/learner/MaterialsPage';
 import LearnerReviewsPage from './components/learner/ReviewsPage';
+import SessionRoom from './pages/SessionRoom';
 
 import './App.css';
 
@@ -87,6 +88,7 @@ function App() {
 
                 <Route element={<ProtectedRoute allowedRoles={["learner", "student", "tutor"]} />}>
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/session/:sessionId" element={<SessionRoom />} />
                 </Route>
 
                 {/* Redirects */}
