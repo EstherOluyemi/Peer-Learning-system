@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import GoogleMeetEmbed from '../components/meet/GoogleMeetEmbed';
+import { featureFlags } from '../config/featureFlags';
 
 const normalizeId = (value) => {
   if (!value) return null;
@@ -346,19 +348,25 @@ const SessionRoom = () => {
               )}
             </div>
             <div className="bg-black/90">
-              {meetingLink ? (
-                <iframe
-                  title="Google Meet Session"
-                  src={meetingLink}
-                  allow="camera; microphone; fullscreen; speaker; display-capture"
-                  className="w-full h-105 md:h-130 lg:h-160"
-                />
+              {featureFlags.googleMeetEmbed ? (
+                <GoogleMeetEmbed meetingLink={meetingLink} />
               ) : (
-                <div className="flex flex-col items-center justify-center text-center h-105 px-6">
-                  <AlertCircle className="w-10 h-10 text-amber-400 mb-3" />
-                  <p className="text-sm font-medium text-white">Meeting link unavailable.</p>
-                  <p className="text-xs text-slate-300 mt-1">Contact support or refresh to try again.</p>
-                </div>
+                <>
+                  {meetingLink ? (
+                    <iframe
+                      title="Google Meet Session"
+                      src={meetingLink}
+                      allow="camera; microphone; fullscreen; speaker; display-capture"
+                      className="w-full h-105 md:h-130 lg:h-160"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center h-105 px-6">
+                      <AlertCircle className="w-10 h-10 text-amber-400 mb-3" />
+                      <p className="text-sm font-medium text-white">Meeting link unavailable.</p>
+                      <p className="text-xs text-slate-300 mt-1">Contact support or refresh to try again.</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
             <div className="p-4 text-sm" style={{ color: 'var(--text-secondary)' }}>

@@ -23,24 +23,23 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    const message = error.response?.data?.message || 'Something went wrong';
-    
-    // On 401, clear auth and redirect to login (session expired/invalid)
-    if (error.response?.status === 401) {
+    const errorPayload = error.response?.data || {};
+    const errorCode = errorPayload.code || errorPayload.errorCode;
+    const message = errorPayload.message || 'Something went wrong';
+    const shouldLogout = error.response?.status === 401 && errorCode !== 'AUTH_FAILED';
+    if (shouldLogout) {
       localStorage.removeItem('peerlearn_user');
       localStorage.removeItem('peerlearn_token');
-      
-      // Only redirect if not already on login page
       if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
-        // Use a small delay to prevent race conditions with React state updates
         setTimeout(() => {
           window.location.href = '/login';
         }, 100);
       }
     }
-    
     const wrappedError = new Error(message);
     wrappedError.status = error.response?.status;
+    wrappedError.code = errorCode;
+    wrappedError.payload = errorPayload;
     return Promise.reject(wrappedError);
   }
 );
