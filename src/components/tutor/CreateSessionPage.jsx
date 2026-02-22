@@ -151,17 +151,54 @@ const CreateSessionPage = () => {
         let meetingLink = formData.meetingLink?.trim();
         let meetingId;
         let meetingCode;
+        let tutorId = user?.id || user?._id;
+        const meetingTitle = formData.title.trim();
+        const scheduledTime = startDateTime.toISOString();
+        const studentId = formData.studentId || tutorId;
+
+        try {
+          const meResponse = await api.get('/v1/tutor/me');
+          const meRoot = meResponse?.data || meResponse;
+          const mePayload = meRoot?.data?.user || meRoot?.data || meRoot;
+          const resolvedTutorId =
+            mePayload?.id ||
+            mePayload?._id ||
+            mePayload?.tutorId ||
+            mePayload?.tutor?._id ||
+            mePayload?.tutor?.id;
+          if (resolvedTutorId) {
+            tutorId = resolvedTutorId;
+          }
+        } catch (err) {
+          console.error('Failed to resolve tutor ID from /v1/tutor/me:', err);
+        }
+
+        if (!tutorId) {
+          setApiError('Unable to identify tutor account. Please log out and log in again.');
+          setIsSubmitting(false);
+          return;
+        }
 
         if (!editId) {
           try {
             const meetingResponse = await api.post('/v1/tutor/google-meet/create-meeting', {
-              topic: formData.title.trim(),
-              startTime: startDateTime.toISOString(),
+              topic: meetingTitle,
+              meetingTitle,
+              scheduledTime,
+              tutorId,
+              studentId,
+              startTime: scheduledTime,
               endTime: endDateTime.toISOString(),
               timezone
             });
-            const meetingData = meetingResponse?.data || meetingResponse;
-            meetingLink = meetingData?.joinUrl || meetingData?.meetingLink || meetingData?.meetUrl || meetingData?.meetingUri || meetingLink;
+            const meetingRoot = meetingResponse?.data || meetingResponse;
+            const meetingData = meetingRoot?.data || meetingRoot;
+            meetingLink =
+              meetingData?.joinUrl ||
+              meetingData?.meetingLink ||
+              meetingData?.meetUrl ||
+              meetingData?.meetingUri ||
+              meetingLink;
             meetingId = meetingData?.meetingId || meetingData?.spaceId;
             meetingCode = meetingData?.meetingCode || meetingData?.meetingId;
             if (!meetingLink) {
@@ -169,7 +206,13 @@ const CreateSessionPage = () => {
               return;
             }
           } catch (err) {
-            setApiError(err.message || 'Failed to create Google Meet session. Please try again.');
+            const apiError =
+              err?.response?.data?.message ||
+              err?.response?.data?.error ||
+              err.message ||
+              'Failed to create Google Meet session. Please try again.';
+            console.error('Google Meet creation error:', err);
+            setApiError(apiError);
             return;
           }
         }
