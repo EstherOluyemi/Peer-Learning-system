@@ -28,10 +28,16 @@ const normalizeId = (value) => {
 
 const isSessionParticipant = (session, user) => {
   if (!session || !user) return false;
+
+  // FIX: Tutors fetched this via /v1/tutor/sessions/:id which requires tutor auth.
+  // If we got the session data, the backend already confirmed they own it.
+  // Checking IDs here fails because session.tutorId is the Tutor doc _id,
+  // but user.id is the User doc _id — they are different documents.
+  if (user?.role === 'tutor') return true;
+
+  // For students/learners: check studentIds list
   const userId = normalizeId(user.id || user._id);
   if (!userId) return false;
-  const tutorId = normalizeId(session.tutorId || session.tutor?._id || session.tutor?.id);
-  if (tutorId && tutorId === userId) return true;
   const studentIds = (session.studentIds || []).map(normalizeId);
   return studentIds.includes(userId);
 };
@@ -65,27 +71,27 @@ const formatDateTime = (date) => {
   };
 };
 
-// FIX: Try tutor route first, fall back to learner route.
-// The old code used /v1/sessions/:id which doesn't exist on the backend.
-const fetchSessionById = async (sessionId) => {
-  // Try tutor route first (works when logged in as tutor)
-  try {
+// FIX: Use the correct API route based on user role.
+const fetchSessionById = async (sessionId, userRole) => {
+  if (userRole === 'tutor') {
     const response = await api.get(`/v1/tutor/sessions/${sessionId}`);
     const payload = response?.data || response;
-    const data = payload?.data || payload;
-    if (data && (data._id || data.id)) return data;
-  } catch (tutorErr) {
-    // 403 or 404 — not a tutor or not their session, try learner route
-    if (tutorErr?.response?.status !== 403 && tutorErr?.response?.status !== 404) {
-      throw tutorErr;
-    }
+    return payload?.data || payload;
   }
-
-  // Fall back to learner route
-  const response = await api.get(`/v1/learner/sessions/${sessionId}`);
-  const payload = response?.data || response;
-  const data = payload?.data || payload;
-  return data;
+  // Learner route
+  try {
+    const response = await api.get(`/v1/learner/sessions/${sessionId}`);
+    const payload = response?.data || response;
+    return payload?.data || payload;
+  } catch (err) {
+    // Fallback: learner route may not exist yet
+    if (err?.response?.status === 404) {
+      const response = await api.get(`/v1/tutor/sessions/${sessionId}`);
+      const payload = response?.data || response;
+      return payload?.data || payload;
+    }
+    throw err;
+  }
 };
 
 const SessionRoom = () => {
@@ -127,7 +133,7 @@ const SessionRoom = () => {
       try {
         setLoading(true);
         setError('');
-        const data = await fetchSessionById(sessionId);
+        const data = await fetchSessionById(sessionId, user?.role);
         if (!data) {
           setError('Session not found.');
           return;
@@ -410,9 +416,11 @@ const SessionRoom = () => {
                 <MessageSquare className="w-5 h-5 text-blue-600" />
                 <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Live Chat</h2>
               </div>
-              <span className={`text-xs font-semibold px-2 py-1 rounded-full ${chatEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                {chatEnabled ? 'Active' : 'Inactive'}
-              </span>
+              {sessionActive && (
+                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${chatEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {chatEnabled ? 'Active' : 'Inactive'}
+                </span>
+              )}
             </div>
             {chatError && (
               <div className="px-4 py-3 text-sm text-red-600 bg-red-50 border-b border-red-200 flex items-center gap-2">
