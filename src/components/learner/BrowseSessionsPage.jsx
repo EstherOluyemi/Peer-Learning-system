@@ -1,17 +1,13 @@
 // src/components/learner/BrowseSessionsPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
     Search, Filter, Calendar, Clock, Users, Star, Plus, X,
-    ChevronLeft, ChevronRight, AlertCircle, CheckCircle, MapPin, BookOpen,
+    ChevronLeft, ChevronRight, AlertCircle, CheckCircle, MapPin, BookOpen, DollarSign,
     TrendingUp, Info, Check
 } from 'lucide-react';
 import api from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
 
 const BrowseSessionsPage = () => {
-    const navigate = useNavigate();
-    const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterSubject, setFilterSubject] = useState('all');
     const [filterLevel, setFilterLevel] = useState('all');
@@ -20,6 +16,7 @@ const BrowseSessionsPage = () => {
     const [sessions, setSessions] = useState([]);
     const [enrolledSessions, setEnrolledSessions] = useState([]);
     const [subjects, setSubjects] = useState([]);
+    const [priceRange, setPriceRange] = useState([0, 200]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [joiningId, setJoiningId] = useState(null);
@@ -65,18 +62,22 @@ const BrowseSessionsPage = () => {
 
     // Filter and sort sessions
     const filteredSessions = sessions.filter(session => {
+        const sessionRate = session.tutor?.hourlyRate ?? session.price ?? session.hourlyRate ?? 0;
         const matchesSearch = (session.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.tutor?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSubject = filterSubject === 'all' || session.subject === filterSubject;
         const matchesLevel = filterLevel === 'all' || session.level === filterLevel;
-        
-        return matchesSearch && matchesSubject && matchesLevel;
+        const matchesPrice = sessionRate <= priceRange[1];
+
+        return matchesSearch && matchesSubject && matchesLevel && matchesPrice;
     });
 
     // Sort sessions
     const sortedSessions = [...filteredSessions].sort((a, b) => {
+        const aRate = a.tutor?.hourlyRate ?? a.price ?? a.hourlyRate ?? 0;
+        const bRate = b.tutor?.hourlyRate ?? b.price ?? b.hourlyRate ?? 0;
         switch (sortBy) {
             case 'upcoming':
                 return new Date(a.startTime || 0) - new Date(b.startTime || 0);
@@ -84,6 +85,10 @@ const BrowseSessionsPage = () => {
                 return (b.studentIds?.length || 0) - (a.studentIds?.length || 0);
             case 'newest':
                 return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            case 'price-low':
+                return aRate - bRate;
+            case 'price-high':
+                return bRate - aRate;
             default:
                 return 0;
         }

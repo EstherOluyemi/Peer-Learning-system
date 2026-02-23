@@ -15,8 +15,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import GoogleMeetEmbed from '../components/meet/GoogleMeetEmbed';
-import { featureFlags } from '../config/featureFlags';
 
 const normalizeId = (value) => {
   if (!value) return null;
@@ -155,32 +153,15 @@ const SessionRoom = () => {
     load();
   }, [sessionId]);
 
+  // Chat polling disabled — /chat backend route not yet implemented.
+  // Messages are stored in local React state only (handleSend still works via
+  // WebSocket or POST if those routes exist). When you add GET /sessions/:id/chat
+  // to the backend, re-enable polling here.
   useEffect(() => {
     if (!sessionId || !chatEnabled) {
       setChatMessages([]);
-      return;
     }
-    let pollingId;
-    const fetchChat = async () => {
-      try {
-        // FIX: use the correct chat endpoint matching whichever session route worked
-        const response = await api.get(`/v1/tutor/sessions/${sessionId}/chat`);
-        const payload = response?.data || response;
-        setChatMessages(Array.isArray(payload) ? payload : payload?.messages || []);
-        setChatError('');
-      } catch (err) {
-        setChatError(err.message || 'Unable to load chat messages.');
-      }
-    };
-    if (chatSocketBase) {
-      return undefined;
-    }
-    fetchChat();
-    pollingId = setInterval(fetchChat, 4000);
-    return () => {
-      if (pollingId) clearInterval(pollingId);
-    };
-  }, [sessionId, chatEnabled, chatSocketBase]);
+  }, [sessionId, chatEnabled]);
 
   useEffect(() => {
     if (!chatEnabled || !chatSocketBase || !sessionId) {
@@ -251,11 +232,9 @@ const SessionRoom = () => {
     try {
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.send(JSON.stringify({ type: 'message', message: optimisticMessage }));
-      } else {
-        await api.post(`/v1/tutor/sessions/${sessionId}/chat`, {
-          text: optimisticMessage.text
-        });
       }
+      // NOTE: REST fallback for chat (POST /chat) not yet implemented on backend.
+      // Messages sent without WebSocket are local-only until backend route is added.
       setChatError('');
     } catch (err) {
       setChatError(err.message || 'Failed to send message.');
@@ -367,47 +346,48 @@ const SessionRoom = () => {
       <main className="container mx-auto px-6 py-6">
         <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
           <section className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
-              <div className="flex items-center gap-2">
-                <Video className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Live Session</h2>
-              </div>
-              {meetingLink && (
-                <a
-                  href={meetingLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-700"
-                >
-                  Open in new tab
-                </a>
-              )}
+            <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-color)' }}>
+              <Video className="w-5 h-5 text-blue-600" />
+              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Live Session</h2>
             </div>
-            <div className="bg-black/90">
-              {featureFlags.googleMeetEmbed ? (
-                <GoogleMeetEmbed meetingLink={meetingLink} />
-              ) : (
+            {/* 
+              NOTE: Google Meet cannot be embedded in an iframe.
+              Google sets X-Frame-Options: deny on meet.google.com,
+              which is a hard browser security block — not fixable on our end.
+              We show a Join button that opens Meet in a new tab instead.
+            */}
+            <div className="bg-slate-900 flex flex-col items-center justify-center py-16 px-8 text-center min-h-80">
+              {meetingLink ? (
                 <>
-                  {meetingLink ? (
-                    <iframe
-                      title="Google Meet Session"
-                      src={meetingLink}
-                      allow="camera; microphone; fullscreen; speaker; display-capture"
-                      className="w-full h-105 md:h-130 lg:h-160"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-center h-105 px-6">
-                      <AlertCircle className="w-10 h-10 text-amber-400 mb-3" />
-                      <p className="text-sm font-medium text-white">Meeting link unavailable.</p>
-                      <p className="text-xs text-slate-300 mt-1">Contact support or refresh to try again.</p>
-                    </div>
-                  )}
+                  <div className="w-20 h-20 rounded-full bg-blue-600/20 flex items-center justify-center mb-6">
+                    <Video className="w-10 h-10 text-blue-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Ready to join?</h3>
+                  <p className="text-slate-400 text-sm mb-8 max-w-xs">
+                    Google Meet opens in a new tab. Come back here for chat and session info.
+                  </p>
+                  <a
+                    href={meetingLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold rounded-2xl text-lg transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-500/40"
+                  >
+                    <Video className="w-6 h-6" />
+                    Join Google Meet
+                  </a>
+                  <p className="text-xs text-slate-500 mt-4">
+                    {sessionActive ? 'Session is live now' : sessionEnded ? 'Session has ended' : 'Session has not started yet'}
+                  </p>
                 </>
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <AlertCircle className="w-10 h-10 text-amber-400" />
+                  <p className="text-sm font-medium text-white">Meeting link unavailable.</p>
+                  <p className="text-xs text-slate-400">Contact your tutor or refresh the page.</p>
+                </div>
               )}
             </div>
-            <div className="p-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
-              {sessionEnded ? 'This session has ended. The meeting is read-only.' : sessionActive ? 'Session is live. Join now.' : 'Session has not started yet.'}
-            </div>
+
           </section>
 
           <section className="rounded-2xl shadow-sm border flex flex-col" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
