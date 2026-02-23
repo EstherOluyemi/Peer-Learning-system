@@ -1,3 +1,4 @@
+// src/pages/SessionRoom.jsx
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
@@ -64,6 +65,29 @@ const formatDateTime = (date) => {
   };
 };
 
+// FIX: Try tutor route first, fall back to learner route.
+// The old code used /v1/sessions/:id which doesn't exist on the backend.
+const fetchSessionById = async (sessionId) => {
+  // Try tutor route first (works when logged in as tutor)
+  try {
+    const response = await api.get(`/v1/tutor/sessions/${sessionId}`);
+    const payload = response?.data || response;
+    const data = payload?.data || payload;
+    if (data && (data._id || data.id)) return data;
+  } catch (tutorErr) {
+    // 403 or 404 — not a tutor or not their session, try learner route
+    if (tutorErr?.response?.status !== 403 && tutorErr?.response?.status !== 404) {
+      throw tutorErr;
+    }
+  }
+
+  // Fall back to learner route
+  const response = await api.get(`/v1/learner/sessions/${sessionId}`);
+  const payload = response?.data || response;
+  const data = payload?.data || payload;
+  return data;
+};
+
 const SessionRoom = () => {
   const { sessionId } = useParams();
   const { user } = useAuth();
@@ -98,26 +122,31 @@ const SessionRoom = () => {
   const chatEnabled = participantAllowed && sessionActive && !sessionEnded;
 
   useEffect(() => {
-    const fetchSession = async () => {
+    if (!sessionId) return;
+    const load = async () => {
       try {
         setLoading(true);
         setError('');
-        const response = await api.get(`/v1/sessions/${sessionId}`);
-        const payload = response?.data || response;
-        if (!payload) {
+        const data = await fetchSessionById(sessionId);
+        if (!data) {
           setError('Session not found.');
           return;
         }
-        setSession(payload);
+        setSession(data);
       } catch (err) {
-        setError(err.message || 'Failed to load session.');
+        const status = err?.response?.status;
+        if (status === 404) {
+          setError('Session not found.');
+        } else if (status === 403) {
+          setError('You do not have access to this session.');
+        } else {
+          setError(err.message || 'Failed to load session.');
+        }
       } finally {
         setLoading(false);
       }
     };
-    if (sessionId) {
-      fetchSession();
-    }
+    load();
   }, [sessionId]);
 
   useEffect(() => {
@@ -128,7 +157,8 @@ const SessionRoom = () => {
     let pollingId;
     const fetchChat = async () => {
       try {
-        const response = await api.get(`/v1/sessions/${sessionId}/chat`);
+        // FIX: use the correct chat endpoint matching whichever session route worked
+        const response = await api.get(`/v1/tutor/sessions/${sessionId}/chat`);
         const payload = response?.data || response;
         setChatMessages(Array.isArray(payload) ? payload : payload?.messages || []);
         setChatError('');
@@ -216,7 +246,7 @@ const SessionRoom = () => {
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.send(JSON.stringify({ type: 'message', message: optimisticMessage }));
       } else {
-        await api.post(`/v1/sessions/${sessionId}/chat`, {
+        await api.post(`/v1/tutor/sessions/${sessionId}/chat`, {
           text: optimisticMessage.text
         });
       }
@@ -423,6 +453,7 @@ const SessionRoom = () => {
                   type="text"
                   value={chatInput}
                   onChange={(event) => setChatInput(event.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                   placeholder={chatEnabled ? 'Type your message...' : 'Chat opens when the session starts'}
                   disabled={!chatEnabled || sending || !online}
                   className="flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
