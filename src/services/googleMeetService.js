@@ -6,6 +6,7 @@ const OAUTH_STATUS_PATH = import.meta.env.VITE_GOOGLE_MEET_OAUTH_STATUS_PATH || 
 const OAUTH_REFRESH_PATH = import.meta.env.VITE_GOOGLE_MEET_OAUTH_REFRESH_PATH || '/v1/tutor/google-meet/oauth/refresh';
 const OAUTH_REVOKE_PATH = import.meta.env.VITE_GOOGLE_MEET_OAUTH_REVOKE_PATH || '/v1/tutor/google-meet/oauth/revoke';
 const CREATE_MEETING_PATH = import.meta.env.VITE_GOOGLE_MEET_CREATE_PATH || '/v1/tutor/google-meet/create-meeting';
+const PERMANENT_LINK_PATH = import.meta.env.VITE_GOOGLE_MEET_PERMANENT_LINK_PATH || '/v1/tutor/google-meet/permanent-link';
 
 const normalizeBaseUrl = (value) => (value.endsWith('/') ? value.slice(0, -1) : value);
 const normalizePath = (value) => (value.startsWith('/') ? value : `/${value}`);
@@ -77,5 +78,30 @@ export const createGoogleMeetMeeting = async (request) => {
     await refreshGoogleMeetAuth();
     const retryResponse = await api.post(CREATE_MEETING_PATH, request);
     return parseMeetingResponse(retryResponse);
+  }
+};
+
+export const getOrCreatePermanentGoogleMeetLink = async (request, options = {}) => {
+  const payload = {
+    ...request,
+    forceNew: Boolean(options.forceNew),
+  };
+  const execute = async (body) => {
+    const response = await api.post(PERMANENT_LINK_PATH, body);
+    return parseMeetingResponse(response);
+  };
+
+  try {
+    return await execute(payload);
+  } catch (error) {
+    if (error?.code === 'AUTH_FAILED') {
+      await refreshGoogleMeetAuth();
+      return execute(payload);
+    }
+    const invalidCodes = ['MEETING_LINK_INVALID', 'MEETING_LINK_EXPIRED', 'MEETING_LINK_FAILED'];
+    if (!options.forceNew && invalidCodes.includes(error?.code)) {
+      return execute({ ...request, forceNew: true });
+    }
+    throw error;
   }
 };

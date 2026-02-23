@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { featureFlags } from '../../config/featureFlags';
 import GoogleMeetAuthPanel from '../meet/GoogleMeetAuthPanel';
-import { createGoogleMeetMeeting, getGoogleMeetAuthStatus, getGoogleMeetOAuthUrl, refreshGoogleMeetAuth, revokeGoogleMeetAuth } from '../../services/googleMeetService';
+import { getGoogleMeetAuthStatus, getGoogleMeetOAuthUrl, getOrCreatePermanentGoogleMeetLink, refreshGoogleMeetAuth, revokeGoogleMeetAuth } from '../../services/googleMeetService';
 
 const CreateSessionPage = () => {
   const { user } = useAuth();
@@ -208,7 +208,7 @@ const CreateSessionPage = () => {
             return;
           }
           try {
-            const meetingResponse = await createGoogleMeetMeeting({
+            const meetingResponse = await getOrCreatePermanentGoogleMeetLink({
               meetingTitle,
               scheduledTime,
               tutorId,
