@@ -203,7 +203,7 @@ const CalendarPage = () => {
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <div className="text-center min-w-[200px]">
+          <div className="text-center min-w-50">
             <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
               {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
             </h2>
@@ -281,7 +281,7 @@ const CalendarPage = () => {
               return (
                 <div
                   key={idx}
-                  className={`min-h-[120px] p-2 border-r border-b ${
+                  className={`min-h-30 p-2 border-r border-b ${
                     isToday(date) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                   }`}
                   style={{ borderColor: 'var(--border-color)' }}
@@ -322,7 +322,7 @@ const CalendarPage = () => {
               return (
                 <div
                   key={idx}
-                  className={`min-h-[100px] p-2 border-r border-b ${
+                  className={`min-h-25 p-2 border-r border-b ${
                     !isCurrentMonth ? 'opacity-40' : ''
                   } ${isToday(date) ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
                   style={{ borderColor: 'var(--border-color)' }}
