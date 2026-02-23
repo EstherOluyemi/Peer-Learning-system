@@ -6,8 +6,11 @@ import {
     TrendingUp, Info, Check
 } from 'lucide-react';
 import api from '../../services/api';
+import { getAllSessions } from '../../services/sessionService';
+import { useAuth } from '../../context/AuthContext';
 
 const BrowseSessionsPage = () => {
+    const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterSubject, setFilterSubject] = useState('all');
     const [filterLevel, setFilterLevel] = useState('all');
@@ -32,8 +35,8 @@ const BrowseSessionsPage = () => {
                 setLoading(true);
                 
                 // Fetch all available sessions
-                const response = await api.get('/v1/tutor/sessions');
-                const sessionsList = Array.isArray(response) ? response : (response?.data && Array.isArray(response.data) ? response.data : []);
+                const role = user?.role === 'student' ? 'learner' : user?.role;
+                const sessionsList = await getAllSessions({}, { role });
                 setSessions(sessionsList);
 
                 // Fetch learner's enrolled sessions
@@ -58,7 +61,7 @@ const BrowseSessionsPage = () => {
         };
 
         fetchData();
-    }, []);
+    }, [user?.role]);
 
     // Filter and sort sessions
     const filteredSessions = sessions.filter(session => {

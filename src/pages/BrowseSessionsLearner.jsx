@@ -33,7 +33,7 @@ const BrowseSessionsLearner = () => {
     const fetchSessions = async () => {
       try {
         setIsLoading(true);
-        const data = await getAllSessions();
+        const data = await getAllSessions({}, { role: user?.role });
         setSessions(Array.isArray(data) ? data : []);
 
         // Extract unique subjects for filter
@@ -48,7 +48,7 @@ const BrowseSessionsLearner = () => {
     };
 
     fetchSessions();
-  }, []);
+  }, [user?.role]);
 
   // Filter sessions based on search and subject
   useEffect(() => {
@@ -267,11 +267,11 @@ const BrowseSessionsLearner = () => {
                     {/* Session Details */}
                     <div className="space-y-2 text-sm mb-4">
                       <p className="flex items-center gap-2 text-slate-600">
-                        <Calendar className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                        <Calendar className="w-4 h-4 shrink-0" aria-hidden="true" />
                         {formatDateTime(session.startTime)}
                       </p>
                       <p className="flex items-center gap-2 text-slate-600">
-                        <Users className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                        <Users className="w-4 h-4 shrink-0" aria-hidden="true" />
                         <span aria-label={`${session.studentIds?.length || 0} participants out of ${session.maxParticipants} maximum`}>
                           {session.studentIds?.length || 0} / {session.maxParticipants}
                         </span>
