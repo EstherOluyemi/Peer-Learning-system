@@ -2,12 +2,12 @@
 import api from './api';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const OAUTH_START_PATH = import.meta.env.VITE_GOOGLE_MEET_OAUTH_START_PATH || '/v1/tutor/google-meet/oauth/start';
-const OAUTH_STATUS_PATH = import.meta.env.VITE_GOOGLE_MEET_OAUTH_STATUS_PATH || '/v1/tutor/google-meet/oauth/status';
-const OAUTH_REFRESH_PATH = import.meta.env.VITE_GOOGLE_MEET_OAUTH_REFRESH_PATH || '/v1/tutor/google-meet/oauth/refresh';
-const OAUTH_REVOKE_PATH = import.meta.env.VITE_GOOGLE_MEET_OAUTH_REVOKE_PATH || '/v1/tutor/google-meet/oauth/revoke';
-const CREATE_MEETING_PATH = import.meta.env.VITE_GOOGLE_MEET_CREATE_PATH || '/v1/tutor/google-meet/create-meeting';
-const PERMANENT_LINK_PATH = import.meta.env.VITE_GOOGLE_MEET_PERMANENT_LINK_PATH || '/v1/tutor/google-meet/permanent-link';
+const OAUTH_START_PATH = '/v1/tutor/google-meet/oauth/start';
+const OAUTH_STATUS_PATH = '/v1/tutor/google-meet/oauth/status';
+const OAUTH_REFRESH_PATH =  '/v1/tutor/google-meet/oauth/refresh';
+const OAUTH_REVOKE_PATH = '/v1/tutor/google-meet/oauth/revoke';
+const CREATE_MEETING_PATH = '/v1/tutor/google-meet/create-meeting';
+const PERMANENT_LINK_PATH = '/v1/tutor/google-meet/permanent-link';
 
 const normalizeBaseUrl = (value) => (value.endsWith('/') ? value.slice(0, -1) : value);
 const normalizePath = (value) => (value.startsWith('/') ? value : `/${value}`);
