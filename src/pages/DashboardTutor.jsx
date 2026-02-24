@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
 import CalendarPage from '../components/tutor/CalendarPage';
+import { approveEnrollmentRequest, getTutorEnrollmentRequests, normalizeSessionList, rejectEnrollmentRequest } from '../services/sessionService';
 
 const DashboardTutor = () => {
   const { user } = useAuth();
@@ -28,6 +29,8 @@ const DashboardTutor = () => {
   const [upcomingFilter, setUpcomingFilter] = useState('all');
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [recentReviews, setRecentReviews] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [requestActionId, setRequestActionId] = useState(null);
 
   const searchQuery = (searchParams.get('q') || '').trim().toLowerCase();
 
@@ -70,9 +73,9 @@ const DashboardTutor = () => {
           hoursTaught: overviewRes.data?.hoursTaught || '0h'
         });
 
-        const sessions = sessionsRes.data || [];
+        const sessions = normalizeSessionList(sessionsRes.data || []);
         setAllSessions(sessions);
-        setUpcomingSessions(sessions.filter((session) => session.status === 'scheduled'));
+        setUpcomingSessions(sessions.filter((session) => session.status === 'scheduled' || session.status === 'ongoing'));
 
         // Fetch recent reviews
         try {
@@ -92,6 +95,37 @@ const DashboardTutor = () => {
     };
 
     fetchDashboardData();
+  }, []);
+
+  useEffect(() => {
+    const refreshRequests = async () => {
+      try {
+        const data = await getTutorEnrollmentRequests({ status: 'pending' });
+        setPendingRequests(Array.isArray(data) ? data : []);
+      } catch {
+        setPendingRequests([]);
+      }
+    };
+
+    const refreshSessions = async () => {
+      try {
+        const sessionsRes = await api.get('/v1/tutor/sessions');
+        const sessions = normalizeSessionList(sessionsRes.data || []);
+        setAllSessions(sessions);
+        setUpcomingSessions(sessions.filter((session) => session.status === 'scheduled' || session.status === 'ongoing'));
+      } catch {
+        setAllSessions([]);
+        setUpcomingSessions([]);
+      }
+    };
+
+    refreshRequests();
+    const intervalId = setInterval(() => {
+      refreshSessions();
+      refreshRequests();
+    }, 60000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleDeleteSession = async (sessionId) => {
@@ -162,6 +196,39 @@ const DashboardTutor = () => {
     { label: "Average Rating", value: averageRating, icon: Star, color: "text-yellow-600", bg: "bg-yellow-100 dark:bg-yellow-900/30", link: "/dashboard-tutor/reviews" },
   ];
 
+  const formatRequestTime = (dateString) => {
+    if (!dateString) return '';
+    try {
+      return new Date(dateString).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '';
+    }
+  };
+
+  const handleApproveRequest = async (requestId) => {
+    try {
+      setRequestActionId(requestId);
+      await approveEnrollmentRequest(requestId);
+      setPendingRequests((prev) => prev.filter((req) => (req.requestId || req._id || req.id) !== requestId));
+    } catch {
+      setPendingRequests((prev) => prev.filter((req) => (req.requestId || req._id || req.id) !== requestId));
+    } finally {
+      setRequestActionId(null);
+    }
+  };
+
+  const handleRejectRequest = async (requestId) => {
+    try {
+      setRequestActionId(requestId);
+      await rejectEnrollmentRequest(requestId);
+      setPendingRequests((prev) => prev.filter((req) => (req.requestId || req._id || req.id) !== requestId));
+    } catch {
+      setPendingRequests((prev) => prev.filter((req) => (req.requestId || req._id || req.id) !== requestId));
+    } finally {
+      setRequestActionId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -227,6 +294,55 @@ const DashboardTutor = () => {
             </CardWrapper>
           );
         })}
+      </div>
+
+      <div className="rounded-2xl shadow-sm border p-6" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Enrollment Requests</h2>
+          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+            {pendingRequests.length} pending
+          </span>
+        </div>
+        {pendingRequests.length === 0 ? (
+          <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>No pending enrollment requests.</div>
+        ) : (
+          <div className="space-y-3">
+            {pendingRequests.map((request) => {
+              const requestId = request.requestId || request._id || request.id;
+              const learnerName = request.learner?.name || request.student?.name || request.learnerName || 'Learner';
+              const sessionTitle = request.session?.title || request.sessionTitle || request.sessionName || 'Session';
+              const createdAt = formatRequestTime(request.createdAt || request.requestedAt);
+              return (
+                <div key={requestId} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border"
+                  style={{ borderColor: 'var(--card-border)' }}>
+                  <div className="text-sm">
+                    <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>{learnerName}</div>
+                    <div style={{ color: 'var(--text-secondary)' }}>{sessionTitle}</div>
+                    {createdAt && (
+                      <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{createdAt}</div>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleApproveRequest(requestId)}
+                      disabled={requestActionId === requestId}
+                      className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-60"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleRejectRequest(requestId)}
+                      disabled={requestActionId === requestId}
+                      className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-60"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

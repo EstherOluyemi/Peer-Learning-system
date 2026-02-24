@@ -6,6 +6,7 @@ import {
   ChevronLeft, ChevronRight, Eye, MessageSquare, Star, AlertCircle, Video, X
 } from 'lucide-react';
 import api from '../../services/api';
+import { normalizeSessionList } from '../../services/sessionService';
 
 const SessionsPage = () => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ const SessionsPage = () => {
       try {
         setLoading(true);
         const response = await api.get('/v1/tutor/sessions');
-        const allSessions = response.data || [];
+        const allSessions = normalizeSessionList(response.data || []);
         setSessions(allSessions);
 
         // Calculate quick stats
@@ -83,6 +84,20 @@ const SessionsPage = () => {
     };
 
     fetchSessions();
+    const intervalId = setInterval(() => {
+      setSessions((prev) => {
+        const normalized = normalizeSessionList(prev);
+        setQuickStats({
+          total: normalized.length,
+          scheduled: normalized.filter(s => s.status === 'scheduled').length,
+          ongoing: normalized.filter(s => s.status === 'ongoing').length,
+          cancelled: normalized.filter(s => s.status === 'cancelled').length
+        });
+        return normalized;
+      });
+    }, 60000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleDeleteSession = async (sessionId) => {

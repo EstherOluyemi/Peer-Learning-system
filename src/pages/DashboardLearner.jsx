@@ -1,7 +1,8 @@
 // src/pages/DashboardLearner.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { normalizeSessionList } from '../services/sessionService';
 import {
   BookOpen, Clock, TrendingUp, Star, Calendar,
   User, Search, Bell, ChevronRight, AlertCircle, Video, X, Users, Zap
@@ -19,6 +20,7 @@ const DashboardLearner = () => {
     hoursLearned: '0h',
     coursesInProgress: 0
   });
+  const [sessions, setSessions] = useState([]);
   const [upcomingSessions, setUpcomingSessions] = useState([]);
   const [recommendedSessions, setRecommendedSessions] = useState([]);
   const [topTutors, setTopTutors] = useState([]);
@@ -27,6 +29,8 @@ const DashboardLearner = () => {
   const [error, setError] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
   const [leavingSessionId, setLeavingSessionId] = useState(null);
+  const [enrollmentMessage, setEnrollmentMessage] = useState('');
+  const enrollmentStatusRef = useRef({});
 
   const formatDateTime = (dateString) => {
     if (!dateString) return { date: 'TBD', time: '--', dayMonth: 'TBD', timeLabel: '--' };
@@ -71,6 +75,23 @@ const DashboardLearner = () => {
     }
   };
 
+  const updateSessionStats = (sessionsData) => {
+    const upcoming = sessionsData.filter(s => s.status === 'scheduled' || s.status === 'ongoing') || [];
+    const completed = sessionsData.filter(s => s.status === 'completed') || [];
+    const totalHours = completed.reduce((sum, s) => sum + (s.duration || 0), 0);
+    const hoursLearned = totalHours >= 60 ? `${Math.floor(totalHours / 60)}h` : `${totalHours}m`;
+
+    setStats({
+      totalSessions: sessionsData.length || 0,
+      upcoming: upcoming.length || 0,
+      completed: completed.length || 0,
+      hoursLearned: hoursLearned,
+      coursesInProgress: upcoming.length || 0
+    });
+
+    setUpcomingSessions(upcoming.slice(0, 3) || []);
+  };
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -81,24 +102,9 @@ const DashboardLearner = () => {
         try {
           const sessionsRes = await api.get('/v1/learner/sessions');
           console.log('Learner sessions response:', sessionsRes);
-          const sessionsData = sessionsRes.data || [];
-          
-          const upcoming = sessionsData.filter(s => s.status === 'scheduled' || s.status === 'upcoming') || [];
-          const completed = sessionsData.filter(s => s.status === 'completed') || [];
-          
-          // Calculate hours learned from completed sessions
-          const totalHours = completed.reduce((sum, s) => sum + (s.duration || 0), 0);
-          const hoursLearned = totalHours >= 60 ? `${Math.floor(totalHours / 60)}h` : `${totalHours}m`;
-          
-          setStats({
-            totalSessions: sessionsData.length || 0,
-            upcoming: upcoming.length || 0,
-            completed: completed.length || 0,
-            hoursLearned: hoursLearned,
-            coursesInProgress: upcoming.length || 0
-          });
-
-          setUpcomingSessions(upcoming.slice(0, 3) || []);
+          const normalized = normalizeSessionList(sessionsRes.data || []);
+          setSessions(normalized);
+          updateSessionStats(normalized);
           
           // Mock recommended sessions - in production, backend would return personalized recommendations
           const mockRecommended = [
@@ -140,7 +146,24 @@ const DashboardLearner = () => {
       }
     };
 
+    const refreshSessions = async () => {
+      try {
+        const sessionsRes = await api.get('/v1/learner/sessions');
+        const normalized = normalizeSessionList(sessionsRes.data || []);
+        setSessions(normalized);
+        updateSessionStats(normalized);
+      } catch {
+        setSessions([]);
+        updateSessionStats([]);
+      }
+    };
+
     fetchDashboardData();
+    const intervalId = setInterval(() => {
+      refreshSessions();
+    }, 60000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const statCards = [
@@ -149,6 +172,33 @@ const DashboardLearner = () => {
     { icon: TrendingUp, label: 'Completed', value: stats.completed, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
     { icon: Calendar, label: 'Upcoming', value: stats.upcoming, color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' },
   ];
+
+  useEffect(() => {
+    const getEnrollmentStatus = (session) =>
+      session.enrollmentStatus || session.requestStatus || session.approvalStatus;
+
+    let latestMessage = '';
+    sessions.forEach((session) => {
+      const sessionId = session._id || session.id;
+      if (!sessionId) return;
+      const current = getEnrollmentStatus(session);
+      const previous = enrollmentStatusRef.current[sessionId];
+      if (previous && current && previous !== current) {
+        if (current === 'approved') {
+          latestMessage = `Enrollment approved for ${session.title || 'a session'}`;
+        } else if (current === 'rejected') {
+          latestMessage = `Enrollment rejected for ${session.title || 'a session'}`;
+        }
+      }
+      enrollmentStatusRef.current[sessionId] = current;
+    });
+
+    if (latestMessage) {
+      setEnrollmentMessage(latestMessage);
+      const timeoutId = setTimeout(() => setEnrollmentMessage(''), 3000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [sessions]);
 
   if (loading) {
     return (
@@ -178,6 +228,13 @@ const DashboardLearner = () => {
           Browse Sessions
         </button>
       </div>
+
+      {enrollmentMessage && (
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-md flex items-center gap-3">
+          <Zap className="w-5 h-5 text-blue-500" />
+          <p className="text-blue-700 font-medium">{enrollmentMessage}</p>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md flex items-center gap-3">

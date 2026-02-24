@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar, Users, Trash2, Edit2, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAccessibility } from '../context/hooks';
-import { getTutorSessions, deleteSession } from '../services/sessionService';
+import { getTutorSessions, deleteSession, normalizeSessionList } from '../services/sessionService';
 import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
 const MySessionsTutor = () => {
@@ -30,7 +30,8 @@ const MySessionsTutor = () => {
       try {
         setIsLoading(true);
         const data = await getTutorSessions();
-        setSessions(Array.isArray(data) ? data : []);
+        const normalized = normalizeSessionList(Array.isArray(data) ? data : []);
+        setSessions(normalized);
       } catch (err) {
         setError('Failed to load sessions. Please try again.');
         console.error(err);
@@ -40,6 +41,10 @@ const MySessionsTutor = () => {
     };
 
     fetchSessions();
+    const intervalId = setInterval(() => {
+      setSessions((prev) => normalizeSessionList(prev));
+    }, 60000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleDelete = async (sessionId) => {

@@ -8,6 +8,27 @@ const normalizeSessions = (response) => {
   return [];
 };
 
+export const getSessionStatus = (session, now = new Date()) => {
+  const current = (session?.status || '').toLowerCase();
+  if (current === 'cancelled' || current === 'canceled') return 'cancelled';
+  const start = session?.startTime ? new Date(session.startTime) : null;
+  const end = session?.endTime ? new Date(session.endTime) : null;
+  if (start && end) {
+    if (now < start) return 'scheduled';
+    if (now >= start && now <= end) return 'ongoing';
+    if (now > end) return 'completed';
+  }
+  if (current === 'upcoming') return 'scheduled';
+  if (current === 'scheduled' || current === 'ongoing' || current === 'completed') return current;
+  return current || 'scheduled';
+};
+
+export const normalizeSessionList = (sessions, now = new Date()) =>
+  (sessions || []).map((session) => ({
+    ...session,
+    status: getSessionStatus(session, now)
+  }));
+
 const fetchSessions = async (endpoint, filters) => {
   const response = await api.get(endpoint, { params: filters });
   return normalizeSessions(response);
@@ -137,4 +158,73 @@ export const leaveSession = async (sessionId) => {
     console.error('Error leaving session:', error);
     throw error.message || error;
   }
+};
+
+export const getTutorEnrollmentRequests = async (filters = {}) => {
+  const endpoints = [
+    '/v1/tutor/sessions/requests',
+    '/v1/tutor/requests',
+    '/v1/tutor/enrollments/requests'
+  ];
+  let lastError;
+  for (const endpoint of endpoints) {
+    try {
+      const response = await api.get(endpoint, { params: filters });
+      const payload = response?.data ?? response;
+      if (Array.isArray(payload)) return payload;
+      if (Array.isArray(payload?.data)) return payload.data;
+      return [];
+    } catch (error) {
+      lastError = error;
+      const status = error?.status;
+      if (status === 404 || status === 405) continue;
+      throw error;
+    }
+  }
+  if (lastError) throw lastError;
+  return [];
+};
+
+export const approveEnrollmentRequest = async (requestId) => {
+  const endpoints = [
+    `/v1/tutor/sessions/requests/${requestId}/approve`,
+    `/v1/tutor/requests/${requestId}/approve`,
+    `/v1/tutor/enrollments/requests/${requestId}/approve`
+  ];
+  let lastError;
+  for (const endpoint of endpoints) {
+    try {
+      const response = await api.post(endpoint);
+      return response?.data ?? response;
+    } catch (error) {
+      lastError = error;
+      const status = error?.status;
+      if (status === 404 || status === 405) continue;
+      throw error;
+    }
+  }
+  if (lastError) throw lastError;
+  return null;
+};
+
+export const rejectEnrollmentRequest = async (requestId) => {
+  const endpoints = [
+    `/v1/tutor/sessions/requests/${requestId}/reject`,
+    `/v1/tutor/requests/${requestId}/reject`,
+    `/v1/tutor/enrollments/requests/${requestId}/reject`
+  ];
+  let lastError;
+  for (const endpoint of endpoints) {
+    try {
+      const response = await api.post(endpoint);
+      return response?.data ?? response;
+    } catch (error) {
+      lastError = error;
+      const status = error?.status;
+      if (status === 404 || status === 405) continue;
+      throw error;
+    }
+  }
+  if (lastError) throw lastError;
+  return null;
 };

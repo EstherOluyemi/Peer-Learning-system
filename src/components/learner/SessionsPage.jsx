@@ -1,5 +1,5 @@
 // src/components/learner/SessionsPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Calendar, Clock, Users, Star, Search, Filter, Plus,
     ChevronLeft, ChevronRight, Eye, MessageSquare, Bookmark,
@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { normalizeSessionList } from '../../services/sessionService';
 
 const SessionsPage = () => {
     const navigate = useNavigate();
@@ -21,25 +22,55 @@ const SessionsPage = () => {
     const [selectedSession, setSelectedSession] = useState(null);
     const itemsPerPage = 8;
 
+    const enrollmentStatusRef = useRef({});
+
     useEffect(() => {
         const fetchSessions = async () => {
             try {
                 setLoading(true);
-                console.log('Fetching enrolled sessions...');
                 const response = await api.get('/v1/learner/sessions');
-                console.log('Enrolled sessions response:', response);
-                const sessionsData = response.data || [];
+                const sessionsData = normalizeSessionList(response.data || []);
                 setSessions(sessionsData);
             } catch (err) {
                 setError('Failed to fetch your sessions. Please try again later.');
-                console.error('Error fetching sessions:', err);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchSessions();
+        const intervalId = setInterval(() => {
+            fetchSessions();
+        }, 60000);
+
+        return () => clearInterval(intervalId);
     }, []);
+
+    useEffect(() => {
+        const getEnrollmentStatus = (session) =>
+            session.enrollmentStatus || session.requestStatus || session.approvalStatus;
+
+        let latestMessage = '';
+        sessions.forEach((session) => {
+            const sessionId = session._id || session.id;
+            if (!sessionId) return;
+            const current = getEnrollmentStatus(session);
+            const previous = enrollmentStatusRef.current[sessionId];
+            if (previous && current && previous !== current) {
+                if (current === 'approved') {
+                    latestMessage = `Enrollment approved for ${session.title || 'a session'}`;
+                } else if (current === 'rejected') {
+                    latestMessage = `Enrollment rejected for ${session.title || 'a session'}`;
+                }
+            }
+            enrollmentStatusRef.current[sessionId] = current;
+        });
+
+        if (latestMessage) {
+            setSuccessMessage(latestMessage);
+            setTimeout(() => setSuccessMessage(''), 3000);
+        }
+    }, [sessions]);
 
     const handleLeaveSession = async (sessionId) => {
         if (!window.confirm('Are you sure you want to leave this session?')) {
