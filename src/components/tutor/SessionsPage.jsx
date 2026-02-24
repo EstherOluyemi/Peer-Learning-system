@@ -22,9 +22,9 @@ const SessionsPage = () => {
   const [deletingSessionId, setDeletingSessionId] = useState(null);
   const [quickStats, setQuickStats] = useState({
     total: 0,
-    scheduled: 0,
     ongoing: 0,
-    cancelled: 0
+    completed: 0,
+    scheduled: 0
   });
   const itemsPerPage = 8;
 
@@ -71,9 +71,9 @@ const SessionsPage = () => {
         // Calculate quick stats
         setQuickStats({
           total: allSessions.length,
-          scheduled: allSessions.filter(s => s.status === 'scheduled').length,
           ongoing: allSessions.filter(s => s.status === 'ongoing').length,
-          cancelled: allSessions.filter(s => s.status === 'cancelled').length
+          completed: allSessions.filter(s => s.status === 'completed').length,
+          scheduled: allSessions.filter(s => s.status === 'scheduled').length
         });
       } catch (err) {
         setError('Failed to fetch your sessions. Please try again later.');
@@ -89,9 +89,9 @@ const SessionsPage = () => {
         const normalized = normalizeSessionList(prev);
         setQuickStats({
           total: normalized.length,
-          scheduled: normalized.filter(s => s.status === 'scheduled').length,
           ongoing: normalized.filter(s => s.status === 'ongoing').length,
-          cancelled: normalized.filter(s => s.status === 'cancelled').length
+          completed: normalized.filter(s => s.status === 'completed').length,
+          scheduled: normalized.filter(s => s.status === 'scheduled').length
         });
         return normalized;
       });
@@ -321,16 +321,16 @@ const SessionsPage = () => {
                 <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{quickStats.total}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span style={{ color: 'var(--text-secondary)' }}>Scheduled</span>
-                <span className="font-bold text-blue-600 dark:text-blue-400">{quickStats.scheduled}</span>
-              </div>
-              <div className="flex justify-between items-center">
                 <span style={{ color: 'var(--text-secondary)' }}>Ongoing</span>
                 <span className="font-bold text-emerald-600 dark:text-emerald-400">{quickStats.ongoing}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span style={{ color: 'var(--text-secondary)' }}>Cancelled</span>
-                <span className="font-bold text-red-600 dark:text-red-400">{quickStats.cancelled}</span>
+                <span style={{ color: 'var(--text-secondary)' }}>Completed</span>
+                <span className="font-bold text-slate-600 dark:text-slate-400">{quickStats.completed}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span style={{ color: 'var(--text-secondary)' }}>Scheduled</span>
+                <span className="font-bold text-blue-600 dark:text-blue-400">{quickStats.scheduled}</span>
               </div>
             </div>
           </div>
