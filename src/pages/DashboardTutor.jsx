@@ -60,6 +60,8 @@ const DashboardTutor = () => {
   };
 
   useEffect(() => {
+    if (!user || user.role !== 'tutor') return;
+
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
@@ -95,14 +97,17 @@ const DashboardTutor = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
+    if (!user || user.role !== 'tutor') return;
+
     const refreshRequests = async () => {
       try {
         const data = await getTutorEnrollmentRequests({ status: 'pending' });
         setPendingRequests(Array.isArray(data) ? data : []);
-      } catch {
+      } catch (err) {
+        console.error('Error refreshing requests:', err);
         setPendingRequests([]);
       }
     };
@@ -113,7 +118,8 @@ const DashboardTutor = () => {
         const sessions = normalizeSessionList(sessionsRes.data || []);
         setAllSessions(sessions);
         setUpcomingSessions(sessions.filter((session) => session.status === 'scheduled' || session.status === 'ongoing'));
-      } catch {
+      } catch (err) {
+        console.error('Error refreshing sessions:', err);
         setAllSessions([]);
         setUpcomingSessions([]);
       }
@@ -126,7 +132,7 @@ const DashboardTutor = () => {
     }, 60000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [user]);
 
   const handleDeleteSession = async (sessionId) => {
     if (!window.confirm('Are you sure you want to delete this session?')) {

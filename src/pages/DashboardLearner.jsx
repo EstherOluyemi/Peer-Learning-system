@@ -93,6 +93,8 @@ const DashboardLearner = () => {
   };
 
   useEffect(() => {
+    if (!user || (user.role !== 'learner' && user.role !== 'student')) return;
+
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
@@ -152,7 +154,8 @@ const DashboardLearner = () => {
         const normalized = normalizeSessionList(sessionsRes.data || []);
         setSessions(normalized);
         updateSessionStats(normalized);
-      } catch {
+      } catch (err) {
+        console.error('Error refreshing learner sessions:', err);
         setSessions([]);
         updateSessionStats([]);
       }
@@ -164,7 +167,7 @@ const DashboardLearner = () => {
     }, 60000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [user]);
 
   const statCards = [
     { icon: BookOpen, label: 'Total Sessions', value: stats.totalSessions, color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' },

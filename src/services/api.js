@@ -28,7 +28,7 @@ api.interceptors.response.use(
     const message = errorPayload.message || 'Something went wrong';
     
     // Don't trigger global logout for login/auth failures, only for expired sessions
-    const authErrorCodes = ['AUTH_FAILED', 'INVALID_CREDENTIALS', 'NOT_A_TUTOR', 'MISSING_FIELDS'];
+    const authErrorCodes = ['AUTH_FAILED', 'INVALID_CREDENTIALS', 'NOT_A_TUTOR', 'MISSING_FIELDS', 'NO_TOKEN'];
     const shouldLogout = error.response?.status === 401 && !authErrorCodes.includes(errorCode);
     
     if (shouldLogout) {

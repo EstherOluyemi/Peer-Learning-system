@@ -25,6 +25,8 @@ const SessionsPage = () => {
     const enrollmentStatusRef = useRef({});
 
     useEffect(() => {
+        if (!user || (user.role !== 'learner' && user.role !== 'student')) return;
+
         const fetchSessions = async () => {
             try {
                 setLoading(true);
@@ -44,7 +46,7 @@ const SessionsPage = () => {
         }, 60000);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         const getEnrollmentStatus = (session) =>

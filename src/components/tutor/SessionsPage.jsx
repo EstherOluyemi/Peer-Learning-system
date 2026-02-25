@@ -61,6 +61,8 @@ const SessionsPage = () => {
   };
 
   useEffect(() => {
+    if (!user || user.role !== 'tutor') return;
+
     const fetchSessions = async () => {
       try {
         setLoading(true);
@@ -98,7 +100,7 @@ const SessionsPage = () => {
     }, 60000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [user]);
 
   const handleDeleteSession = async (sessionId) => {
     if (!window.confirm('Are you sure you want to delete this session?')) {
