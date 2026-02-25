@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, Users, Video, Award, BookOpen, ChevronRight, Star, CheckCircle, Play, MessageSquare, Calendar, Zap, Quote } from 'lucide-react';
+import { ArrowRight, Users, Video, Award, BookOpen, ChevronRight, Star, CheckCircle, Play, MessageSquare, Calendar, Zap, Quote, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import heroBackground from '../assets/students-learning.jpg';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
@@ -8,6 +8,7 @@ import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
 const Landing = () => {
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { highContrast, textSize } = useAccessibility();
   const sectionRefs = useRef([]);
 
@@ -150,13 +151,90 @@ const Landing = () => {
   // Scroll to testimonials function
   const scrollToTestimonials = () => {
     document.getElementById('testimonials').scrollIntoView({ behavior: 'smooth' });
+    setSidebarOpen(false);
   };
 
+  const closeSidebar = () => setSidebarOpen(false);
+
   return (
-    <div className={`min-h-screen bg-linear-to-b from-slate-50 to-white transition-colors duration-300 ${highContrast ? 'high-contrast' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
+    <div className={`min-h-screen bg-linear-to-b from-slate-50 to-white transition-colors duration-300 ${highContrast ? 'high-contrast' : ''} ${sidebarOpen ? 'overflow-hidden' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
       <AccessibilityToolbar />
       
-      {/* Skip Link - Always First Interactive Element */}
+      {/* Sidebar / Mobile Navigation Drawer */}
+      <div 
+        className={`fixed inset-0 z-50 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        aria-hidden={!sidebarOpen}
+      >
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          onClick={closeSidebar}
+        />
+        
+        {/* Sidebar Content */}
+        <div 
+          className={`absolute right-0 top-0 bottom-0 w-72 bg-white shadow-2xl transition-transform duration-300 transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile navigation menu"
+        >
+          <div className="flex flex-col h-full">
+            <div className="p-6 flex items-center justify-between border-b border-slate-100">
+              <div className="flex items-center space-x-2">
+                {peerlearnLogo ? (
+                  <img src={peerlearnLogo} alt="" className="h-8 w-auto" />
+                ) : (
+                  <Users className="w-6 h-6 text-blue-600" />
+                )}
+                <span className="font-bold text-slate-900">PeerLearn</span>
+              </div>
+              <button 
+                onClick={closeSidebar}
+                className="p-2 text-slate-500 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-blue-600 rounded"
+                aria-label="Close menu"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <nav className="flex-1 p-6 space-y-4">
+              <a 
+                href="#features" 
+                className="flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600"
+                onClick={closeSidebar}
+              >
+                <Zap className="w-5 h-5 text-blue-600" />
+                <span>Features</span>
+              </a>
+              <button 
+                onClick={scrollToTestimonials}
+                className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700 font-medium transition-colors text-left focus-visible:outline-2 focus-visible:outline-blue-600"
+              >
+                <Star className="w-5 h-5 text-amber-500" />
+                <span>Testimonials</span>
+              </button>
+              <Link 
+                to="/login" 
+                className="flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600"
+                onClick={closeSidebar}
+              >
+                <Users className="w-5 h-5 text-indigo-600" />
+                <span>Login</span>
+              </Link>
+            </nav>
+            
+            <div className="p-6 border-t border-slate-100">
+              <Link 
+                to="/role-selection" 
+                className="block w-full text-center bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all focus-visible:outline-2 focus-visible:outline-blue-600"
+                onClick={closeSidebar}
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
       <a 
         href="#main-content" 
         className="sr-only focus-not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
@@ -325,6 +403,15 @@ const Landing = () => {
                 Get Started For Free
               </Link>
             </div>
+            
+            {/* Mobile Menu Toggle */}
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="md:hidden p-2 text-white hover:bg-white/10 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-white"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="w-8 h-8" />
+            </button>
           </div>
         </nav>
         {/* Hero Content */}
