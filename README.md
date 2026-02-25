@@ -1,16 +1,46 @@
-# React + Vite
+# Peer Learning System - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A collaborative learning platform built with React, Vite, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## 🚀 Deployment on Render
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project is configured for deployment on Render as a **Static Site**.
 
-## React Compiler
+### Automated Setup (Recommended)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Click **New +** on Render Dashboard.
+2. Select **Blueprint**.
+3. Connect your repository.
+4. Render will use the `render.yaml` file to configure:
+   - Build Command: `npm run build`
+   - Publish Directory: `dist`
+   - SPA Routing: Redirects all non-API paths to `index.html`
+   - API Proxy: Routes `/api/v1/*` to the backend on Render.
 
-## Expanding the ESLint configuration
+### Manual Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+If you prefer manual configuration:
+
+1. **New Static Site**.
+2. **Build Command**: `npm run build`
+3. **Publish Directory**: `dist`
+4. **Environment Variables**:
+   - `VITE_API_URL`: `/api`
+5. **Redirects/Rewrites**:
+   - Source: `/api/v1/*` | Destination: `https://peer-learning-backend-h7x5.onrender.com/api/v1/*` | Type: `Rewrite`
+   - Source: `/*` | Destination: `/index.html` | Type: `Rewrite`
+
+## 🛠️ Tech Stack
+
+- **Framework**: React 18
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **API Client**: Axios with interceptors for auth
+
+## 🔑 Key Features
+
+- **Authentication**: JWT-based auth with HttpOnly cookie support.
+- **Role-based Dashboards**: Custom interfaces for Learners and Tutors.
+- **Session Management**: Real-time status updates (Scheduled -> Ongoing -> Completed).
+- **Accessibility**: High contrast mode, font size adjustments, and keyboard navigation.
