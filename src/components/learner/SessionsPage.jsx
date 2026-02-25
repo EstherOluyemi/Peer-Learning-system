@@ -8,8 +8,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { normalizeSessionList } from '../../services/sessionService';
+import { useAuth } from '../../context/AuthContext';
 
 const SessionsPage = () => {
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
@@ -255,10 +257,19 @@ const SessionsPage = () => {
                                                     <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {session.studentIds?.length || 0}/{session.maxParticipants || 0}</span>
                                                     {session.meetingLink && (
                                                         <button
-                                                            onClick={() => navigate(`/session/${session._id || session.id}`)}
-                                                            className="flex items-center gap-1 text-blue-600 hover:underline"
+                                                            onClick={() => {
+                                                                if (session.status === 'completed') return;
+                                                                navigate(`/session/${session._id || session.id}`);
+                                                            }}
+                                                            disabled={session.status === 'completed'}
+                                                            className={`flex items-center gap-1 text-sm font-medium transition-colors ${
+                                                                session.status === 'completed'
+                                                                    ? 'text-slate-400 cursor-not-allowed opacity-60'
+                                                                    : 'text-blue-600 hover:underline'
+                                                            }`}
                                                         >
-                                                            <Video className="w-3.5 h-3.5" /> Join
+                                                            <Video className="w-3.5 h-3.5" /> 
+                                                            {session.status === 'completed' ? 'Session Completed' : 'Join'}
                                                         </button>
                                                     )}
                                                 </div>
@@ -527,10 +538,15 @@ const SessionsPage = () => {
                                 <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Meeting</h4>
                                 <button
                                     onClick={() => navigate(`/session/${selectedSession._id || selectedSession.id}`)}
-                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                                    disabled={selectedSession.status === 'completed'}
+                                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all ${
+                                        selectedSession.status === 'completed'
+                                            ? 'bg-slate-400 cursor-not-allowed opacity-60 shadow-none'
+                                            : 'bg-blue-600 hover:bg-blue-700 shadow-sm'
+                                    }`}
                                 >
                                     <Video className="w-4 h-4" />
-                                    Open Session Room
+                                    {selectedSession.status === 'completed' ? 'Session Completed' : 'Open Session Room'}
                                 </button>
                             </div>
                         )}

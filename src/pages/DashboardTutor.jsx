@@ -417,8 +417,17 @@ const DashboardTutor = () => {
                             </div>
                             {session.meetingLink && (
                               <button
-                                onClick={(e) => { e.stopPropagation(); navigate(`/session/${session._id || session.id}`); }}
-                                className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline mt-2"
+                                onClick={(e) => { 
+                                  if (session.status === 'completed') return;
+                                  e.stopPropagation(); 
+                                  navigate(`/session/${session._id || session.id}`); 
+                                }}
+                                disabled={session.status === 'completed'}
+                                className={`inline-flex items-center gap-1 text-xs font-semibold mt-2 transition-colors ${
+                                  session.status === 'completed' 
+                                    ? 'text-slate-400 cursor-not-allowed opacity-60' 
+                                    : 'text-blue-600 hover:underline'
+                                }`}
                               >
                                 <Video className="w-3 h-3" /> Open Session Room
                               </button>
@@ -621,10 +630,15 @@ const DashboardTutor = () => {
                   <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Meeting</h4>
                   <button
                     onClick={() => navigate(`/session/${selectedSession._id || selectedSession.id}`)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                    disabled={selectedSession.status === 'completed'}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all ${
+                      selectedSession.status === 'completed'
+                        ? 'bg-slate-400 cursor-not-allowed opacity-60 shadow-none'
+                        : 'bg-blue-600 hover:bg-blue-700 shadow-sm'
+                    }`}
                   >
                     <Video className="w-4 h-4" />
-                    Open Session Room
+                    {selectedSession.status === 'completed' ? 'Session Completed' : 'Open Session Room'}
                   </button>
                 </div>
               )}
