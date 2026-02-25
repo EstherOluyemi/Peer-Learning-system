@@ -26,7 +26,11 @@ api.interceptors.response.use(
     const errorPayload = error.response?.data || {};
     const errorCode = errorPayload.code || errorPayload.errorCode;
     const message = errorPayload.message || 'Something went wrong';
-    const shouldLogout = error.response?.status === 401 && errorCode !== 'AUTH_FAILED';
+    
+    // Don't trigger global logout for login/auth failures, only for expired sessions
+    const authErrorCodes = ['AUTH_FAILED', 'INVALID_CREDENTIALS', 'NOT_A_TUTOR', 'MISSING_FIELDS'];
+    const shouldLogout = error.response?.status === 401 && !authErrorCodes.includes(errorCode);
+    
     if (shouldLogout) {
       localStorage.removeItem('peerlearn_user');
       localStorage.removeItem('peerlearn_token');

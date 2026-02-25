@@ -11,10 +11,13 @@ export const AuthProvider = ({ children }) => {
   const getUserFromResponse = (response, fallbackRole) => {
     if (!response) return null;
     const data = response.data || response;
-    const userPayload = data.user || data?.data?.user || data?.data || null;
+    
+    // Check for "user" or "tutor" keys as per backend controllers
+    const userPayload = data.user || data.tutor || data?.data?.user || data?.data?.tutor || data?.data || null;
     if (!userPayload) return null;
     
     // Normalize role: backend returns "student" but frontend uses "learner"
+    // Also handle cases where userPayload might not have role yet (tutor responses in controller.md)
     let normalizedRole = userPayload.role || fallbackRole;
     if (normalizedRole === 'student') {
       normalizedRole = 'learner';
@@ -145,7 +148,7 @@ export const AuthProvider = ({ children }) => {
           setUser(userData);
           localStorage.setItem('peerlearn_user', JSON.stringify({ 
             id: userData.id, 
-            role: 'tutor',
+            role: userData.role,
             name: userData.name 
           }));
           return userData;
