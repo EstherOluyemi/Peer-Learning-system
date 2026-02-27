@@ -8,23 +8,25 @@ import api from '../../services/api';
 
 /* ─── helpers ─────────────────────────────────────────────────────── */
 /**
- * The API may return reviews in several shapes:
- *  - { _id, rating, comment, student: { name, avatar }, session: { title }, createdAt, responses }
- *  - { id, rating, comment, student: { name }, date, session }
- * We normalise to a flat, predictable shape.
+ * Normalises all known tutor-review API shapes into one flat object.
+ *
+ * Actual backend shape:
+ *   { _id, tutorId, studentId: { _id, name }, rating, comment, createdAt }
+ *
+ * Also handles legacy/alternative shapes where student is under `student` key.
  */
 const normalizeReview = (r) => ({
   id: r._id || r.id,
   rating: r.rating || 0,
   comment: r.comment || r.text || '',
   date: r.createdAt || r.date || null,
-  // student info
-  studentName: r.student?.name || r.studentName || 'Student',
-  studentAvatar: r.student?.avatar || r.studentAvatar || null,
-  studentLevel: r.student?.level || r.studentLevel || 'Student',
-  // session info
-  sessionTitle: r.session?.title || r.sessionTitle || r.session || '',
-  // responses
+  // student — real API uses populated `studentId: { _id, name }`
+  studentName: r.studentId?.name || r.student?.name || r.studentName || 'Student',
+  studentAvatar: r.studentId?.avatar || r.student?.avatar || r.studentAvatar || null,
+  studentLevel: r.studentId?.level || r.student?.level || r.studentLevel || 'Student',
+  // session — not always present in current API
+  sessionTitle: r.session?.title || r.sessionTitle || (typeof r.session === 'string' ? r.session : ''),
+  // responses — not in current API but kept for future
   responses: r.responses || [],
   helpful: r.helpful || 0,
 });
@@ -214,8 +216,8 @@ const ReviewsPage = () => {
                     key={r}
                     onClick={() => { setFilterRating(r); setCurrentPage(1); }}
                     className={`flex items-center justify-between w-full px-3 py-2 rounded-lg transition-colors ${filterRating === r
-                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                        : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                      : 'hover:bg-slate-100 dark:hover:bg-slate-800'
                       }`}
                   >
                     <span className="flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
