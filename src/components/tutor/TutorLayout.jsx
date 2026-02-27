@@ -9,12 +9,14 @@ import {
   Sun, Moon
 } from 'lucide-react';
 import Navbar from '../Navbar';
+import { useChat } from '../../context/ChatContext';
 
 const TutorLayout = () => {
   const { user, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const { totalUnread } = useChat();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -48,7 +50,7 @@ const TutorLayout = () => {
     { label: 'Dashboard', icon: BookOpen, to: '/dashboard-tutor' },
     { label: 'My Sessions', icon: Calendar, to: '/dashboard-tutor/sessions' },
     { label: 'Students', icon: Users, to: '/dashboard-tutor/students' },
-    { label: 'Messages', icon: MessageSquare, to: '/dashboard-tutor/messages', badge: '3' },
+    { label: 'Messages', icon: MessageSquare, to: '/dashboard-tutor/messages', badge: totalUnread > 0 ? String(totalUnread > 9 ? '9+' : totalUnread) : undefined },
     { label: 'Reviews', icon: Star, to: '/dashboard-tutor/reviews' },
   ];
 
@@ -111,7 +113,7 @@ const TutorLayout = () => {
               <Bell className="w-6 h-6" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
             </button>
-            <button 
+            <button
               onClick={() => navigate('/dashboard-tutor/profile')}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
             >

@@ -6,15 +6,17 @@ import { useTheme } from '../../context/ThemeContext';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     BookOpen, Clock, TrendingUp, Star, Users, Calendar,
-    User, Settings, Plus, Menu, Search, Bell,
+    User, Settings, Plus, Menu, Search, Bell, MessageSquare,
     ChevronRight, ArrowUpRight, Sun, Moon, FileText
 } from 'lucide-react';
 import Navbar from '../Navbar';
+import { useChat } from '../../context/ChatContext';
 
 const LearnerLayout = ({ children }) => {
     const { user, logout } = useAuth();
     const { darkMode, toggleTheme } = useTheme();
     const navigate = useNavigate();
+    const { totalUnread } = useChat();
 
     const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
@@ -24,6 +26,7 @@ const LearnerLayout = ({ children }) => {
         { label: 'Materials', icon: FileText, to: '/dashboard-learner/materials' },
         { label: 'Reviews', icon: Star, to: '/dashboard-learner/reviews' },
         { label: 'Browse Sessions', icon: Search, to: '/dashboard-learner/browse-sessions' },
+        { label: 'Messages', icon: MessageSquare, to: '/dashboard-learner/messages', badge: totalUnread > 0 ? String(totalUnread > 9 ? '9+' : totalUnread) : undefined },
         { label: 'Profile', icon: User, to: '/dashboard-learner/profile' },
     ];
 
@@ -91,7 +94,7 @@ const LearnerLayout = ({ children }) => {
                             <Bell className="w-6 h-6" />
                             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
                         </button>
-                        <button 
+                        <button
                             onClick={() => navigate('/dashboard-learner/profile')}
                             className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
                         >

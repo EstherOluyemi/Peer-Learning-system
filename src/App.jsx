@@ -3,7 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { AccessibilityProvider } from './context/AccessibilityContext';
-import { ThemeProvider } from './context/ThemeContext'; 
+import { ThemeProvider } from './context/ThemeContext';
+import { ChatProvider } from './context/ChatContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AccessibilityToolbar from './components/AccessibilityToolbar';
 
@@ -39,6 +40,7 @@ import ProfilePage from './components/learner/ProfilePage';
 import LearnerSettingsPage from './components/learner/SettingsPage';
 import LearnerMaterialsPage from './components/learner/MaterialsPage';
 import LearnerReviewsPage from './components/learner/ReviewsPage';
+import LearnerMessagesPage from './components/learner/MessagesPage';
 import SessionRoom from './pages/SessionRoom';
 
 import './App.css';
@@ -47,57 +49,60 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AccessibilityProvider>
-          <ThemeProvider>
-            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-              <AccessibilityToolbar />
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/profile-setup" element={<ProfileSetup />} />
-                <Route path="/role-selection" element={<RoleSelection />} />
+        <ChatProvider>
+          <AccessibilityProvider>
+            <ThemeProvider>
+              <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+                <AccessibilityToolbar />
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route path="/profile-setup" element={<ProfileSetup />} />
+                  <Route path="/role-selection" element={<RoleSelection />} />
 
-                {/* Learner Routes */}
-                <Route element={<ProtectedRoute allowedRoles={["learner", "student"]} />}>
-                  <Route path="/dashboard-learner" element={<LearnerLayout />}>
-                    <Route index element={<DashboardLearner />} />
-                  <Route path="sessions" element={<LearnerSessionsPage />} />
-                    <Route path="materials" element={<LearnerMaterialsPage />} />
-                    <Route path="reviews" element={<LearnerReviewsPage />} />
-                    <Route path="browse-sessions" element={<BrowseSessionsPage />} />
-                    <Route path="profile" element={<ProfilePage />} />
-                    <Route path="settings" element={<LearnerSettingsPage />} />
+                  {/* Learner Routes */}
+                  <Route element={<ProtectedRoute allowedRoles={["learner", "student"]} />}>
+                    <Route path="/dashboard-learner" element={<LearnerLayout />}>
+                      <Route index element={<DashboardLearner />} />
+                      <Route path="sessions" element={<LearnerSessionsPage />} />
+                      <Route path="materials" element={<LearnerMaterialsPage />} />
+                      <Route path="reviews" element={<LearnerReviewsPage />} />
+                      <Route path="browse-sessions" element={<BrowseSessionsPage />} />
+                      <Route path="profile" element={<ProfilePage />} />
+                      <Route path="settings" element={<LearnerSettingsPage />} />
+                      <Route path="messages" element={<LearnerMessagesPage />} />
+                    </Route>
                   </Route>
-                </Route>
 
-                {/* Tutor Routes */}
-                <Route element={<ProtectedRoute allowedRoles={["tutor"]} />}>
-                  <Route path="/dashboard-tutor" element={<TutorLayout />}>
-                    <Route index element={<DashboardTutor />} />
-                    <Route path="sessions" element={<TutorSessionsPage />} />
-                    <Route path="create-session" element={<TutorCreateSessionPage />} />
-                    <Route path="students" element={<StudentsPage />} />
-                    <Route path="messages" element={<MessagesPage />} />
-                    <Route path="reviews" element={<ReviewsPage />} />
-                    <Route path="materials" element={<TutorMaterialsPage />} />
-                    <Route path="profile" element={<TutorProfilePage />} />
-                    <Route path="settings" element={<TutorSettingsPage />} />
+                  {/* Tutor Routes */}
+                  <Route element={<ProtectedRoute allowedRoles={["tutor"]} />}>
+                    <Route path="/dashboard-tutor" element={<TutorLayout />}>
+                      <Route index element={<DashboardTutor />} />
+                      <Route path="sessions" element={<TutorSessionsPage />} />
+                      <Route path="create-session" element={<TutorCreateSessionPage />} />
+                      <Route path="students" element={<StudentsPage />} />
+                      <Route path="messages" element={<MessagesPage />} />
+                      <Route path="reviews" element={<ReviewsPage />} />
+                      <Route path="materials" element={<TutorMaterialsPage />} />
+                      <Route path="profile" element={<TutorProfilePage />} />
+                      <Route path="settings" element={<TutorSettingsPage />} />
+                    </Route>
                   </Route>
-                </Route>
 
-                <Route element={<ProtectedRoute allowedRoles={["learner", "student", "tutor"]} />}>
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/session/:sessionId" element={<SessionRoom />} />
-                </Route>
+                  <Route element={<ProtectedRoute allowedRoles={["learner", "student", "tutor"]} />}>
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/session/:sessionId" element={<SessionRoom />} />
+                  </Route>
 
-                {/* Redirects */}
-                <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
-                <Route path="/DashboardTutor" element={<Navigate to="/dashboard-tutor" replace />} />
-              </Routes>
-            </div>
-          </ThemeProvider>
-        </AccessibilityProvider>
+                  {/* Redirects */}
+                  <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
+                  <Route path="/DashboardTutor" element={<Navigate to="/dashboard-tutor" replace />} />
+                </Routes>
+              </div>
+            </ThemeProvider>
+          </AccessibilityProvider>
+        </ChatProvider>
       </AuthProvider>
     </Router>
   );
