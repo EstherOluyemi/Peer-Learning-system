@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     User, Mail, Calendar, Star, BookOpen, Clock, TrendingUp,
-    Edit, Upload, Save, Shield, CreditCard, Globe, Settings,
+    Edit, Upload, Save, Shield, Globe, Settings,
     ChevronRight, ChevronLeft, Plus, Users, Award, AlertCircle,
     Loader2
 } from 'lucide-react';

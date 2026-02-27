@@ -1,8 +1,8 @@
 // src/components/learner/BrowseSessionsPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Search, Filter, Calendar, Clock, Users, Star, Plus, X,
-    ChevronLeft, ChevronRight, AlertCircle, CheckCircle, MapPin, BookOpen, DollarSign,
+    ChevronLeft, ChevronRight, AlertCircle, CheckCircle, MapPin, BookOpen,
     TrendingUp, Info, Check
 } from 'lucide-react';
 import api from '../../services/api';
@@ -19,68 +19,64 @@ const BrowseSessionsPage = () => {
     const [sessions, setSessions] = useState([]);
     const [enrolledSessions, setEnrolledSessions] = useState([]);
     const [subjects, setSubjects] = useState([]);
-    const [priceRange, setPriceRange] = useState([0, 200]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [joiningId, setJoiningId] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
+    const [fullSessionMessage, setFullSessionMessage] = useState('');
     const [selectedSession, setSelectedSession] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [showEnrollModal, setShowEnrollModal] = useState(false);
     const itemsPerPage = 6;
 
-    useEffect(() => {
-        const fetchData = async () => {
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true);
+
+            // Fetch all available sessions
+            const role = user?.role === 'student' ? 'learner' : user?.role;
+            const sessionsList = await getAllSessions({}, { role });
+            setSessions(sessionsList);
+
+            // Fetch learner's enrolled sessions
             try {
-                setLoading(true);
-                
-                // Fetch all available sessions
-                const role = user?.role === 'student' ? 'learner' : user?.role;
-                const sessionsList = await getAllSessions({}, { role });
-                setSessions(sessionsList);
-
-                // Fetch learner's enrolled sessions
-                try {
-                    const enrolledRes = await api.get('/v1/learner/sessions');
-                    const enrolledList = Array.isArray(enrolledRes) ? enrolledRes : (enrolledRes?.data && Array.isArray(enrolledRes.data) ? enrolledRes.data : []);
-                    setEnrolledSessions(enrolledList.map(s => s._id || s.id));
-                } catch (err) {
-                    console.log('Could not fetch enrolled sessions:', err);
-                    setEnrolledSessions([]);
-                }
-
-                // Extract unique subjects
-                const uniqueSubjects = [...new Set(sessionsList.map(s => s.subject).filter(Boolean))];
-                setSubjects(uniqueSubjects);
+                const enrolledRes = await api.get('/v1/learner/sessions');
+                const enrolledList = Array.isArray(enrolledRes) ? enrolledRes : (enrolledRes?.data && Array.isArray(enrolledRes.data) ? enrolledRes.data : []);
+                setEnrolledSessions(enrolledList.map(s => s._id || s.id));
             } catch (err) {
-                setError('Failed to load sessions. Please try again later.');
-                console.error('Error fetching sessions:', err);
-            } finally {
-                setLoading(false);
+                console.log('Could not fetch enrolled sessions:', err);
+                setEnrolledSessions([]);
             }
-        };
 
-        fetchData();
+            // Extract unique subjects
+            const uniqueSubjects = [...new Set(sessionsList.map(s => s.subject).filter(Boolean))];
+            setSubjects(uniqueSubjects);
+        } catch (err) {
+            setError('Failed to load sessions. Please try again later.');
+            console.error('Error fetching sessions:', err);
+        } finally {
+            setLoading(false);
+        }
     }, [user?.role]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     // Filter and sort sessions
     const filteredSessions = sessions.filter(session => {
-        const sessionRate = session.tutor?.hourlyRate ?? session.price ?? session.hourlyRate ?? 0;
         const matchesSearch = (session.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.tutor?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSubject = filterSubject === 'all' || session.subject === filterSubject;
         const matchesLevel = filterLevel === 'all' || session.level === filterLevel;
-        const matchesPrice = sessionRate <= priceRange[1];
 
-        return matchesSearch && matchesSubject && matchesLevel && matchesPrice;
+        return matchesSearch && matchesSubject && matchesLevel;
     });
 
     // Sort sessions
     const sortedSessions = [...filteredSessions].sort((a, b) => {
-        const aRate = a.tutor?.hourlyRate ?? a.price ?? a.hourlyRate ?? 0;
-        const bRate = b.tutor?.hourlyRate ?? b.price ?? b.hourlyRate ?? 0;
         switch (sortBy) {
             case 'upcoming':
                 return new Date(a.startTime || 0) - new Date(b.startTime || 0);
@@ -88,10 +84,6 @@ const BrowseSessionsPage = () => {
                 return (b.studentIds?.length || 0) - (a.studentIds?.length || 0);
             case 'newest':
                 return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-            case 'price-low':
-                return aRate - bRate;
-            case 'price-high':
-                return bRate - aRate;
             default:
                 return 0;
         }
@@ -104,24 +96,39 @@ const BrowseSessionsPage = () => {
     );
 
     const handleJoinSession = async (sessionId) => {
+        if (!sessionId || isEnrolled(sessionId)) {
+            return;
+        }
         try {
             setJoiningId(sessionId);
             setError(null);
-            await api.post(`/v1/learner/sessions/${sessionId}/join`);
+            const response = await api.post(`/v1/learner/sessions/${sessionId}/join`);
             
             // Update enrolled sessions list
-            setEnrolledSessions([...enrolledSessions, sessionId]);
-            setSuccessMessage('Successfully joined session!');
+            setEnrolledSessions((prev) => (prev.includes(sessionId) ? prev : [...prev, sessionId]));
+            setSuccessMessage('Successfully enrolled in the session!');
             setShowEnrollModal(false);
+
+            await fetchData();
             
             setTimeout(() => {
                 setSuccessMessage('');
             }, 3000);
         } catch (err) {
-            setError(err.message || 'Failed to join session. Please try again.');
+            setError(err.response?.data?.message || err.message || 'Failed to join session. Please try again.');
         } finally {
             setJoiningId(null);
         }
+    };
+
+    const handleEnrollAction = (session) => {
+        const availability = getAvailabilityStatus(session);
+        if (availability.status === 'Full') {
+            setFullSessionMessage('This session is full. Please choose another session.');
+            setTimeout(() => setFullSessionMessage(''), 3000);
+            return;
+        }
+        openEnrollModal(session);
     };
 
     const openEnrollModal = (session) => {
@@ -190,6 +197,15 @@ const BrowseSessionsPage = () => {
                 <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3 text-green-700 dark:text-green-400">
                     <CheckCircle className="w-5 h-5 shrink-0" />
                     <p className="text-sm font-medium">{successMessage}</p>
+                </div>
+            )}
+
+            {fullSessionMessage && (
+                <div className="fixed bottom-6 right-6 z-50 max-w-sm rounded-xl border border-amber-200 bg-amber-50 text-amber-800 shadow-lg dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+                    <div className="flex items-center gap-3 px-4 py-3">
+                        <AlertCircle className="w-5 h-5 shrink-0" />
+                        <p className="text-sm font-medium">{fullSessionMessage}</p>
+                    </div>
                 </div>
             )}
 
@@ -291,29 +307,7 @@ const BrowseSessionsPage = () => {
                                         <option value="upcoming">Upcoming</option>
                                         <option value="popular">Most Popular</option>
                                         <option value="newest">Newest</option>
-                                        <option value="price-low">Price: Low to High</option>
-                                        <option value="price-high">Price: High to Low</option>
                                     </select>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="priceRange" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                                        <DollarSign className="inline w-4 h-4 mr-2" />
-                                        Max Price: ${priceRange[1]}/hr
-                                    </label>
-                                    <input
-                                        id="priceRange"
-                                        type="range"
-                                        min="0"
-                                        max="200"
-                                        step="10"
-                                        value={priceRange[1]}
-                                        onChange={(e) => {
-                                            setPriceRange([0, parseInt(e.target.value)]);
-                                            setCurrentPage(1);
-                                        }}
-                                        className="w-full"
-                                    />
                                 </div>
                             </div>
                         </div>
@@ -330,12 +324,13 @@ const BrowseSessionsPage = () => {
                             currentSessions.map(session => {
                                 const availability = getAvailabilityStatus(session);
                                 const { date, time } = formatDateTime(session.startTime);
+                                const sessionId = session._id || session.id;
                                 const isFull = availability.status === 'Full';
-                                const enrolled = isEnrolled(session._id || session.id);
+                                const enrolled = isEnrolled(sessionId);
 
                                 return (
                                     <div
-                                        key={session._id}
+                                        key={sessionId}
                                         className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                                         style={{
                                             backgroundColor: 'var(--card-bg)',
@@ -403,11 +398,6 @@ const BrowseSessionsPage = () => {
                                                             </span>
                                                         </div>
                                                     )}
-                                                    {session.tutor?.hourlyRate && (
-                                                        <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                                                            ${session.tutor.hourlyRate}/hr
-                                                        </div>
-                                                    )}
                                                 </div>
 
                                                 <div className="flex gap-2">
@@ -428,15 +418,16 @@ const BrowseSessionsPage = () => {
                                                         </button>
                                                     ) : (
                                                         <button
-                                                            onClick={() => openEnrollModal(session)}
-                                                            disabled={isFull || joiningId === session._id}
+                                                            onClick={() => handleEnrollAction(session)}
+                                                            disabled={joiningId === sessionId}
+                                                            aria-disabled={isFull}
                                                             className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
                                                                 isFull
                                                                     ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                                     : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 active:scale-95'
                                                             }`}
                                                         >
-                                                            {joiningId === session._id ? 'Enrolling...' : isFull ? 'Full' : 'Enroll Now'}
+                                                            {joiningId === sessionId ? 'Enrolling...' : isFull ? 'Full' : 'Enroll Now'}
                                                         </button>
                                                     )}
                                                 </div>
@@ -626,11 +617,6 @@ const BrowseSessionsPage = () => {
                                                 </span>
                                             </div>
                                         )}
-                                        {selectedSession.tutor?.hourlyRate && (
-                                            <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                                                ${selectedSession.tutor.hourlyRate}/hr
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -651,7 +637,7 @@ const BrowseSessionsPage = () => {
                                     setShowDetailsModal(false);
                                     openEnrollModal(selectedSession);
                                 }}
-                                disabled={getAvailabilityStatus(selectedSession).status === 'Full' || isEnrolled(selectedSession._id || selectedSession.id)}
+                                disabled={isEnrolled(selectedSession._id || selectedSession.id)}
                                 className={`w-full py-3 rounded-lg font-bold transition-all ${
                                     isEnrolled(selectedSession._id || selectedSession.id)
                                         ? 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 cursor-default'
@@ -660,10 +646,10 @@ const BrowseSessionsPage = () => {
                                         : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }`}
                             >
-                                {isEnrolled(selectedSession._id || selectedSession.id) 
-                                    ? 'Already Enrolled' 
-                                    : getAvailabilityStatus(selectedSession).status === 'Full' 
-                                    ? 'Session is Full' 
+                                {isEnrolled(selectedSession._id || selectedSession.id)
+                                    ? 'Already Enrolled'
+                                    : getAvailabilityStatus(selectedSession).status === 'Full'
+                                    ? 'Session is Full'
                                     : 'Enroll in This Session'}
                             </button>
                         </div>
@@ -703,14 +689,6 @@ const BrowseSessionsPage = () => {
                                         <Users className="w-4 h-4" />
                                         <span>{selectedSession.studentIds?.length || 0}/{selectedSession.maxParticipants} enrolled</span>
                                     </div>
-                                    {selectedSession.tutor?.hourlyRate && (
-                                        <div className="flex items-center gap-2">
-                                            <DollarSign className="w-4 h-4" />
-                                            <span className="font-bold text-green-600 dark:text-green-400">
-                                                ${selectedSession.tutor.hourlyRate}/hour
-                                            </span>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 

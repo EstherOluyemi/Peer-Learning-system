@@ -84,6 +84,17 @@ const RoleSelection = () => {
         }
       `}</style>
 
+      {/* Back to Home Button - Top Left */}
+      <div className="p-6">
+        <Link
+          to="/"
+          className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
+          Back to Home
+        </Link>
+      </div>
+
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-xl space-y-8">
           {/* Header */}
