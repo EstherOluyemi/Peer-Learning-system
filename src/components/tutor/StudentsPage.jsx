@@ -5,6 +5,7 @@ import {
   ChevronLeft, ChevronRight, Eye, UserPlus, AlertCircle,
   BookOpen, Clock, CheckCircle, X, Video
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { updateSession } from '../../services/sessionService';
 
@@ -53,6 +54,7 @@ const StudentsPage = () => {
   const [error, setError] = useState(null);
   const [detailStudent, setDetailStudent] = useState(null);
   const [completingSession, setCompletingSession] = useState(null); // sessionId being completed
+  const navigate = useNavigate();
   const itemsPerPage = 8;
 
   // Derived unique sessions list from all student sessions for the filter dropdown
@@ -308,7 +310,10 @@ const StudentsPage = () => {
 
                   {/* Right — actions */}
                   <div className="flex items-center gap-2 shrink-0">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors">
+                    <button
+                      onClick={() => navigate('/dashboard-tutor/messages', { state: { openWithUserId: student._id } })}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors"
+                    >
                       <MessageSquare className="w-4 h-4" /> Message
                     </button>
                     <button

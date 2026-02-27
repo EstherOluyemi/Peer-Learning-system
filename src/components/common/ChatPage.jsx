@@ -4,6 +4,7 @@ import {
     MessageSquare, Search, Send, X, Plus, Check, CheckCheck,
     ChevronLeft, AlertCircle, Loader2,
 } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import { getContacts } from '../../services/chatService';
@@ -39,12 +40,20 @@ const OnlineDot = ({ online }) =>
 /* ─── ChatPage ────────────────────────────────────────────────────────────── */
 const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) => {
     const { user } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
     const {
         conversations, loadMessages, openConversation, sendMessage,
         markConversationRead, onlineUsers, loading: ctxLoading,
     } = useChat();
 
-    const myId = user?._id || user?.id;
+    // Ensure we always extract the raw string ID, handling potential nesting
+    const rawMyId = user?._id || user?.id || user?.tutor?._id || user?.data?._id;
+    const myId = typeof rawMyId === 'object' && rawMyId !== null ? String(rawMyId) : rawMyId;
+
+    useEffect(() => {
+        console.log('[DEBUG ChatPage] Expanded user object:', user, '-> Resolved myId:', myId);
+    }, [user, myId]);
 
     const [activeConvId, setActiveConvId] = useState(null);
     const [text, setText] = useState('');
@@ -62,6 +71,18 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
     const inputRef = useRef(null);
 
     const activeConv = conversations.find(c => (c._id || c.id) === activeConvId) || null;
+
+    // ── Auto-open from router state ───────────────────────────────────────────
+    useEffect(() => {
+        const targetUserId = location.state?.openWithUserId;
+        if (targetUserId && user) {
+            // Clear state so reload doesn't re-trigger
+            navigate(location.pathname, { replace: true, state: {} });
+            openConversation(targetUserId).then(conv => {
+                if (conv) setActiveConvId(conv._id || conv.id);
+            }).catch(err => console.error('Failed to auto-open chat:', err));
+        }
+    }, [location.state?.openWithUserId, user, navigate, location.pathname, openConversation]);
 
     // ── Scroll to bottom ──────────────────────────────────────────────────────
     useEffect(() => {
@@ -296,8 +317,9 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                     </div>
                                 ) : (activeConv.messages || []).length > 0 ? (
                                     (activeConv.messages || []).map((msg) => {
-                                        const senderId = msg.sender?._id || msg.sender?.id || msg.sender;
-                                        const isMine = senderId === myId;
+                                        const senderId = String(msg.sender?._id || msg.sender?.id || msg.sender);
+                                        const myIdStr = String(myId?._id || myId?.id || myId);
+                                        const isMine = senderId === myIdStr;
                                         return (
                                             <div key={msg._id || msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'} items-end gap-2`}>
                                                 {!isMine && (() => {
@@ -481,8 +503,16 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
 function getOtherParticipant(conv, myId) {
     if (!conv) return null;
     const participants = conv.participants || [];
+
+    const myIdStr = String(myId?._id || myId?.id || myId || '');
+    if (!myIdStr || myIdStr === 'undefined') return null;
+
     // prefer the explicit participant that isn't the current user
-    const other = participants.find(p => (p._id || p.id) !== myId);
+    const other = participants.find(p => {
+        const pIdStr = String(p?._id || p?.id || '');
+        return pIdStr && pIdStr !== myIdStr;
+    });
+
     // fallback to conv.recipient / conv.student / conv.tutor (older shape)
     return other || conv.recipient || conv.student || conv.tutor || null;
 }
