@@ -6,6 +6,7 @@ import {
   BookOpen, Clock, CheckCircle, X, Video
 } from 'lucide-react';
 import api from '../../services/api';
+import { updateSession } from '../../services/sessionService';
 
 /* ─── helpers ─────────────────────────────────────────────────────── */
 const formatDate = (d) => {
@@ -51,6 +52,7 @@ const StudentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [detailStudent, setDetailStudent] = useState(null);
+  const [completingSession, setCompletingSession] = useState(null); // sessionId being completed
   const itemsPerPage = 8;
 
   // Derived unique sessions list from all student sessions for the filter dropdown
@@ -61,12 +63,9 @@ const StudentsPage = () => {
       try {
         setLoading(true);
         const raw = await api.get('/v1/tutor/students');
-        // api interceptor already unwraps response.data
-        // Body: { status, data: [...] }
         const list = Array.isArray(raw) ? raw
           : Array.isArray(raw?.data) ? raw.data
             : [];
-        setStudents(list);
 
         // Build a deduplicated session list from all students' sessions
         const sessMap = {};
@@ -76,6 +75,52 @@ const StudentsPage = () => {
           })
         );
         setAllSessions(Object.values(sessMap));
+
+        // ── Auto-complete sessions whose endTime has already passed ──
+        const now = new Date();
+        const stale = [];
+        list.forEach(student =>
+          (student.sessions || []).forEach(s => {
+            const status = (s.status || '').toLowerCase();
+            if (status !== 'completed' && status !== 'cancelled' && s.endTime && new Date(s.endTime) < now) {
+              if (!stale.find(x => x.sessionId === s.sessionId)) stale.push(s);
+            }
+          })
+        );
+
+        // Fire PATCH requests silently (don't block UI)
+        if (stale.length > 0) {
+          const patchedIds = new Set();
+          await Promise.allSettled(
+            stale.map(s =>
+              updateSession(s.sessionId, { status: 'completed' })
+                .then(() => patchedIds.add(s.sessionId))
+                .catch(err => console.warn(`Auto-complete failed for session ${s.sessionId}:`, err))
+            )
+          );
+          // Apply successful patches to local state
+          if (patchedIds.size > 0) {
+            const applyPatch = (studentList) =>
+              studentList.map(student => {
+                const nowCompleted = (student.sessions || []).filter(
+                  s => patchedIds.has(s.sessionId) && s.status !== 'completed'
+                ).length;
+                return {
+                  ...student,
+                  sessions: (student.sessions || []).map(s =>
+                    patchedIds.has(s.sessionId) ? { ...s, status: 'completed' } : s
+                  ),
+                  completedSessions: (student.completedSessions || 0) + nowCompleted,
+                  upcomingSessions: Math.max(0, (student.upcomingSessions || 0) - nowCompleted),
+                };
+              });
+            setStudents(applyPatch(list));
+          } else {
+            setStudents(list);
+          }
+        } else {
+          setStudents(list);
+        }
       } catch (err) {
         setError('Failed to fetch students. Please try again.');
         console.error(err);
@@ -112,6 +157,39 @@ const StudentsPage = () => {
     const sessions = student.sessions || [];
     if (!sessions.length) return null;
     return sessions.slice().sort((a, b) => new Date(b.startTime) - new Date(a.startTime))[0];
+  };
+
+  /* ── mark session as completed ── */
+  const handleCompleteSession = async (sessionId) => {
+    if (completingSession === sessionId) return;
+    setCompletingSession(sessionId);
+    try {
+      await updateSession(sessionId, { status: 'completed' });
+      const patchStudent = (student) => {
+        const wasNotCompleted = (student.sessions || []).some(
+          s => s.sessionId === sessionId && s.status !== 'completed'
+        );
+        return {
+          ...student,
+          sessions: (student.sessions || []).map(s =>
+            s.sessionId === sessionId ? { ...s, status: 'completed' } : s
+          ),
+          completedSessions: wasNotCompleted
+            ? (student.completedSessions || 0) + 1
+            : student.completedSessions,
+          upcomingSessions: wasNotCompleted
+            ? Math.max(0, (student.upcomingSessions || 0) - 1)
+            : student.upcomingSessions,
+        };
+      };
+      setStudents(prev => prev.map(patchStudent));
+      setDetailStudent(prev => prev ? patchStudent(prev) : null);
+    } catch (err) {
+      console.error('Failed to mark session as completed:', err);
+      alert('Could not mark session as completed. Please try again.');
+    } finally {
+      setCompletingSession(null);
+    }
   };
 
   if (loading) {
@@ -390,16 +468,40 @@ const StudentsPage = () => {
                           </span>
                         </div>
                       </div>
-                      {s.meetingLink && (
-                        <a
-                          href={s.meetingLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors shrink-0"
-                        >
-                          <Video className="w-3.5 h-3.5" /> Join
-                        </a>
-                      )}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {s.meetingLink && (
+                          s.status === 'completed' ? (
+                            <span
+                              title="Session has ended"
+                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none"
+                            >
+                              <Video className="w-3.5 h-3.5" /> Join
+                            </span>
+                          ) : (
+                            <a
+                              href={s.meetingLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                            >
+                              <Video className="w-3.5 h-3.5" /> Join
+                            </a>
+                          )
+                        )}
+                        {/* Manual fallback: show only when endTime hasn't passed yet */}
+                        {s.status !== 'completed' && s.status !== 'cancelled' &&
+                          (!s.endTime || new Date(s.endTime) >= new Date()) && (
+                            <button
+                              onClick={() => handleCompleteSession(s.sessionId)}
+                              disabled={completingSession === s.sessionId}
+                              title="Mark session as completed"
+                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white transition-colors"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              {completingSession === s.sessionId ? 'Saving…' : 'Mark Complete'}
+                            </button>
+                          )}
+                      </div>
                     </div>
                   </div>
                 ))
