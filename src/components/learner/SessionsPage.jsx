@@ -1,12 +1,12 @@
 // src/components/learner/SessionsPage.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     Calendar, Clock, Users, Star, Search, Plus,
     ChevronLeft, ChevronRight, Eye, Video, BookOpen, AlertCircle, X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { normalizeSessionList } from '../../services/sessionService';
+import { normalizeSessionList, getSessionRating, rateSession } from '../../services/sessionService';
 import { useAuth } from '../../context/AuthContext';
 
 const SessionsPage = () => {
@@ -22,6 +22,12 @@ const SessionsPage = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [leavingSessionId, setLeavingSessionId] = useState(null);
     const [selectedSession, setSelectedSession] = useState(null);
+    // Map of sessionId -> { rating, comment } for already-rated sessions
+    const [sessionRatings, setSessionRatings] = useState({});
+    // Inline rating widget state
+    const [ratingHover, setRatingHover] = useState({}); // { [sessionId]: hoverValue }
+    const [ratingInput, setRatingInput] = useState({}); // { [sessionId]: { rating, comment } }
+    const [ratingSubmitting, setRatingSubmitting] = useState({}); // { [sessionId]: bool }
     const itemsPerPage = 8;
 
     const enrollmentStatusRef = useRef({});
@@ -35,6 +41,24 @@ const SessionsPage = () => {
                 const response = await api.get('/v1/learner/sessions');
                 const sessionsData = normalizeSessionList(response.data || []);
                 setSessions(sessionsData);
+                // Fetch existing ratings for completed sessions
+                const completed = sessionsData.filter(s => s.status === 'completed');
+                const ratingResults = await Promise.all(
+                    completed.map(async (s) => {
+                        const sid = s._id || s.id;
+                        const result = await getSessionRating(sid);
+                        return { sid, result };
+                    })
+                );
+                setSessionRatings(prev => {
+                    const next = { ...prev };
+                    ratingResults.forEach(({ sid, result }) => {
+                        if (result && (result.rating || result.data?.rating)) {
+                            next[sid] = result.rating ? result : result.data;
+                        }
+                    });
+                    return next;
+                });
             } catch (err) {
                 setError('Failed to fetch your sessions. Please try again later.');
             } finally {
@@ -76,6 +100,23 @@ const SessionsPage = () => {
         }
     }, [sessions]);
 
+    const handleRateSession = useCallback(async (sessionId) => {
+        const input = ratingInput[sessionId] || {};
+        const rating = input.rating;
+        if (!rating) return;
+        setRatingSubmitting(prev => ({ ...prev, [sessionId]: true }));
+        try {
+            await rateSession(sessionId, rating, input.comment || '');
+            setSessionRatings(prev => ({ ...prev, [sessionId]: { rating, comment: input.comment || '' } }));
+            setSuccessMessage('Rating submitted — thank you!');
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (err) {
+            setError(typeof err === 'string' ? err : 'Failed to submit rating. Please try again.');
+        } finally {
+            setRatingSubmitting(prev => ({ ...prev, [sessionId]: false }));
+        }
+    }, [ratingInput]);
+
     const handleLeaveSession = async (sessionId) => {
         if (!window.confirm('Are you sure you want to leave this session?')) {
             return;
@@ -85,11 +126,11 @@ const SessionsPage = () => {
             setLeavingSessionId(sessionId);
             setError(null);
             await api.post(`/v1/learner/sessions/${sessionId}/leave`);
-            
+
             // Remove session from local state
             setSessions(prev => prev.filter(s => s._id !== sessionId));
             setSuccessMessage('Successfully left the session');
-            
+
             // Clear success message after 3 seconds
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
@@ -127,15 +168,15 @@ const SessionsPage = () => {
     const getStatusColor = (status) => {
         switch (status) {
             case 'upcoming':
-            case 'scheduled': 
+            case 'scheduled':
                 return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
             case 'ongoing':
                 return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-            case 'completed': 
+            case 'completed':
                 return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-            case 'cancelled': 
+            case 'cancelled':
                 return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-            default: 
+            default:
                 return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
         }
     };
@@ -192,7 +233,7 @@ const SessionsPage = () => {
                     <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Sessions</h1>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your learning sessions and track progress.</p>
                 </div>
-                <button 
+                <button
                     onClick={() => navigate('/dashboard-learner/browse-sessions')}
                     className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95">
                     <Plus className="w-5 h-5" />
@@ -204,7 +245,7 @@ const SessionsPage = () => {
                 <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
                     <AlertCircle className="w-5 h-5 shrink-0" />
                     <p className="text-sm font-medium">{error}</p>
-                    <button 
+                    <button
                         onClick={() => setError(null)}
                         className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline"
                     >
@@ -277,11 +318,10 @@ const SessionsPage = () => {
                                                         navigate(`/session/${sessionId}`);
                                                     }}
                                                     disabled={!session.meetingLink || session.status === 'completed'}
-                                                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${
-                                                        !session.meetingLink || session.status === 'completed'
-                                                            ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
-                                                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                                                    }`}
+                                                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${!session.meetingLink || session.status === 'completed'
+                                                        ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
+                                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                                        }`}
                                                 >
                                                     <Video className="w-4 h-4 inline mr-1" />
                                                     Join
@@ -307,8 +347,8 @@ const SessionsPage = () => {
                                         setCurrentPage(1);
                                     }}
                                     className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${statusFilter === tab.id
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                                         }`}
                                 >
                                     {tab.label}
@@ -339,8 +379,8 @@ const SessionsPage = () => {
                                         setCurrentPage(1);
                                     }}
                                     className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${filterType === type
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                                         }`}
                                 >
                                     {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -360,115 +400,155 @@ const SessionsPage = () => {
                                 const startDate = formatDateTime(session.startTime);
                                 const endDate = formatDateTime(session.endTime);
                                 const isOngoing = (session.status || '').toLowerCase() === 'ongoing';
-                                
+
                                 return (
-                                <div
-                                    key={session._id || session.id}
-                                    className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
-                                    style={{
-                                        backgroundColor: 'var(--card-bg)',
-                                        borderColor: 'var(--card-border)'
-                                    }}
-                                >
-                                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                                        <div className="flex items-start gap-4">
-                                            <div className="flex flex-col items-center justify-center w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                                                <span className="text-xs font-bold uppercase">{startDate.dayMonth.split(' ')[0]}</span>
-                                                <span className="text-lg font-bold">{startDate.dayMonth.split(' ')[1]}</span>
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-3 mb-2 flex-wrap">
-                                                    <h4 className="font-bold text-lg group-hover:text-blue-600 transition-colors" style={{ color: 'var(--text-primary)' }}>
-                                                        {session.title || 'Untitled Session'}
-                                                    </h4>
-                                                    {isOngoing && (
-                                                        <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                                                            Join Now
-                                                        </span>
-                                                    )}
-                                                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(session.status || 'upcoming')}`}>
-                                                        {(session.status || 'scheduled').charAt(0).toUpperCase() + (session.status || 'scheduled').slice(1)}
-                                                    </span>
+                                    <div
+                                        key={session._id || session.id}
+                                        className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+                                        style={{
+                                            backgroundColor: 'var(--card-bg)',
+                                            borderColor: 'var(--card-border)'
+                                        }}
+                                    >
+                                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                                            <div className="flex items-start gap-4">
+                                                <div className="flex flex-col items-center justify-center w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
+                                                    <span className="text-xs font-bold uppercase">{startDate.dayMonth.split(' ')[0]}</span>
+                                                    <span className="text-lg font-bold">{startDate.dayMonth.split(' ')[1]}</span>
                                                 </div>
-                                                <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{session.description || 'No description available'}</p>
-                                                <div className="flex flex-wrap items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                                                    <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" /> {session.subject || 'General'}</span>
-                                                    <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {startDate.date}</span>
-                                                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {startDate.time} - {endDate.time}</span>
-                                                    <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {session.studentIds?.length || 0}/{session.maxParticipants || 0}</span>
-                                                    {session.meetingLink && (
-                                                        <button
-                                                            onClick={() => {
-                                                                if (session.status === 'completed') return;
-                                                                navigate(`/session/${session._id || session.id}`);
-                                                            }}
-                                                            disabled={session.status === 'completed'}
-                                                            className={`flex items-center gap-1 text-sm font-medium transition-colors ${
-                                                                session.status === 'completed'
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                                                        <h4 className="font-bold text-lg group-hover:text-blue-600 transition-colors" style={{ color: 'var(--text-primary)' }}>
+                                                            {session.title || 'Untitled Session'}
+                                                        </h4>
+                                                        {isOngoing && (
+                                                            <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                                                Join Now
+                                                            </span>
+                                                        )}
+                                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(session.status || 'upcoming')}`}>
+                                                            {(session.status || 'scheduled').charAt(0).toUpperCase() + (session.status || 'scheduled').slice(1)}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{session.description || 'No description available'}</p>
+                                                    <div className="flex flex-wrap items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                                                        <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" /> {session.subject || 'General'}</span>
+                                                        <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {startDate.date}</span>
+                                                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {startDate.time} - {endDate.time}</span>
+                                                        <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {session.studentIds?.length || 0}/{session.maxParticipants || 0}</span>
+                                                        {session.meetingLink && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (session.status === 'completed') return;
+                                                                    navigate(`/session/${session._id || session.id}`);
+                                                                }}
+                                                                disabled={session.status === 'completed'}
+                                                                className={`flex items-center gap-1 text-sm font-medium transition-colors ${session.status === 'completed'
                                                                     ? 'text-slate-400 cursor-not-allowed opacity-60'
                                                                     : 'text-blue-600 hover:underline'
-                                                            }`}
-                                                        >
-                                                            <Video className="w-3.5 h-3.5" /> 
-                                                            {session.status === 'completed' ? 'Session Completed' : 'Join'}
-                                                        </button>
-                                                    )}
+                                                                    }`}
+                                                            >
+                                                                <Video className="w-3.5 h-3.5" />
+                                                                {session.status === 'completed' ? 'Session Completed' : 'Join'}
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    onClick={() => setSelectedSession(session)}
-                                                    className="px-3 py-2 text-sm font-medium border rounded-lg transition-all"
-                                                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-                                                >
-                                                    <Eye className="w-4 h-4 inline mr-1" />
-                                                    Details
-                                                </button>
-                                                <button
-                                                    onClick={() => navigate('/dashboard-learner/materials')}
-                                                    className="px-3 py-2 text-sm font-medium border rounded-lg transition-all"
-                                                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-                                                >
-                                                    <BookOpen className="w-4 h-4 inline mr-1" />
-                                                    Materials
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        if (!session.meetingLink || session.status === 'completed') return;
-                                                        navigate(`/session/${session._id || session.id}`);
-                                                    }}
-                                                    disabled={!session.meetingLink || session.status === 'completed'}
-                                                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${
-                                                        !session.meetingLink || session.status === 'completed'
+                                            <div className="flex flex-col gap-3">
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => setSelectedSession(session)}
+                                                        className="px-3 py-2 text-sm font-medium border rounded-lg transition-all"
+                                                        style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                                    >
+                                                        <Eye className="w-4 h-4 inline mr-1" />
+                                                        Details
+                                                    </button>
+                                                    <button
+                                                        onClick={() => navigate('/dashboard-learner/materials')}
+                                                        className="px-3 py-2 text-sm font-medium border rounded-lg transition-all"
+                                                        style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                                    >
+                                                        <BookOpen className="w-4 h-4 inline mr-1" />
+                                                        Materials
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (!session.meetingLink || session.status === 'completed') return;
+                                                            navigate(`/session/${session._id || session.id}`);
+                                                        }}
+                                                        disabled={!session.meetingLink || session.status === 'completed'}
+                                                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${!session.meetingLink || session.status === 'completed'
                                                             ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                             : 'bg-blue-600 text-white hover:bg-blue-700'
-                                                    }`}
+                                                            }`}
+                                                    >
+                                                        <Video className="w-4 h-4 inline mr-1" />
+                                                        Join
+                                                    </button>
+                                                </div>
+                                                <button
+                                                    onClick={() => session.status !== 'completed' && handleLeaveSession(session._id || session.id)}
+                                                    disabled={session.status === 'completed' || leavingSessionId === (session._id || session.id)}
+                                                    className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all ${session.status === 'completed'
+                                                        ? 'border-slate-300 text-slate-400 dark:border-slate-600 dark:text-slate-500 cursor-not-allowed opacity-60'
+                                                        : 'text-red-600 hover:text-white hover:bg-red-600 border-red-600 disabled:opacity-50 disabled:cursor-not-allowed'
+                                                        }`}
                                                 >
-                                                    <Video className="w-4 h-4 inline mr-1" />
-                                                    Join
+                                                    {leavingSessionId === (session._id || session.id) ? 'Leaving...' : 'Leave Session'}
                                                 </button>
-                                            </div>
-                                            <button
-                                                onClick={() => handleLeaveSession(session._id || session.id)}
-                                                disabled={leavingSessionId === (session._id || session.id)}
-                                                className="px-4 py-2 text-sm font-medium text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {leavingSessionId === (session._id || session.id) ? 'Leaving...' : 'Leave Session'}
-                                            </button>
-                                            <div className="text-right">
-                                                <div className="flex items-center justify-end gap-2 mb-2">
-                                                    <Star className="w-4 h-4 text-yellow-500" />
-                                                    <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{session.rating || '5.0'}</span>
-                                                </div>
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{session.studentIds?.length || 0}/{session.maxParticipants || 0} enrolled</span>
-                                                </div>
+                                                {/* Rating widget — only for completed sessions */}
+                                                {session.status === 'completed' && (() => {
+                                                    const sid = session._id || session.id;
+                                                    const existingRating = sessionRatings[sid];
+                                                    const input = ratingInput[sid] || {};
+                                                    const hover = ratingHover[sid] || 0;
+                                                    const submitting = ratingSubmitting[sid];
+                                                    if (existingRating) {
+                                                        return (
+                                                            <div className="flex flex-col items-end gap-1">
+                                                                <span className="text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>Your rating</span>
+                                                                <div className="flex gap-0.5">
+                                                                    {[1, 2, 3, 4, 5].map(v => (
+                                                                        <Star key={v} className={`w-4 h-4 ${v <= existingRating.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300 dark:text-slate-600'}`} />
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return (
+                                                        <div className="flex flex-col items-end gap-2 mt-1">
+                                                            <span className="text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>Rate this session</span>
+                                                            <div className="flex gap-0.5">
+                                                                {[1, 2, 3, 4, 5].map(v => (
+                                                                    <button
+                                                                        key={v}
+                                                                        type="button"
+                                                                        onMouseEnter={() => setRatingHover(prev => ({ ...prev, [sid]: v }))}
+                                                                        onMouseLeave={() => setRatingHover(prev => ({ ...prev, [sid]: 0 }))}
+                                                                        onClick={() => setRatingInput(prev => ({ ...prev, [sid]: { ...prev[sid], rating: v } }))}
+                                                                        className="transition-transform hover:scale-110"
+                                                                    >
+                                                                        <Star className={`w-5 h-5 ${v <= (hover || input.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300 dark:text-slate-600'}`} />
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                            {input.rating > 0 && (
+                                                                <button
+                                                                    onClick={() => handleRateSession(sid)}
+                                                                    disabled={submitting}
+                                                                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white transition-all disabled:opacity-50"
+                                                                >
+                                                                    {submitting ? 'Submitting…' : 'Submit Rating'}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                                 );
                             })
                         ) : (
@@ -480,8 +560,8 @@ const SessionsPage = () => {
                                     {searchTerm || filterType !== 'all' ? 'No sessions found' : 'No enrolled sessions yet'}
                                 </h3>
                                 <p className="text-sm max-w-xs mx-auto mb-6" style={{ color: 'var(--text-secondary)' }}>
-                                    {searchTerm || filterType !== 'all' 
-                                        ? "We couldn't find any sessions matching your filters. Try adjusting your search." 
+                                    {searchTerm || filterType !== 'all'
+                                        ? "We couldn't find any sessions matching your filters. Try adjusting your search."
                                         : "You haven't joined any sessions yet. Browse available sessions to get started!"}
                                 </p>
                                 {!searchTerm && filterType === 'all' && (
@@ -619,126 +699,191 @@ const SessionsPage = () => {
                 </div>
             </div>
 
-        {/* Session Details Modal */}
-        {selectedSession && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setSelectedSession(null)}>
-                <div className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
-                    {/* Modal Header */}
-                    <div className="px-6 py-5 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
-                        <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
-                                <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(selectedSession.status)}`}>
-                                    {(selectedSession.status || 'scheduled').charAt(0).toUpperCase() + (selectedSession.status || 'scheduled').slice(1)}
-                                </span>
+            {/* Session Details Modal */}
+            {selectedSession && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setSelectedSession(null)}>
+                    <div className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
+                        {/* Modal Header */}
+                        <div className="px-6 py-5 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
+                                    <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(selectedSession.status)}`}>
+                                        {(selectedSession.status || 'scheduled').charAt(0).toUpperCase() + (selectedSession.status || 'scheduled').slice(1)}
+                                    </span>
+                                </div>
+                                {selectedSession.subject && (
+                                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedSession.subject}</p>
+                                )}
                             </div>
-                            {selectedSession.subject && (
-                                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedSession.subject}</p>
+                            <button
+                                onClick={() => setSelectedSession(null)}
+                                className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                style={{ color: 'var(--text-secondary)' }}
+                                aria-label="Close modal"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                            {/* Description */}
+                            {selectedSession.description && (
+                                <div>
+                                    <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Description</h4>
+                                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                                        {selectedSession.description}
+                                    </p>
+                                </div>
                             )}
-                        </div>
-                        <button
-                            onClick={() => setSelectedSession(null)}
-                            className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                            style={{ color: 'var(--text-secondary)' }}
-                            aria-label="Close modal"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
 
-                    {/* Modal Body */}
-                    <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-                        {/* Description */}
-                        {selectedSession.description && (
-                            <div>
-                                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Description</h4>
-                                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                                    {selectedSession.description}
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Date & Time */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Start Time</h4>
-                                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                    <Calendar className="w-4 h-4" />
-                                    {formatDateTime(selectedSession.startTime).date} at {formatDateTime(selectedSession.startTime).time}
+                            {/* Date & Time */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Start Time</h4>
+                                    <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                                        <Calendar className="w-4 h-4" />
+                                        {formatDateTime(selectedSession.startTime).date} at {formatDateTime(selectedSession.startTime).time}
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>End Time</h4>
+                                    <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                                        <Clock className="w-4 h-4" />
+                                        {formatDateTime(selectedSession.endTime).date} at {formatDateTime(selectedSession.endTime).time}
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Participants */}
                             <div>
-                                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>End Time</h4>
+                                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Session Details</h4>
                                 <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                    <Clock className="w-4 h-4" />
-                                    {formatDateTime(selectedSession.endTime).date} at {formatDateTime(selectedSession.endTime).time}
+                                    <Users className="w-4 h-4" />
+                                    <span>
+                                        {selectedSession.studentIds?.length || 0} / {selectedSession.maxParticipants || 0} enrolled
+                                    </span>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Participants */}
-                        <div>
-                            <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Session Details</h4>
-                            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                <Users className="w-4 h-4" />
-                                <span>
-                                    {selectedSession.studentIds?.length || 0} / {selectedSession.maxParticipants || 0} enrolled
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Meeting Link */}
-                        {selectedSession.meetingLink && (
-                            <div>
-                                <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Meeting</h4>
-                                <button
-                                    onClick={() => navigate(`/session/${selectedSession._id || selectedSession.id}`)}
-                                    disabled={selectedSession.status === 'completed'}
-                                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all ${
-                                        selectedSession.status === 'completed'
+                            {/* Meeting Link */}
+                            {selectedSession.meetingLink && (
+                                <div>
+                                    <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Meeting</h4>
+                                    <button
+                                        onClick={() => navigate(`/session/${selectedSession._id || selectedSession.id}`)}
+                                        disabled={selectedSession.status === 'completed'}
+                                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all ${selectedSession.status === 'completed'
                                             ? 'bg-slate-400 cursor-not-allowed opacity-60 shadow-none'
                                             : 'bg-blue-600 hover:bg-blue-700 shadow-sm'
-                                    }`}
-                                >
-                                    <Video className="w-4 h-4" />
-                                    {selectedSession.status === 'completed' ? 'Session Completed' : 'Open Session Room'}
-                                </button>
-                            </div>
-                        )}
+                                            }`}
+                                    >
+                                        <Video className="w-4 h-4" />
+                                        {selectedSession.status === 'completed' ? 'Session Completed' : 'Open Session Room'}
+                                    </button>
+                                </div>
+                            )}
 
-                        {/* Session ID */}
-                        <div className="pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
-                            <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                                Session ID: {selectedSession._id || 'N/A'}
-                            </p>
+                            {/* Rating — show for completed sessions in modal */}
+                            {selectedSession.status === 'completed' && (() => {
+                                const sid = selectedSession._id || selectedSession.id;
+                                const existingRating = sessionRatings[sid];
+                                const input = ratingInput[sid] || {};
+                                const hover = ratingHover[sid] || 0;
+                                const submitting = ratingSubmitting[sid];
+                                return (
+                                    <div className="p-4 rounded-xl border" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--bg-hover)' }}>
+                                        <h4 className="text-sm font-bold mb-3" style={{ color: 'var(--text-primary)' }}>Rate this session</h4>
+                                        {existingRating ? (
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex gap-1">
+                                                    {[1, 2, 3, 4, 5].map(v => (
+                                                        <Star key={v} className={`w-5 h-5 ${v <= existingRating.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300 dark:text-slate-600'}`} />
+                                                    ))}
+                                                </div>
+                                                {existingRating.comment && (
+                                                    <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>"{existingRating.comment}"</p>
+                                                )}
+                                                <p className="text-xs mt-1 text-green-600 dark:text-green-400 font-medium">You already rated this session ✓</p>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col gap-3">
+                                                <div className="flex gap-1">
+                                                    {[1, 2, 3, 4, 5].map(v => (
+                                                        <button
+                                                            key={v}
+                                                            type="button"
+                                                            onMouseEnter={() => setRatingHover(prev => ({ ...prev, [sid]: v }))}
+                                                            onMouseLeave={() => setRatingHover(prev => ({ ...prev, [sid]: 0 }))}
+                                                            onClick={() => setRatingInput(prev => ({ ...prev, [sid]: { ...(prev[sid] || {}), rating: v } }))}
+                                                            className="transition-transform hover:scale-110"
+                                                        >
+                                                            <Star className={`w-6 h-6 ${v <= (hover || input.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300 dark:text-slate-600'}`} />
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <textarea
+                                                    rows={2}
+                                                    placeholder="Leave a comment (optional)"
+                                                    value={input.comment || ''}
+                                                    onChange={e => setRatingInput(prev => ({ ...prev, [sid]: { ...(prev[sid] || {}), comment: e.target.value } }))}
+                                                    className="w-full text-sm px-3 py-2 rounded-lg resize-none focus:outline-none border"
+                                                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
+                                                />
+                                                {input.rating > 0 && (
+                                                    <button
+                                                        onClick={() => handleRateSession(sid)}
+                                                        disabled={submitting}
+                                                        className="self-start px-4 py-2 text-sm font-semibold rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white transition-all disabled:opacity-50"
+                                                    >
+                                                        {submitting ? 'Submitting…' : 'Submit Rating'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Session ID */}
+                            <div className="pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                                <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                                    Session ID: {selectedSession._id || 'N/A'}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
+                            <button
+                                onClick={() => setSelectedSession(null)}
+                                className="px-4 py-2 rounded-lg border font-medium transition-colors"
+                                style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+                            >
+                                Close
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (selectedSession.status !== 'completed') {
+                                        handleLeaveSession(selectedSession._id || selectedSession.id);
+                                        setSelectedSession(null);
+                                    }
+                                }}
+                                disabled={selectedSession.status === 'completed' || leavingSessionId === (selectedSession._id || selectedSession.id)}
+                                className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedSession.status === 'completed'
+                                        ? 'bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500 cursor-not-allowed opacity-60'
+                                        : 'bg-red-600 hover:bg-red-700 text-white disabled:opacity-50'
+                                    }`}
+                            >
+                                {leavingSessionId === (selectedSession._id || selectedSession.id) ? 'Leaving...' : 'Leave Session'}
+                            </button>
                         </div>
                     </div>
-
-                    {/* Modal Footer */}
-                    <div className="px-6 py-4 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
-                        <button
-                            onClick={() => setSelectedSession(null)}
-                            className="px-4 py-2 rounded-lg border font-medium transition-colors"
-                            style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
-                        >
-                            Close
-                        </button>
-                        <button
-                            onClick={() => {
-                                handleLeaveSession(selectedSession._id || selectedSession.id);
-                                setSelectedSession(null);
-                            }}
-                            disabled={leavingSessionId === (selectedSession._id || selectedSession.id)}
-                            className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors disabled:opacity-50"
-                        >
-                            {leavingSessionId === (selectedSession._id || selectedSession.id) ? 'Leaving...' : 'Leave Session'}
-                        </button>
-                    </div>
                 </div>
-            </div>
-        )}
-    </div>
-  );
+            )}
+        </div>
+    );
 };
 
 export default SessionsPage;

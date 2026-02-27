@@ -23,11 +23,20 @@ export const getSessionStatus = (session, now = new Date()) => {
   return current || 'scheduled';
 };
 
-export const normalizeSessionList = (sessions, now = new Date()) =>
-  (sessions || []).map((session) => ({
-    ...session,
-    status: getSessionStatus(session, now)
-  }));
+export const normalizeSessionList = (rawList, now = new Date()) =>
+  (rawList || []).map((item) => {
+    // Handle wrapped shape: { session: {...}, enrollmentStatus: '...' }
+    const isWrapped = item && item.session && typeof item.session === 'object';
+    const session = isWrapped ? item.session : item;
+    const enrollmentStatus = isWrapped ? item.enrollmentStatus : item.enrollmentStatus;
+    return {
+      ...session,
+      ...(enrollmentStatus !== undefined ? { enrollmentStatus } : {}),
+      // Flatten tutor name for easy access in UI search / display
+      tutorName: session.tutor?.name || session.tutorName || '',
+      status: getSessionStatus(session, now)
+    };
+  });
 
 const fetchSessions = async (endpoint, filters) => {
   const response = await api.get(endpoint, { params: filters });
@@ -156,6 +165,30 @@ export const leaveSession = async (sessionId) => {
     return response?.data ?? response;
   } catch (error) {
     console.error('Error leaving session:', error);
+    throw error.message || error;
+  }
+};
+
+// Get existing rating for a completed session (learner only)
+export const getSessionRating = async (sessionId) => {
+  try {
+    const response = await api.get(`/v1/learner/sessions/${sessionId}/rate`);
+    return response?.data ?? response;
+  } catch (error) {
+    // 404 simply means no rating yet — don't throw
+    if (error?.status === 404) return null;
+    console.error('Error fetching session rating:', error);
+    return null;
+  }
+};
+
+// Submit a rating for a completed session (learner only)
+export const rateSession = async (sessionId, rating, comment = '') => {
+  try {
+    const response = await api.post(`/v1/learner/sessions/${sessionId}/rate`, { rating, comment });
+    return response?.data ?? response;
+  } catch (error) {
+    console.error('Error rating session:', error);
     throw error.message || error;
   }
 };
