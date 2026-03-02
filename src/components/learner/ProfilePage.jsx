@@ -32,7 +32,8 @@ const ProfilePage = () => {
         totalSessions: 0,
         averageRating: 0,
         completedHours: 0,
-        badges: user?.badges || []
+        badges: user?.badges || [],
+        courseProgress: []
     });
 
     useEffect(() => {
@@ -60,6 +61,14 @@ const ProfilePage = () => {
 
                 const completedSessions = sessionsList.filter(s => s.status === 'completed');
                 const totalSessions = sessionsList.length;
+
+                let progressList = [];
+                try {
+                    const progressResponse = await api.get('/v1/learner/me/progress');
+                    progressList = progressResponse.data?.data || progressResponse.data || [];
+                } catch (err) {
+                    console.error("Could not fetch user's progress:", err);
+                }
 
                 let completedHours = 0;
                 completedSessions.forEach(session => {
@@ -105,7 +114,8 @@ const ProfilePage = () => {
                     totalSessions: totalSessions,
                     averageRating: averageRating > 0 ? averageRating.toFixed(1) : 'N/A',
                     completedHours: formattedHours,
-                    badges: meData?.badges || user?.badges || []
+                    badges: meData?.badges || user?.badges || [],
+                    courseProgress: Array.isArray(progressList) ? progressList : []
                 }));
             } catch (err) {
                 console.error("Failed to fetch extended profile data:", err);
@@ -530,22 +540,28 @@ const ProfilePage = () => {
                 >
                     <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Learning Progress</h3>
                     <div className="space-y-4">
-                        {[
-                            { skill: 'JavaScript', progress: 85, color: 'bg-blue-500' },
-                            { skill: 'React', progress: 70, color: 'bg-green-500' },
-                            { skill: 'Python', progress: 60, color: 'bg-purple-500' },
-                            { skill: 'Node.js', progress: 45, color: 'bg-orange-500' }
-                        ].map((item, index) => (
-                            <div key={index}>
-                                <div className="flex justify-between items-center mb-2">
-                                    <span style={{ color: 'var(--text-primary)' }}>{item.skill}</span>
-                                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{item.progress}%</span>
-                                </div>
-                                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                                    <div className={`h-2 rounded-full ${item.color}`} style={{ width: `${item.progress}%` }}></div>
-                                </div>
-                            </div>
-                        ))}
+                        {profile.courseProgress && profile.courseProgress.length > 0 ? (
+                            profile.courseProgress.map((item, index) => {
+                                const courseName = item.courseId?.title || item.courseName || `Course ${index + 1}`;
+                                const progressValue = item.progress || 0;
+                                const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-teal-500', 'bg-pink-500'];
+                                const colorClass = colors[index % colors.length];
+
+                                return (
+                                    <div key={item._id || index}>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span style={{ color: 'var(--text-primary)' }}>{courseName}</span>
+                                            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{progressValue}%</span>
+                                        </div>
+                                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                            <div className={`h-2 rounded-full ${colorClass}`} style={{ width: `${progressValue}%` }}></div>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No course progress available yet.</p>
+                        )}
                     </div>
                 </div>
 
