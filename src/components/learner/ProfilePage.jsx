@@ -59,8 +59,11 @@ const ProfilePage = () => {
                     console.error("Could not fetch user's sessions:", err);
                 }
 
-                const completedSessions = sessionsList.filter(s => s.status === 'completed');
-                const totalSessions = sessionsList.length;
+                // Ensure we unwrap the actual session object from the backend wrapper 
+                const unwrappedSessions = sessionsList.map(s => s.session || s);
+
+                const completedSessions = unwrappedSessions.filter(s => s.status === 'completed');
+                const totalSessions = unwrappedSessions.length;
 
                 let progressList = [];
                 try {
@@ -480,7 +483,7 @@ const ProfilePage = () => {
 
     const renderProgressTab = () => (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
@@ -494,22 +497,6 @@ const ProfilePage = () => {
                         </div>
                         <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
                             <BookOpen className="w-6 h-6 text-blue-600" />
-                        </div>
-                    </div>
-                </div>
-                <div className="p-6 rounded-2xl shadow-sm border"
-                    style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderColor: 'var(--card-border)'
-                    }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <div className="text-2xl font-bold text-yellow-600">★ {profile.averageRating}</div>
-                            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Average Rating</div>
-                        </div>
-                        <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center">
-                            <Star className="w-6 h-6 text-yellow-600" />
                         </div>
                     </div>
                 </div>
