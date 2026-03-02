@@ -407,8 +407,7 @@ const ProfilePage = () => {
                                 style={{ borderColor: 'var(--border-color)' }}
                             />
                             <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{profile.name}</h3>
-                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{profile.major} Student</p>
-                            <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>@{profile.university}</p>
+                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Student</p>
                         </div>
                     </div>
 
