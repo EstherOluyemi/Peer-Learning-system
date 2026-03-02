@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
+import { getAllSessions, getSessionRating } from '../../services/sessionService';
 
 const ProfilePage = () => {
     const { user, updateUser } = useAuth();
@@ -38,23 +39,76 @@ const ProfilePage = () => {
         const fetchProfileData = async () => {
             try {
                 setLoading(true);
-                // Fetch extra progress/stats data
-                const response = await api.get('/v1/learner/me/progress');
-                const progressData = response.data || {};
-                
+
+                // Fetch real profile from backend
+                let meData = null;
+                try {
+                    const meResponse = await api.get('/v1/learner/me');
+                    meData = meResponse.data?.userId || meResponse.data;
+                } catch (err) {
+                    console.error("Could not fetch user profile details:", err);
+                }
+
+                const role = user?.role === 'student' ? 'learner' : user?.role;
+                let sessionsList = [];
+                try {
+                    const response = await api.get('/v1/learner/sessions');
+                    sessionsList = Array.isArray(response.data) ? response.data : response.data?.sessions || [];
+                } catch (err) {
+                    console.error("Could not fetch user's sessions:", err);
+                }
+
+                const completedSessions = sessionsList.filter(s => s.status === 'completed');
+                const totalSessions = sessionsList.length;
+
+                let completedHours = 0;
+                completedSessions.forEach(session => {
+                    const durationInMinutes = session.duration || 60; // Default 60 minutes if duration is not provided
+                    completedHours += durationInMinutes / 60;
+                });
+
+                let averageRating = 0;
+                if (completedSessions.length > 0) {
+                    try {
+                        const ratingResults = await Promise.all(
+                            completedSessions.map(async (s) => {
+                                const sid = s._id || s.id;
+                                const result = await getSessionRating(sid);
+                                return result?.rating || result?.data?.rating || null;
+                            })
+                        );
+                        const validRatings = ratingResults.filter(r => r && r > 0);
+                        if (validRatings.length > 0) {
+                            averageRating = validRatings.reduce((acc, r) => acc + r, 0) / validRatings.length;
+                        }
+                    } catch (err) {
+                        console.error("Could not fetch session ratings:", err);
+                    }
+                }
+
+                // Format the completed hours precisely to fix potential NaN issues.
+                const formattedHours = completedHours > 0 ? (completedHours % 1 === 0 ? completedHours : completedHours.toFixed(1)) : 0;
+
                 setProfile(prev => ({
                     ...prev,
-                    name: user?.name || prev.name,
-                    email: user?.email || prev.email,
-                    bio: user?.bio || prev.bio,
-                    totalSessions: progressData.totalSessions || 0,
-                    averageRating: progressData.avgRating || 0,
-                    completedHours: progressData.completedHours || 0,
-                    badges: user?.badges || progressData.badges || []
+                    name: meData?.name || user?.name || prev.name,
+                    email: meData?.email || user?.email || prev.email,
+                    bio: meData?.bio || user?.bio || prev.bio,
+                    major: meData?.major || user?.major || "Not specified",
+                    university: meData?.university || user?.university || "Not specified",
+                    year: meData?.year || user?.year || "Not specified",
+                    skills: meData?.skills || user?.skills || [],
+                    interests: meData?.interests || user?.interests || [],
+                    joinedDate: (meData?.createdAt || user?.createdAt)
+                        ? new Date(meData?.createdAt || user?.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                        : "Recently",
+                    totalSessions: totalSessions,
+                    averageRating: averageRating > 0 ? averageRating.toFixed(1) : 'N/A',
+                    completedHours: formattedHours,
+                    badges: meData?.badges || user?.badges || []
                 }));
             } catch (err) {
                 console.error("Failed to fetch extended profile data:", err);
-                // We don't block the UI if extended data fails, just use user context
             } finally {
                 setLoading(false);
             }
@@ -73,7 +127,7 @@ const ProfilePage = () => {
         try {
             setSaving(true);
             setError(null);
-            
+
             const response = await api.patch('/v1/learner/me', {
                 name: profile.name,
                 bio: profile.bio,
@@ -83,11 +137,11 @@ const ProfilePage = () => {
                 skills: profile.skills,
                 interests: profile.interests
             });
-            
+
             updateUser(response.data.user);
             setSuccessMessage('Profile updated successfully!');
             setIsEditing(false);
-            
+
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to update profile');
@@ -175,14 +229,14 @@ const ProfilePage = () => {
                                 {isEditing ? 'Save' : 'Edit'}
                             </button>
                         </div>
-                        
+
                         {error && (
                             <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm">
                                 <AlertCircle className="w-4 h-4" />
                                 {error}
                             </div>
                         )}
-                        
+
                         {successMessage && (
                             <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
                                 <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
@@ -195,7 +249,7 @@ const ProfilePage = () => {
                                 {isEditing ? (
                                     <input
                                         type="text"
-                                        value={profile.name}
+                                        value={profile.name || ''}
                                         onChange={(e) => handleProfileChange('name', e.target.value)}
                                         className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
                                         style={{
@@ -205,8 +259,8 @@ const ProfilePage = () => {
                                         }}
                                     />
                                 ) : (
-                                    <p className="p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}>
-                                        {profile.name}
+                                    <p className="p-3 rounded-lg min-h-[46px] flex items-center" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}>
+                                        {profile.name || 'Not specified'}
                                     </p>
                                 )}
                             </div>
@@ -215,7 +269,7 @@ const ProfilePage = () => {
                                 {isEditing ? (
                                     <input
                                         type="email"
-                                        value={profile.email}
+                                        value={profile.email || ''}
                                         onChange={(e) => handleProfileChange('email', e.target.value)}
                                         className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
                                         style={{
@@ -225,8 +279,8 @@ const ProfilePage = () => {
                                         }}
                                     />
                                 ) : (
-                                    <p className="p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}>
-                                        {profile.email}
+                                    <p className="p-3 rounded-lg min-h-[46px] flex items-center" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}>
+                                        {profile.email || 'Not specified'}
                                     </p>
                                 )}
                             </div>
@@ -234,7 +288,7 @@ const ProfilePage = () => {
                                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Bio</label>
                                 {isEditing ? (
                                     <textarea
-                                        value={profile.bio}
+                                        value={profile.bio || ''}
                                         onChange={(e) => handleProfileChange('bio', e.target.value)}
                                         rows={4}
                                         className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
@@ -245,8 +299,8 @@ const ProfilePage = () => {
                                         }}
                                     />
                                 ) : (
-                                    <p className="p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}>
-                                        {profile.bio}
+                                    <p className="p-3 rounded-lg min-h-[46px] flex items-center" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}>
+                                        {profile.bio || 'No bio provided'}
                                     </p>
                                 )}
                             </div>
@@ -358,61 +412,6 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
-                    <div className="p-6 rounded-2xl shadow-sm border"
-                        style={{
-                            backgroundColor: 'var(--card-bg)',
-                            borderColor: 'var(--card-border)'
-                        }}
-                    >
-                        <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Stats</h3>
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <span style={{ color: 'var(--text-secondary)' }}>Total Sessions</span>
-                                <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{profile.totalSessions}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span style={{ color: 'var(--text-secondary)' }}>Average Rating</span>
-                                <span className="font-bold text-yellow-600">★ {profile.averageRating}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span style={{ color: 'var(--text-secondary)' }}>Hours Completed</span>
-                                <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{profile.completedHours}h</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span style={{ color: 'var(--text-secondary)' }}>Member Since</span>
-                                <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{profile.joinedDate}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="p-6 rounded-2xl shadow-sm border"
-                        style={{
-                            backgroundColor: 'var(--card-bg)',
-                            borderColor: 'var(--card-border)'
-                        }}
-                    >
-                        <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Account Actions</h3>
-                        <div className="space-y-3">
-                            <button className="w-full text-left p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                <div className="flex items-center justify-between">
-                                    <span style={{ color: 'var(--text-primary)' }}>Privacy Settings</span>
-                                    <ChevronRight className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
-                                </div>
-                            </button>
-                            <button className="w-full text-left p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                <div className="flex items-center justify-between">
-                                    <span style={{ color: 'var(--text-primary)' }}>Notification Preferences</span>
-                                    <ChevronRight className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
-                                </div>
-                            </button>
-                            <button className="w-full text-left p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                <div className="flex items-center justify-between">
-                                    <span style={{ color: 'var(--text-primary)' }}>Download Data</span>
-                                    <ChevronRight className="w-4 h-4" style={{ color: 'var(--text-secondary)' }} />
-                                </div>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

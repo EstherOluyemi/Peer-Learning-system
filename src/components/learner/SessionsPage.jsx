@@ -226,6 +226,22 @@ const SessionsPage = () => {
         { upcoming: 0, completed: 0, workshops: 0, oneOnOne: 0 }
     );
 
+    const totalHours = sessions.reduce((acc, session) => {
+        if (!session.startTime || !session.endTime || session.status !== 'completed') return acc;
+        const start = new Date(session.startTime).getTime();
+        const end = new Date(session.endTime).getTime();
+        if (isNaN(start) || isNaN(end)) return acc;
+        // Convert milliseconds to hours
+        return acc + Math.max(0, (end - start) / (1000 * 60 * 60));
+    }, 0);
+
+    const formattedHours = totalHours > 0 ? (totalHours % 1 === 0 ? totalHours : totalHours.toFixed(1)) : 0;
+
+    const ratedSessions = Object.values(sessionRatings).filter(r => r && r.rating > 0);
+    const averageRating = ratedSessions.length > 0
+        ? (ratedSessions.reduce((acc, r) => acc + r.rating, 0) / ratedSessions.length).toFixed(1)
+        : 'N/A';
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -664,11 +680,11 @@ const SessionsPage = () => {
                             </div>
                             <div className="flex justify-between items-center">
                                 <span style={{ color: 'var(--text-secondary)' }}>Average Rating</span>
-                                <span className="font-bold text-yellow-600">4.8</span>
+                                <span className="font-bold text-yellow-600">{averageRating}</span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span style={{ color: 'var(--text-secondary)' }}>Total Hours</span>
-                                <span className="font-bold" style={{ color: 'var(--text-primary)' }}>24</span>
+                                <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{formattedHours}</span>
                             </div>
                         </div>
                     </div>
@@ -872,8 +888,8 @@ const SessionsPage = () => {
                                 }}
                                 disabled={selectedSession.status === 'completed' || leavingSessionId === (selectedSession._id || selectedSession.id)}
                                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedSession.status === 'completed'
-                                        ? 'bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500 cursor-not-allowed opacity-60'
-                                        : 'bg-red-600 hover:bg-red-700 text-white disabled:opacity-50'
+                                    ? 'bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500 cursor-not-allowed opacity-60'
+                                    : 'bg-red-600 hover:bg-red-700 text-white disabled:opacity-50'
                                     }`}
                             >
                                 {leavingSessionId === (selectedSession._id || selectedSession.id) ? 'Leaving...' : 'Leave Session'}

@@ -103,14 +103,14 @@ const BrowseSessionsPage = () => {
             setJoiningId(sessionId);
             setError(null);
             const response = await api.post(`/v1/learner/sessions/${sessionId}/join`);
-            
+
             // Update enrolled sessions list
             setEnrolledSessions((prev) => (prev.includes(sessionId) ? prev : [...prev, sessionId]));
             setSuccessMessage('Successfully enrolled in the session!');
             setShowEnrollModal(false);
 
             await fetchData();
-            
+
             setTimeout(() => {
                 setSuccessMessage('');
             }, 3000);
@@ -146,9 +146,25 @@ const BrowseSessionsPage = () => {
     };
 
     const getAvailabilityStatus = (session) => {
+        let isPast = false;
+        if (session.startTime) {
+            const end = new Date(session.endTime || new Date(new Date(session.startTime).getTime() + (session.duration || 60) * 60000));
+            if (end < new Date()) {
+                isPast = true;
+            }
+        }
+
+        if (session.status === 'completed' || isPast) {
+            return { status: 'Completed', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' };
+        }
+
+        if (session.status === 'cancelled') {
+            return { status: 'Cancelled', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' };
+        }
+
         const currentStudents = session.studentIds?.length || 0;
         const spotsLeft = session.maxParticipants - currentStudents;
-        
+
         if (spotsLeft <= 0) {
             return { status: 'Full', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' };
         } else if (spotsLeft <= 2) {
@@ -184,7 +200,7 @@ const BrowseSessionsPage = () => {
                 <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
                     <AlertCircle className="w-5 h-5 shrink-0" />
                     <p className="text-sm font-medium">{error}</p>
-                    <button 
+                    <button
                         onClick={() => window.location.reload()}
                         className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline"
                     >
@@ -409,7 +425,7 @@ const BrowseSessionsPage = () => {
                                                         <Info className="w-4 h-4 inline mr-1" />
                                                         Details
                                                     </button>
-                                                    
+
                                                     {enrolled ? (
                                                         <button
                                                             className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 text-sm font-medium cursor-default"
@@ -419,15 +435,14 @@ const BrowseSessionsPage = () => {
                                                     ) : (
                                                         <button
                                                             onClick={() => handleEnrollAction(session)}
-                                                            disabled={joiningId === sessionId}
-                                                            aria-disabled={isFull}
-                                                            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-                                                                isFull
+                                                            disabled={joiningId === sessionId || isFull || availability.status === 'Completed' || availability.status === 'Cancelled'}
+                                                            aria-disabled={isFull || availability.status === 'Completed' || availability.status === 'Cancelled'}
+                                                            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${(isFull || availability.status === 'Completed' || availability.status === 'Cancelled')
                                                                     ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                                     : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 active:scale-95'
-                                                            }`}
+                                                                }`}
                                                         >
-                                                            {joiningId === sessionId ? 'Enrolling...' : isFull ? 'Full' : 'Enroll Now'}
+                                                            {joiningId === sessionId ? 'Enrolling...' : isFull ? 'Full' : availability.status === 'Completed' ? 'Completed' : availability.status === 'Cancelled' ? 'Cancelled' : 'Enroll Now'}
                                                         </button>
                                                     )}
                                                 </div>
@@ -637,20 +652,23 @@ const BrowseSessionsPage = () => {
                                     setShowDetailsModal(false);
                                     openEnrollModal(selectedSession);
                                 }}
-                                disabled={isEnrolled(selectedSession._id || selectedSession.id)}
-                                className={`w-full py-3 rounded-lg font-bold transition-all ${
-                                    isEnrolled(selectedSession._id || selectedSession.id)
+                                disabled={isEnrolled(selectedSession._id || selectedSession.id) || getAvailabilityStatus(selectedSession).status === 'Completed' || getAvailabilityStatus(selectedSession).status === 'Cancelled'}
+                                className={`w-full py-3 rounded-lg font-bold transition-all ${isEnrolled(selectedSession._id || selectedSession.id)
                                         ? 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 cursor-default'
-                                        : getAvailabilityStatus(selectedSession).status === 'Full'
-                                        ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                                }`}
+                                        : getAvailabilityStatus(selectedSession).status === 'Full' || getAvailabilityStatus(selectedSession).status === 'Completed' || getAvailabilityStatus(selectedSession).status === 'Cancelled'
+                                            ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
+                                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    }`}
                             >
                                 {isEnrolled(selectedSession._id || selectedSession.id)
                                     ? 'Already Enrolled'
                                     : getAvailabilityStatus(selectedSession).status === 'Full'
-                                    ? 'Session is Full'
-                                    : 'Enroll in This Session'}
+                                        ? 'Session is Full'
+                                        : getAvailabilityStatus(selectedSession).status === 'Completed'
+                                            ? 'Session Completed'
+                                            : getAvailabilityStatus(selectedSession).status === 'Cancelled'
+                                                ? 'Session Cancelled'
+                                                : 'Enroll in This Session'}
                             </button>
                         </div>
                     </div>
