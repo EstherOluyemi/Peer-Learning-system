@@ -4,7 +4,7 @@ import {
     Settings, User, Mail, Lock, Bell, CreditCard, Globe,
     Calendar, Clock, Shield, Eye, EyeOff, Save, Edit, Upload,
     TrendingUp, TrendingDown, MessageSquare, Star, Users,
-    AlertCircle, Loader2
+    AlertCircle, Loader2, ChevronRight, Download, Trash2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -61,7 +61,7 @@ const SettingsPage = () => {
         try {
             setSaving(true);
             setError(null);
-            
+
             const response = await api.patch('/v1/learner/me', {
                 name: profile.name,
                 bio: profile.bio,
@@ -69,10 +69,10 @@ const SettingsPage = () => {
                 university: profile.university,
                 year: profile.year
             });
-            
+
             updateUser(response.data.user);
             setSuccessMessage('Profile updated successfully!');
-            
+
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to update profile');
@@ -102,14 +102,14 @@ const SettingsPage = () => {
                 }}
             >
                 <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Profile Information</h3>
-                
+
                 {error && (
                     <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm">
                         <AlertCircle className="w-4 h-4" />
                         {error}
                     </div>
                 )}
-                
+
                 {successMessage && (
                     <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
                         <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
@@ -240,7 +240,7 @@ const SettingsPage = () => {
                     </div>
                 </div>
                 <div className="mt-6 flex justify-end border-t pt-6" style={{ borderColor: 'var(--card-border)' }}>
-                    <button 
+                    <button
                         onClick={handleSaveProfile}
                         disabled={saving}
                         className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
@@ -772,8 +772,8 @@ const SettingsPage = () => {
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
                                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${activeTab === tab.id
-                                                ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
-                                                : 'hover:bg-slate-50 dark:hover:bg-slate-800'
+                                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
+                                            : 'hover:bg-slate-50 dark:hover:bg-slate-800'
                                             }`}
                                     >
                                         <Icon className="w-5 h-5" />
