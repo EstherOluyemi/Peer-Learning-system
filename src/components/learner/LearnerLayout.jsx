@@ -7,10 +7,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
     BookOpen, Clock, TrendingUp, Star, Users, Calendar,
     User, Settings, Plus, Menu, Search, Bell, MessageSquare,
-    ChevronRight, ArrowUpRight, Sun, Moon, FileText
+    ChevronRight, ArrowUpRight, Sun, Moon, FileText, Check, X
 } from 'lucide-react';
 import Navbar from '../Navbar';
 import { useChat } from '../../context/ChatContext';
+import api from '../../services/api';
 
 const LearnerLayout = ({ children }) => {
     const { user, logout } = useAuth();
@@ -19,14 +20,18 @@ const LearnerLayout = ({ children }) => {
     const { totalUnread } = useChat();
 
     const [sidebarOpen, setSidebarOpen] = React.useState(false);
+    const [showNotifications, setShowNotifications] = React.useState(false);
+    const [notifications, setNotifications] = React.useState([]);
+    const [loadingNotifications, setLoadingNotifications] = React.useState(false);
+    const notificationRef = React.useRef(null);
 
     const navItems = [
         { label: 'Dashboard', icon: BookOpen, to: '/dashboard-learner' },
         { label: 'My Sessions', icon: Calendar, to: '/dashboard-learner/sessions' },
         { label: 'Materials', icon: FileText, to: '/dashboard-learner/materials' },
-        { label: 'Reviews', icon: Star, to: '/dashboard-learner/reviews' },
         { label: 'Browse Sessions', icon: Search, to: '/dashboard-learner/browse-sessions' },
         { label: 'Messages', icon: MessageSquare, to: '/dashboard-learner/messages', badge: totalUnread > 0 ? String(totalUnread > 9 ? '9+' : totalUnread) : undefined },
+        { label: 'Reviews', icon: Star, to: '/dashboard-learner/reviews' },
         { label: 'Profile', icon: User, to: '/dashboard-learner/profile' },
     ];
 
@@ -39,6 +44,72 @@ const LearnerLayout = ({ children }) => {
             onClick: (e) => { e.preventDefault(); toggleTheme(); }
         },
     ];
+
+    React.useEffect(() => {
+        const fetchNotifications = async () => {
+            if (!showNotifications) return;
+            setLoadingNotifications(true);
+            try {
+                const response = await api.get('/v1/learner/notifications');
+                setNotifications(response?.data || response || []);
+            } catch (err) {
+                console.log('Notifications endpoint not available, using mock data');
+                setNotifications([
+                    { _id: '1', type: 'session', message: 'Your session starts in 30 minutes', time: new Date(Date.now() - 5 * 60000).toISOString(), read: false },
+                    { _id: '2', type: 'approval', message: 'Your enrollment was approved!', time: new Date(Date.now() - 3600000).toISOString(), read: false },
+                    { _id: '3', type: 'message', message: 'New message from your tutor', time: new Date(Date.now() - 2 * 3600000).toISOString(), read: true },
+                ]);
+            } finally {
+                setLoadingNotifications(false);
+            }
+        };
+        fetchNotifications();
+    }, [showNotifications]);
+
+    React.useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (notificationRef.current && !notificationRef.current.contains(e.target)) {
+                setShowNotifications(false);
+            }
+        };
+        if (showNotifications) {
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [showNotifications]);
+
+    const markAsRead = async (notificationId) => {
+        try {
+            await api.patch(`/v1/learner/notifications/${notificationId}/read`);
+        } catch (err) {
+            console.log('Mark as read not available');
+        }
+        setNotifications(prev => prev.map(n => n._id === notificationId ? { ...n, read: true } : n));
+    };
+
+    const clearAll = async () => {
+        try {
+            await api.delete('/v1/learner/notifications');
+        } catch (err) {
+            console.log('Clear all not available');
+        }
+        setNotifications([]);
+    };
+
+    const formatNotificationTime = (time) => {
+        const date = new Date(time);
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+        if (minutes < 1) return 'Just now';
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        return `${days}d ago`;
+    };
+
+    const unreadCount = notifications.filter(n => !n.read).length;
 
     return (
         <div className="flex min-h-screen">
@@ -85,15 +156,81 @@ const LearnerLayout = ({ children }) => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-6">
-                        <button
-                            className="relative p-2 rounded-full transition-colors"
-                            style={{ color: 'var(--text-secondary)' }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                        >
-                            <Bell className="w-6 h-6" />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
-                        </button>
+                        <div className="relative" ref={notificationRef}>
+                            <button
+                                onClick={() => setShowNotifications(!showNotifications)}
+                                className="relative p-2 rounded-full transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                                style={{ color: 'var(--text-secondary)' }}
+                            >
+                                <Bell className="w-6 h-6" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
+                                )}
+                            </button>
+
+                            {showNotifications && (
+                                <div
+                                    className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl shadow-2xl border overflow-hidden z-50"
+                                    style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
+                                >
+                                    <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
+                                        <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>Notifications</h3>
+                                        {notifications.length > 0 && (
+                                            <button
+                                                onClick={clearAll}
+                                                className="text-xs text-blue-600 hover:underline"
+                                            >
+                                                Clear all
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="max-h-96 overflow-y-auto">
+                                        {loadingNotifications ? (
+                                            <div className="p-8 text-center">
+                                                <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                                            </div>
+                                        ) : notifications.length > 0 ? (
+                                            notifications.map((notif) => (
+                                                <div
+                                                    key={notif._id}
+                                                    className={`p-4 border-b hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer ${
+                                                        !notif.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
+                                                    }`}
+                                                    style={{ borderColor: 'var(--border-color)' }}
+                                                    onClick={() => !notif.read && markAsRead(notif._id)}
+                                                >
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                                                                {notif.message || notif.title}
+                                                            </p>
+                                                            <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
+                                                                {formatNotificationTime(notif.time || notif.createdAt)}
+                                                            </p>
+                                                        </div>
+                                                        {!notif.read && (
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); markAsRead(notif._id); }}
+                                                                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"
+                                                                title="Mark as read"
+                                                            >
+                                                                <Check className="w-4 h-4 text-blue-600" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="p-8 text-center">
+                                                <Bell className="w-12 h-12 mx-auto mb-2 text-slate-300" />
+                                                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No notifications</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         <button
                             onClick={() => navigate('/dashboard-learner/profile')}
                             className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"

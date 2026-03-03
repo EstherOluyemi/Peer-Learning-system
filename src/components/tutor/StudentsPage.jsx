@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Users, Search, MessageSquare, Calendar,
   ChevronLeft, ChevronRight, Eye, UserPlus, AlertCircle,
-  BookOpen, Clock, CheckCircle, X, Video
+  BookOpen, Clock, CheckCircle, X, Video, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -54,11 +54,45 @@ const StudentsPage = () => {
   const [error, setError] = useState(null);
   const [detailStudent, setDetailStudent] = useState(null);
   const [completingSession, setCompletingSession] = useState(null); // sessionId being completed
+  const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+  const [addStudentQuery, setAddStudentQuery] = useState('');
+  const [candidateStudents, setCandidateStudents] = useState([]);
+  const [searchingCandidates, setSearchingCandidates] = useState(false);
+  const [addStudentError, setAddStudentError] = useState(null);
+  const [addingStudentId, setAddingStudentId] = useState(null);
+  const [addStudentSuccess, setAddStudentSuccess] = useState(null);
   const navigate = useNavigate();
   const itemsPerPage = 8;
 
   // Derived unique sessions list from all student sessions for the filter dropdown
   const [allSessions, setAllSessions] = useState([]);
+
+  const buildAllSessions = (studentList) => {
+    const sessMap = {};
+    studentList.forEach(student =>
+      (student.sessions || []).forEach(s => {
+        if (s.sessionId && !sessMap[s.sessionId]) sessMap[s.sessionId] = s;
+      })
+    );
+    return Object.values(sessMap);
+  };
+
+  const normalizeStudentRecord = (value) => {
+    if (!value || typeof value !== 'object') return null;
+    const id = value._id || value.id || value.userId || value.learnerId;
+    if (!id) return null;
+    return {
+      ...value,
+      _id: id,
+      name: value.name || value.fullName || 'Student',
+      email: value.email || value.username || '',
+      avatar: value.avatar || value.profileImage || value.photoUrl || null,
+      sessions: Array.isArray(value.sessions) ? value.sessions : [],
+      upcomingSessions: value.upcomingSessions || 0,
+      completedSessions: value.completedSessions || 0,
+      totalSessions: value.totalSessions || 0,
+    };
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,15 +102,6 @@ const StudentsPage = () => {
         const list = Array.isArray(raw) ? raw
           : Array.isArray(raw?.data) ? raw.data
             : [];
-
-        // Build a deduplicated session list from all students' sessions
-        const sessMap = {};
-        list.forEach(student =>
-          (student.sessions || []).forEach(s => {
-            if (s.sessionId && !sessMap[s.sessionId]) sessMap[s.sessionId] = s;
-          })
-        );
-        setAllSessions(Object.values(sessMap));
 
         // ── Auto-complete sessions whose endTime has already passed ──
         const now = new Date();
@@ -116,12 +141,16 @@ const StudentsPage = () => {
                   upcomingSessions: Math.max(0, (student.upcomingSessions || 0) - nowCompleted),
                 };
               });
-            setStudents(applyPatch(list));
+            const patchedList = applyPatch(list);
+            setStudents(patchedList);
+            setAllSessions(buildAllSessions(patchedList));
           } else {
             setStudents(list);
+            setAllSessions(buildAllSessions(list));
           }
         } else {
           setStudents(list);
+          setAllSessions(buildAllSessions(list));
         }
       } catch (err) {
         setError('Failed to fetch students. Please try again.');
@@ -194,6 +223,107 @@ const StudentsPage = () => {
     }
   };
 
+  const searchCandidateStudents = async (query) => {
+    const term = query.trim();
+
+    setSearchingCandidates(true);
+    setAddStudentError(null);
+
+    try {
+      const endpoint = term
+        ? `/v1/tutor/students/available?query=${encodeURIComponent(term)}`
+        : '/v1/tutor/students/available';
+
+      const raw = await api.get(endpoint);
+      const resultList = Array.isArray(raw)
+        ? raw
+        : Array.isArray(raw?.data)
+          ? raw.data
+          : Array.isArray(raw?.students)
+            ? raw.students
+            : [];
+
+      const existingIds = new Set(students.map(s => s._id));
+      const available = resultList
+        .map(normalizeStudentRecord)
+        .filter(Boolean)
+        .filter(s => !existingIds.has(s._id));
+
+      setCandidateStudents(available);
+      setAddStudentError(null);
+    } catch (err) {
+      console.error('Failed to fetch available students:', {
+        status: err?.status,
+        code: err?.code,
+        message: err?.message,
+        payload: err?.payload,
+      });
+      if (err?.status === 404) {
+        setAddStudentError('Backend endpoint not found. Please check with your administrator.');
+      } else {
+        const errorMsg = err?.message || 'Unable to load students right now. Please try again.';
+        setAddStudentError(errorMsg);
+      }
+      setCandidateStudents([]);
+    } finally {
+      setSearchingCandidates(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isAddStudentOpen) return;
+    const timeoutId = setTimeout(() => {
+      searchCandidateStudents(addStudentQuery);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [addStudentQuery, isAddStudentOpen, students]);
+
+  const handleAddStudent = async (student) => {
+    if (!student?._id || addingStudentId === student._id) return;
+
+    setAddingStudentId(student._id);
+    setAddStudentError(null);
+
+    try {
+      const raw = await api.post('/v1/tutor/students', { studentId: student._id });
+      const candidate = normalizeStudentRecord(raw?.student || raw?.data?.student || raw?.data || raw);
+      const addedStudent = candidate || {
+        ...student,
+        sessions: [],
+        upcomingSessions: 0,
+        completedSessions: 0,
+        totalSessions: 0,
+      };
+
+      setStudents(prev => {
+        if (prev.some(s => s._id === addedStudent._id)) return prev;
+        const next = [addedStudent, ...prev];
+        setAllSessions(buildAllSessions(next));
+        return next;
+      });
+      setCandidateStudents(prev => prev.filter(s => s._id !== addedStudent._id));
+      setAddStudentSuccess(`${addedStudent.name} added successfully.`);
+      setAddingStudentId(null);
+    } catch (err) {
+      console.error('Failed to add student:', err);
+      if (err?.status === 404) {
+        setAddStudentError('Student does not exist.');
+      } else if (err?.status === 409) {
+        setAddStudentError('Student is already added.');
+      } else {
+        setAddStudentError(err?.message || 'Could not add student. Please try again.');
+      }
+      setAddingStudentId(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!addStudentSuccess) return undefined;
+    const timeoutId = setTimeout(() => setAddStudentSuccess(null), 3000);
+    return () => clearTimeout(timeoutId);
+  }, [addStudentSuccess]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -213,6 +343,13 @@ const StudentsPage = () => {
         </div>
       )}
 
+      {addStudentSuccess && (
+        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center gap-3 text-emerald-700 dark:text-emerald-400">
+          <CheckCircle className="w-5 h-5 shrink-0" />
+          <p className="text-sm font-medium">{addStudentSuccess}</p>
+        </div>
+      )}
+
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -220,11 +357,17 @@ const StudentsPage = () => {
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your students and track their progress.</p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+          <button
+            onClick={() => {
+              setIsAddStudentOpen(true);
+              setAddStudentQuery('');
+              setCandidateStudents([]);
+              setAddStudentError(null);
+              setSearchingCandidates(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95"
+          >
             <UserPlus className="w-5 h-5" /> Add Student
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl font-medium transition-all">
-            <MessageSquare className="w-5 h-5" /> Bulk Message
           </button>
         </div>
       </div>
@@ -405,6 +548,105 @@ const StudentsPage = () => {
       </div>
 
       {/* ══ Student Detail Modal ══ */}
+      {isAddStudentOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            setIsAddStudentOpen(false);
+            setAddStudentError(null);
+            setAddingStudentId(null);
+          }}
+        >
+          <div
+            className="w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden"
+            style={{ backgroundColor: 'var(--card-bg)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="px-6 py-5 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
+              <div>
+                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Add Student</h3>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Search learners and add them to your students list.</p>
+              </div>
+              <button
+                onClick={() => {
+                  setIsAddStudentOpen(false);
+                  setAddStudentError(null);
+                  setAddingStudentId(null);
+                }}
+                className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+                <input
+                  type="text"
+                  value={addStudentQuery}
+                  onChange={(e) => setAddStudentQuery(e.target.value)}
+                  placeholder="Search by name or email..."
+                  className="w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                  style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--input-text)' }}
+                />
+              </div>
+
+              {addStudentError && (
+                <div className="p-3 rounded-lg border text-sm bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
+                  {addStudentError}
+                </div>
+              )}
+
+              <div className="max-h-72 overflow-y-auto border rounded-xl" style={{ borderColor: 'var(--card-border)' }}>
+                {searchingCandidates ? (
+                  <div className="p-6 flex items-center justify-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Searching...
+                  </div>
+                ) : candidateStudents.length > 0 ? (
+                  <div className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
+                    {candidateStudents.map((student) => (
+                      <div key={student._id} className="p-3 flex items-center gap-3">
+                        <Avatar name={student.name} avatar={student.avatar} size="w-10 h-10" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{student.name}</p>
+                          <p className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>{student.email || 'No email'}</p>
+                        </div>
+                        <button
+                          onClick={() => handleAddStudent(student)}
+                          disabled={addingStudentId === student._id}
+                          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white transition-colors"
+                        >
+                          {addingStudentId === student._id ? 'Adding…' : 'Add'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="p-4 text-sm text-center" style={{ color: 'var(--text-secondary)' }}>
+                    {addStudentQuery.trim() ? 'Student does not exist.' : 'No available students found.'}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t flex justify-end" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
+              <button
+                onClick={() => {
+                  setIsAddStudentOpen(false);
+                  setAddStudentError(null);
+                  setAddingStudentId(null);
+                }}
+                className="px-4 py-2 rounded-lg border font-medium transition-colors"
+                style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {detailStudent && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
