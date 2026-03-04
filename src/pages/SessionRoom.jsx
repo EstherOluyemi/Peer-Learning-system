@@ -129,7 +129,8 @@ const SessionRoom = () => {
   const participantAllowed = useMemo(() => isSessionParticipant(session, user), [session, user]);
   const sessionActive = useMemo(() => isSessionActive(session), [session]);
   const sessionEnded = useMemo(() => isSessionEnded(session), [session]);
-  const chatEnabled = participantAllowed && sessionActive && !sessionEnded;
+  // Chat is always available for participants (persistent group chat per session)
+  const chatEnabled = participantAllowed;
 
   useEffect(() => {
     if (!sessionId) return;
@@ -185,7 +186,7 @@ const SessionRoom = () => {
 
   // Load chat messages from backend
   useEffect(() => {
-    if (!sessionId || !chatEnabled) {
+    if (!sessionId || !participantAllowed) {
       setChatMessages([]);
       return;
     }
@@ -203,12 +204,11 @@ const SessionRoom = () => {
       }
     };
     loadChat();
-  }, [sessionId, chatEnabled]);
+  }, [sessionId, participantAllowed]);
 
   // WebSocket for real-time chat updates
-
   useEffect(() => {
-    if (!chatEnabled || !chatSocketBase || !sessionId) {
+    if (!participantAllowed || !chatSocketBase || !sessionId) {
       if (socketRef.current) {
         socketRef.current.close();
         socketRef.current = null;
@@ -248,7 +248,7 @@ const SessionRoom = () => {
     return () => {
       socket.close();
     };
-  }, [chatEnabled, chatSocketBase, sessionId]);
+  }, [participantAllowed, chatSocketBase, sessionId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -489,13 +489,11 @@ const SessionRoom = () => {
             <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Live Chat</h2>
+                <div>
+                  <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Group Chat</h2>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>All {session?.studentIds?.length || 0} participants</p>
+                </div>
               </div>
-              {sessionActive && (
-                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${chatEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                  {chatEnabled ? 'Active' : 'Inactive'}
-                </span>
-              )}
             </div>
             {chatError && (
               <div className="px-4 py-3 text-sm text-red-600 bg-red-50 border-b border-red-200 flex items-center gap-2">
@@ -505,7 +503,7 @@ const SessionRoom = () => {
             )}
             {!chatEnabled && (
               <div className="px-4 py-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Chat is available while the session is live.
+                You must be enrolled in this session to chat.
               </div>
             )}
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
