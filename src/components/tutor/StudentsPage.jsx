@@ -3,13 +3,19 @@ import React, { useState, useEffect } from 'react';
 import {
   Users, Search, MessageSquare, Calendar,
   ChevronLeft, ChevronRight, Eye, UserPlus, AlertCircle,
-  BookOpen, Clock, CheckCircle, X, Video, Loader2
+  BookOpen, Clock, CheckCircle, X, Video, Loader2, Trash2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { updateSession } from '../../services/sessionService';
 
 /* ─── helpers ─────────────────────────────────────────────────────── */
+const normalizeId = (value) => {
+  if (!value) return null;
+  if (typeof value === 'object') return value._id || value.id || value.userId || null;
+  return value;
+};
+
 const formatDate = (d) => {
   if (!d) return '—';
   try {
@@ -61,6 +67,9 @@ const StudentsPage = () => {
   const [addStudentError, setAddStudentError] = useState(null);
   const [addingStudentId, setAddingStudentId] = useState(null);
   const [addStudentSuccess, setAddStudentSuccess] = useState(null);
+  const [tutorSessions, setTutorSessions] = useState([]);
+  const [selectedSessionId, setSelectedSessionId] = useState('');
+  const [removingStudentSession, setRemovingStudentSession] = useState(null); // "studentId-sessionId"
   const navigate = useNavigate();
   const itemsPerPage = 8;
 
@@ -163,6 +172,24 @@ const StudentsPage = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchTutorSessions = async () => {
+      try {
+        const raw = await api.get('/v1/tutor/sessions');
+        const payload = raw?.data || raw;
+        const list = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+            ? payload.data
+            : [];
+        setTutorSessions(list);
+      } catch (err) {
+        console.error('Failed to fetch tutor sessions for student assignment:', err);
+      }
+    };
+    fetchTutorSessions();
+  }, []);
+
   /* ── filtering ── */
   const filteredStudents = students.filter(student => {
     const matchesSearch =
@@ -224,7 +251,78 @@ const StudentsPage = () => {
     }
   };
 
+  /* ── remove student from session ── */
+  const handleRemoveStudentFromSession = async (studentId, sessionId) => {
+    if (!studentId || !sessionId) return;
+    const trackingId = `${studentId}-${sessionId}`;
+    if (removingStudentSession === trackingId) return;
+
+    setRemovingStudentSession(trackingId);
+
+    try {
+      // Try multiple endpoint variants (tutor and learner endpoints)
+      const endpoints = [
+        `/v1/tutor/sessions/${sessionId}/students/${studentId}`,
+        `/v1/tutor/sessions/${sessionId}/students/remove`,
+        `/v1/tutor/sessions/${sessionId}/unenroll/${studentId}`,
+        `/v1/learner/sessions/${sessionId}/unenroll`,
+      ];
+
+      let lastError = null;
+      for (const endpoint of endpoints) {
+        try {
+          const response = await api.delete(endpoint);
+          if (response?.status === 200 || response?.data?.success) {
+            // Success: remove from local state
+            const patchStudent = (student) => ({
+              ...student,
+              sessions: (student.sessions || []).filter(s => s.sessionId !== sessionId),
+              totalSessions: Math.max(0, (student.totalSessions || 0) - 1),
+              upcomingSessions: Math.max(0, (student.upcomingSessions || 0) - 1),
+            });
+            setStudents(prev => prev.map(patchStudent));
+            setDetailStudent(prev => prev ? patchStudent(prev) : null);
+            
+            // Also update tutorSessions to remove this studentId
+            setTutorSessions(prev =>
+              prev.map(sess =>
+                sess.sessionId === sessionId || (sess._id || sess.id) === sessionId
+                  ? {
+                      ...sess,
+                      studentIds: (sess.studentIds || []).filter(id => normalizeId(id) !== studentId),
+                    }
+                  : sess
+              )
+            );
+            return; // Exit on first success
+          }
+        } catch (err) {
+          lastError = err;
+          const status = err?.response?.status || err?.status;
+          // Continue to next endpoint on 404/405
+          if (![404, 405].includes(status)) {
+            throw err; // Re-throw on other errors
+          }
+        }
+      }
+
+      // If all endpoints failed, throw the last error
+      if (lastError) throw lastError;
+    } catch (err) {
+      console.error('Failed to remove student from session:', err);
+      alert('Could not remove student from session. Please try again.');
+    } finally {
+      setRemovingStudentSession(null);
+    }
+  };
+
   const searchCandidateStudents = async (query) => {
+    if (!selectedSessionId) {
+      setCandidateStudents([]);
+      setSearchingCandidates(false);
+      return;
+    }
+
     const term = query.trim();
 
     setSearchingCandidates(true);
@@ -248,13 +346,14 @@ const StudentsPage = () => {
             ? payload.data
             : [];
 
-      const existingIds = new Set(students.map((s) => s._id));
+      const selectedSession = tutorSessions.find((session) => (session._id || session.id) === selectedSessionId);
+      const enrolledIds = new Set(((selectedSession?.studentIds || []).map(normalizeId)).filter(Boolean));
       const candidates = resultList
         .map(normalizeStudentRecord)
         .filter(Boolean)
         .map((student) => ({
           ...student,
-          isAdded: student.isAdded || existingIds.has(student._id),
+          isAdded: student.isAdded || enrolledIds.has(student._id),
         }));
 
       setCandidateStudents(candidates);
@@ -285,37 +384,103 @@ const StudentsPage = () => {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [addStudentQuery, isAddStudentOpen, students]);
+  }, [addStudentQuery, isAddStudentOpen, selectedSessionId, tutorSessions]);
 
   const handleAddStudent = async (student) => {
-    if (!student?._id || addingStudentId === student._id || student.isAdded) return;
+    if (!student?._id || addingStudentId === student._id || student.isAdded || !selectedSessionId) return;
 
     setAddingStudentId(student._id);
     setAddStudentError(null);
 
     try {
-      const raw = await api.post('/v1/tutor/students/add', { studentId: student._id });
+      const endpoints = [
+        `/v1/tutor/sessions/${selectedSessionId}/students/add`,
+        `/v1/tutor/sessions/${selectedSessionId}/students`,
+        `/v1/tutor/sessions/${selectedSessionId}/add-student`,
+        `/v1/tutor/sessions/${selectedSessionId}/enrollments`
+      ];
+
+      let raw;
+      let lastError;
+      for (const endpoint of endpoints) {
+        try {
+          raw = await api.post(endpoint, { studentId: student._id });
+          break;
+        } catch (err) {
+          lastError = err;
+          const status = err?.status || err?.response?.status;
+          if (status === 404 || status === 405) continue;
+          throw err;
+        }
+      }
+
+      if (!raw) {
+        throw lastError || new Error('Session student assignment endpoint is not available.');
+      }
+
       const candidate = normalizeStudentRecord(raw?.student || raw?.data?.student || raw?.data || raw);
+      const selectedSession = tutorSessions.find((session) => (session._id || session.id) === selectedSessionId);
+      const newSessionEntry = {
+        sessionId: selectedSessionId,
+        title: selectedSession?.title || 'Session',
+        subject: selectedSession?.subject || '',
+        startTime: selectedSession?.startTime,
+        endTime: selectedSession?.endTime,
+        status: selectedSession?.status || 'scheduled',
+        meetingLink: selectedSession?.meetingLink,
+      };
       const addedStudent = candidate || {
         ...student,
-        sessions: [],
-        upcomingSessions: 0,
+        sessions: [newSessionEntry],
+        upcomingSessions: 1,
         completedSessions: 0,
-        totalSessions: 0,
+        totalSessions: 1,
       };
 
       setStudents(prev => {
-        if (prev.some(s => s._id === addedStudent._id)) return prev;
-        const next = [addedStudent, ...prev];
+        const existing = prev.find(s => s._id === addedStudent._id);
+        if (!existing) {
+          const next = [addedStudent, ...prev];
+          setAllSessions(buildAllSessions(next));
+          return next;
+        }
+
+        const alreadyInSession = (existing.sessions || []).some(s => s.sessionId === selectedSessionId);
+        if (alreadyInSession) return prev;
+
+        const nextSessions = [...(existing.sessions || []), newSessionEntry];
+        const completedSessions = nextSessions.filter((s) => (s.status || '').toLowerCase() === 'completed').length;
+        const upcomingSessions = nextSessions.filter((s) => {
+          const status = (s.status || '').toLowerCase();
+          return status !== 'completed' && status !== 'cancelled';
+        }).length;
+
+        const next = prev.map((item) => item._id === existing._id
+          ? {
+            ...item,
+            sessions: nextSessions,
+            completedSessions,
+            upcomingSessions,
+            totalSessions: nextSessions.length,
+          }
+          : item);
+
         setAllSessions(buildAllSessions(next));
         return next;
       });
+      setTutorSessions(prev => prev.map((session) => {
+        const currentId = session._id || session.id;
+        if (currentId !== selectedSessionId) return session;
+        const studentIds = Array.isArray(session.studentIds) ? session.studentIds : [];
+        if (studentIds.some((id) => normalizeId(id) === student._id)) return session;
+        return { ...session, studentIds: [...studentIds, student._id] };
+      }));
       setCandidateStudents(prev => prev.map(s =>
         s._id === addedStudent._id
           ? { ...s, isAdded: true }
           : s
       ));
-      setAddStudentSuccess(`${addedStudent.name} added successfully.`);
+      setAddStudentSuccess(`${addedStudent.name} added to ${selectedSession?.title || 'session'} successfully.`);
       setAddingStudentId(null);
     } catch (err) {
       console.error('Failed to add student:', err);
@@ -375,11 +540,12 @@ const StudentsPage = () => {
               setAddStudentQuery('');
               setCandidateStudents([]);
               setAddStudentError(null);
+              setSelectedSessionId('');
               setSearchingCandidates(true);
             }}
             className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95"
           >
-            <UserPlus className="w-5 h-5" /> Add Student
+            <UserPlus className="w-5 h-5" /> Add Student to Session
           </button>
         </div>
       </div>
@@ -576,8 +742,8 @@ const StudentsPage = () => {
           >
             <div className="px-6 py-5 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
               <div>
-                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Add Student</h3>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Search learners and add them to your students list.</p>
+                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Add Student to Session</h3>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Choose a session, then search and add a learner.</p>
               </div>
               <button
                 onClick={() => {
@@ -592,6 +758,29 @@ const StudentsPage = () => {
             </div>
 
             <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                  Select Session
+                </label>
+                <select
+                  value={selectedSessionId}
+                  onChange={(e) => {
+                    setSelectedSessionId(e.target.value);
+                    setCandidateStudents([]);
+                    setAddStudentError(null);
+                  }}
+                  className="w-full px-3 py-2.5 border rounded-lg text-sm"
+                  style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)' }}
+                >
+                  <option value="">Choose a session...</option>
+                  {tutorSessions.map((session) => (
+                    <option key={session._id || session.id} value={session._id || session.id}>
+                      {session.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
                 <input
@@ -599,6 +788,7 @@ const StudentsPage = () => {
                   value={addStudentQuery}
                   onChange={(e) => setAddStudentQuery(e.target.value)}
                   placeholder="Search by name or email..."
+                  disabled={!selectedSessionId}
                   className="w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                   style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--input-text)' }}
                 />
@@ -611,7 +801,11 @@ const StudentsPage = () => {
               )}
 
               <div className="max-h-72 overflow-y-auto border rounded-xl" style={{ borderColor: 'var(--card-border)' }}>
-                {searchingCandidates ? (
+                {!selectedSessionId ? (
+                  <p className="p-4 text-sm text-center" style={{ color: 'var(--text-secondary)' }}>
+                    Select a session to search learners.
+                  </p>
+                ) : searchingCandidates ? (
                   <div className="p-6 flex items-center justify-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
                     <Loader2 className="w-4 h-4 animate-spin" /> Searching...
                   </div>
@@ -760,6 +954,15 @@ const StudentsPage = () => {
                               {completingSession === s.sessionId ? 'Saving…' : 'Mark Complete'}
                             </button>
                           )}
+                        <button
+                          onClick={() => handleRemoveStudentFromSession(detailStudent._id, s.sessionId)}
+                          disabled={removingStudentSession === `${detailStudent._id}-${s.sessionId}`}
+                          title="Remove student from this session"
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          {removingStudentSession === `${detailStudent._id}-${s.sessionId}` ? 'Removing…' : 'Remove'}
+                        </button>
                       </div>
                     </div>
                   </div>

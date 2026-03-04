@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { normalizeSessionList } from '../services/sessionService';
+import socketService from '../services/socketService';
 import {
   BookOpen, Clock, TrendingUp, Star, Calendar,
   User, Search, Bell, ChevronRight, AlertCircle, Video, X, Users, Zap
@@ -167,6 +168,52 @@ const DashboardLearner = () => {
     }, 60000);
 
     return () => clearInterval(intervalId);
+  }, [user]);
+
+  // Listen for real-time session enrollment notifications
+  useEffect(() => {
+    if (!user || (user.role !== 'learner' && user.role !== 'student')) return;
+
+    const handleStudentAdded = (payload) => {
+      console.log('Real-time: Added to session', payload);
+      const newSession = payload?.session;
+      if (newSession) {
+        // Add new session to the list
+        setSessions(prev => {
+          const normalized = normalizeSessionList([...prev, newSession]);
+          updateSessionStats(normalized);
+          return normalized;
+        });
+        // Show success notification
+        setEnrollmentMessage(`You've been added to ${newSession.title || 'a session'}`);
+        setTimeout(() => setEnrollmentMessage(''), 5000);
+      }
+    };
+
+    const handleStudentRemoved = (payload) => {
+      console.log('Real-time: Removed from session', payload);
+      const removedSessionId = payload?.session?._id || payload?.session?.id || payload?.sessionId;
+      if (removedSessionId) {
+        // Remove session from the list
+        setSessions(prev => {
+          const filtered = prev.filter(s => (s._id || s.id) !== removedSessionId);
+          updateSessionStats(filtered);
+          return filtered;
+        });
+        setUpcomingSessions(prev => prev.filter(s => (s._id || s.id) !== removedSessionId));
+        // Show notification
+        setEnrollmentMessage(`You've been removed from ${payload?.session?.title || 'a session'}`);
+        setTimeout(() => setEnrollmentMessage(''), 5000);
+      }
+    };
+
+    const unsubscribeAdded = socketService.on('session:student-added', handleStudentAdded);
+    const unsubscribeRemoved = socketService.on('session:student-removed', handleStudentRemoved);
+
+    return () => {
+      unsubscribeAdded();
+      unsubscribeRemoved();
+    };
   }, [user]);
 
   const statCards = [

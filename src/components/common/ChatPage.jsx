@@ -7,7 +7,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
-import { getContacts, editMessage, addReaction } from '../../services/chatService';
+import { getContacts, editMessage, addReaction, removeReaction } from '../../services/chatService';
 import socketService from '../../services/socketService';
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
@@ -70,6 +70,7 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
     const [editText, setEditText] = useState('');
     const [reactionMenuMessageId, setReactionMenuMessageId] = useState(null);
     const [editingError, setEditingError] = useState('');
+    const [reactionError, setReactionError] = useState('');
     const [reactionEmojis] = useState(['👍', '❤️', '😂', '😮', '😢', '🎉', '👏', '🔥']);
     const typingTimer = useRef(null);
     const messagesEnd = useRef(null);
@@ -180,12 +181,24 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
     };
 
     // ── React to message ───────────────────────────────────────────────────────
-    const handleReaction = async (messageId, emoji) => {
+    const handleReaction = async (messageId, emoji, hasReacted = false) => {
+        const normalizedId = String(messageId || '');
+        if (!normalizedId || normalizedId.startsWith('temp-')) return;
+
+        setReactionError('');
         try {
-            await addReaction(messageId, emoji);
+            if (hasReacted) {
+                await removeReaction(normalizedId, emoji);
+            } else {
+                await addReaction(normalizedId, emoji);
+            }
+            if (activeConvId) {
+                await loadMessages(activeConvId);
+            }
             setReactionMenuMessageId(null);
         } catch (err) {
-            console.error('[chat] Failed to add reaction:', err);
+            setReactionError(err?.message || 'Failed to update reaction');
+            console.error('[chat] Failed to update reaction:', err);
         }
     };
 
@@ -416,7 +429,14 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                                                     {reactionEmojis.map(emoji => (
                                                                         <button
                                                                             key={emoji}
-                                                                            onClick={() => handleReaction(msg._id || msg.id, emoji)}
+                                                                            onClick={() => {
+                                                                                const myIdStr = String(myId?._id || myId?.id || myId || '');
+                                                                                const alreadyReacted = (msg.reactions || []).some(r => {
+                                                                                    const reactionUserId = String(r.userId?._id || r.userId?.id || r.userId || '');
+                                                                                    return r.emoji === emoji && reactionUserId === myIdStr;
+                                                                                });
+                                                                                handleReaction(msg._id || msg.id, emoji, alreadyReacted);
+                                                                            }}
                                                                             className="text-lg hover:scale-125 transition-transform cursor-pointer"
                                                                         >
                                                                             {emoji}
@@ -432,11 +452,15 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                                         <div className="flex flex-wrap gap-1 mt-1">
                                                             {Array.from(new Set(msg.reactions.map(r => r.emoji))).map(emoji => {
                                                                 const count = msg.reactions.filter(r => r.emoji === emoji).length;
-                                                                const userReacted = msg.reactions.some(r => r.emoji === emoji && (r.userId === myId || r.userId?._id === myId || r.userId?.id === myId));
+                                                                const myIdStr = String(myId?._id || myId?.id || myId || '');
+                                                                const userReacted = msg.reactions.some(r => {
+                                                                    const reactionUserId = String(r.userId?._id || r.userId?.id || r.userId || '');
+                                                                    return r.emoji === emoji && reactionUserId === myIdStr;
+                                                                });
                                                                 return (
                                                                     <button
                                                                         key={emoji}
-                                                                        onClick={() => handleReaction(msg._id || msg.id, emoji)}
+                                                                        onClick={() => handleReaction(msg._id || msg.id, emoji, userReacted)}
                                                                         className={`text-sm px-2 py-1 rounded-full transition-colors ${userReacted
                                                                             ? 'bg-blue-200 dark:bg-blue-900/40'
                                                                             : 'bg-slate-100 dark:bg-slate-700 opacity-60 hover:opacity-100'}`}
@@ -489,6 +513,12 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
 
                                 <div ref={messagesEnd} />
                             </div>
+
+                            {reactionError && (
+                                <div className="px-4 pb-2">
+                                    <p className="text-xs text-red-500">{reactionError}</p>
+                                </div>
+                            )}
 
                             {/* Input */}
                             <div className="px-4 py-3 border-t flex items-end gap-3 shrink-0"

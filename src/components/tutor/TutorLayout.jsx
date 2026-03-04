@@ -221,6 +221,7 @@ const TutorLayout = () => {
     { label: 'Dashboard', icon: BookOpen, to: '/dashboard-tutor' },
     { label: 'My Sessions', icon: Calendar, to: '/dashboard-tutor/sessions' },
     { label: 'Students', icon: Users, to: '/dashboard-tutor/students' },
+    { label: 'Materials', icon: BookOpen, to: '/dashboard-tutor/materials' },
     { label: 'Messages', icon: MessageSquare, to: '/dashboard-tutor/messages', badge: totalUnread > 0 ? String(totalUnread > 9 ? '9+' : totalUnread) : undefined },
     { label: 'Reviews', icon: Star, to: '/dashboard-tutor/reviews' },
   ];

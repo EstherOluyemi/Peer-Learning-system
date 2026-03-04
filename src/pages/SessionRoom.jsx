@@ -6,6 +6,8 @@ import {
   ArrowLeft,
   Calendar,
   Clock,
+  Download,
+  FileText,
   MessageSquare,
   Send,
   Shield,
@@ -15,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { getSessionChat, sendSessionChatMessage } from '../services/sessionService';
 
 const normalizeId = (value) => {
   if (!value) return null;
@@ -99,11 +102,14 @@ const SessionRoom = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [materials, setMaterials] = useState([]);
+  const [materialsLoading, setMaterialsLoading] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [chatError, setChatError] = useState('');
   const [sending, setSending] = useState(false);
   const [chatConnected, setChatConnected] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
@@ -151,17 +157,55 @@ const SessionRoom = () => {
       }
     };
     load();
+  }, [sessionId, user?.role]);
+
+  // Load materials for the session
+  useEffect(() => {
+    if (!sessionId) return;
+    const loadMaterials = async () => {
+      try {
+        setMaterialsLoading(true);
+        // Fetch materials filtered by this session
+        const response = await api.get('/v1/tutor/materials', {
+          params: { sessionId, page: 1, limit: 50 }
+        });
+        // Handle both direct array and nested structure
+        const materialsList = Array.isArray(response.data) ? response.data : (response.data?.materials || []);
+        setMaterials(materialsList);
+      } catch (err) {
+        console.error('Failed to load materials:', err);
+        // Don't show error to user - materials are optional
+        setMaterials([]);
+      } finally {
+        setMaterialsLoading(false);
+      }
+    };
+    loadMaterials();
   }, [sessionId]);
 
-  // Chat polling disabled — /chat backend route not yet implemented.
-  // Messages are stored in local React state only (handleSend still works via
-  // WebSocket or POST if those routes exist). When you add GET /sessions/:id/chat
-  // to the backend, re-enable polling here.
+  // Load chat messages from backend
   useEffect(() => {
     if (!sessionId || !chatEnabled) {
       setChatMessages([]);
+      return;
     }
+    const loadChat = async () => {
+      try {
+        setChatLoading(true);
+        setChatError('');
+        const chatData = await getSessionChat(sessionId, { limit: 100 });
+        setChatMessages(chatData.messages || []);
+      } catch (err) {
+        console.error('Failed to load chat:', err);
+        setChatError('Failed to load chat messages.');
+      } finally {
+        setChatLoading(false);
+      }
+    };
+    loadChat();
   }, [sessionId, chatEnabled]);
+
+  // WebSocket for real-time chat updates
 
   useEffect(() => {
     if (!chatEnabled || !chatSocketBase || !sessionId) {
@@ -219,25 +263,28 @@ const SessionRoom = () => {
 
   const handleSend = async () => {
     if (!chatInput.trim() || !chatEnabled) return;
-    const optimisticMessage = {
-      id: `${Date.now()}`,
-      text: chatInput.trim(),
-      senderId: user?.id || user?._id,
-      senderName: user?.name || 'Participant',
-      timestamp: new Date().toISOString()
-    };
-    setChatMessages((prev) => [...prev, optimisticMessage]);
+    const messageText = chatInput.trim();
     setChatInput('');
     setSending(true);
     try {
-      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        socketRef.current.send(JSON.stringify({ type: 'message', message: optimisticMessage }));
+      // Send to backend API
+      const sentMessage = await sendSessionChatMessage(sessionId, messageText);
+      
+      // Add to local state if not already added by WebSocket
+      if (sentMessage) {
+        const messageId = sentMessage._id || sentMessage.id;
+        const exists = chatMessages.some(m => (m._id || m.id) === messageId);
+        if (!exists) {
+          setChatMessages((prev) => [...prev, sentMessage]);
+        }
       }
-      // NOTE: REST fallback for chat (POST /chat) not yet implemented on backend.
-      // Messages sent without WebSocket are local-only until backend route is added.
+      
       setChatError('');
     } catch (err) {
+      console.error('Failed to send message:', err);
       setChatError(err.message || 'Failed to send message.');
+      // Restore the input on error
+      setChatInput(messageText);
     } finally {
       setSending(false);
     }
@@ -345,11 +392,12 @@ const SessionRoom = () => {
 
       <main className="container mx-auto px-6 py-6">
         <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
-          <section className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-color)' }}>
-              <Video className="w-5 h-5 text-blue-600" />
-              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Live Session</h2>
-            </div>
+          <div className="space-y-6">
+            <section className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+              <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-color)' }}>
+                <Video className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Live Session</h2>
+              </div>
             {/* 
               NOTE: Google Meet cannot be embedded in an iframe.
               Google sets X-Frame-Options: deny on meet.google.com,
@@ -388,7 +436,54 @@ const SessionRoom = () => {
               )}
             </div>
 
-          </section>
+            </section>
+
+            {/* Materials Section */}
+            <section className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+              <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-color)' }}>
+                <FileText className="w-5 h-5 text-green-600" />
+                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Session Materials</h2>
+              </div>
+              <div className="p-4">
+                {materialsLoading ? (
+                  <div className="text-sm text-center" style={{ color: 'var(--text-tertiary)' }}>
+                    Loading materials...
+                  </div>
+                ) : materials.length > 0 ? (
+                  <div className="space-y-2">
+                    {materials.map((material) => {
+                      const materialId = material._id || material.id;
+                      return (
+                        <div key={materialId} className="p-3 rounded-lg border flex items-center justify-between" style={{ backgroundColor: 'var(--bg-hover)', borderColor: 'var(--border-color)' }}>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{material.title}</p>
+                            {material.description && (
+                              <p className="text-xs mt-1 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{material.description}</p>
+                            )}
+                          </div>
+                          {material.fileUrl && (
+                            <a
+                              href={material.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="ml-2 p-2 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded text-blue-600 dark:text-blue-400 transition inline-flex items-center justify-center"
+                              title={`Download ${material.title}`}
+                            >
+                              <Download className="w-4 h-4" />
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-sm text-center" style={{ color: 'var(--text-tertiary)' }}>
+                    No materials uploaded yet.
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
 
           <section className="rounded-2xl shadow-sm border flex flex-col" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
@@ -414,20 +509,28 @@ const SessionRoom = () => {
               </div>
             )}
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-              {chatEnabled && chatMessages.length === 0 && (
+              {chatLoading && (
+                <div className="text-sm text-center" style={{ color: 'var(--text-tertiary)' }}>
+                  Loading chat...
+                </div>
+              )}
+              {chatEnabled && !chatLoading && chatMessages.length === 0 && (
                 <div className="text-sm text-center" style={{ color: 'var(--text-tertiary)' }}>
                   No messages yet. Start the conversation.
                 </div>
               )}
               {chatMessages.map((message) => {
-                const isOwn = normalizeId(message.senderId) === normalizeId(user?.id || user?._id);
+                const senderId = message.sender?._id || message.sender?.id || message.senderId || message.sender;
+                const senderName = message.sender?.name || message.senderName || 'Participant';
+                const messageText = message.message || message.text || '';
+                const isOwn = normalizeId(senderId) === normalizeId(user?.id || user?._id);
                 return (
-                  <div key={message.id || message.timestamp || Math.random()} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${isOwn ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-800'}`}>
-                      <div className="text-xs font-semibold mb-1 opacity-80">{message.senderName || 'Participant'}</div>
-                      <div>{message.text || message.message}</div>
+                  <div key={message._id || message.id || message.timestamp || Math.random()} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${isOwn ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100'}`}>
+                      <div className="text-xs font-semibold mb-1 opacity-80">{senderName}</div>
+                      <div className="whitespace-pre-wrap break-word">{messageText}</div>
                       <div className="text-[10px] mt-1 opacity-70">
-                        {message.timestamp ? new Date(message.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''}
+                        {message.timestamp || message.createdAt ? new Date(message.timestamp || message.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''}
                       </div>
                     </div>
                   </div>

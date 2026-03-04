@@ -8,6 +8,7 @@ const OAUTH_REFRESH_PATH =  '/v1/tutor/google-meet/oauth/refresh';
 const OAUTH_REVOKE_PATH = '/v1/tutor/google-meet/oauth/revoke';
 const CREATE_MEETING_PATH = '/v1/tutor/google-meet/create-meeting';
 const PERMANENT_LINK_PATH = '/v1/tutor/google-meet/permanent-link';
+const INSTANT_MEETING_PATH = '/v1/tutor/google-meet/instant';
 
 const normalizeBaseUrl = (value) => (value.endsWith('/') ? value.slice(0, -1) : value);
 const normalizePath = (value) => (value.startsWith('/') ? value : `/${value}`);
@@ -114,6 +115,11 @@ export const createGoogleMeetMeeting = async (request) => {
     enriched.status = error?.response?.status;
     throw enriched;
   }
+};
+
+export const createInstantGoogleMeetLink = async () => {
+  const response = await api.post(INSTANT_MEETING_PATH);
+  return parseMeetingResponse(response);
 };
 
 // FIX 4: Do NOT send tutorId from the frontend — backend derives it from req.tutor._id

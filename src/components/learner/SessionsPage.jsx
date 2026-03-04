@@ -8,12 +8,12 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { normalizeSessionList, getSessionRating, rateSession } from '../../services/sessionService';
 import { useAuth } from '../../context/AuthContext';
+import socketService from '../../services/socketService';
 
 const SessionsPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterType, setFilterType] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const [sessions, setSessions] = useState([]);
@@ -72,6 +72,46 @@ const SessionsPage = () => {
         }, 60000);
 
         return () => clearInterval(intervalId);
+    }, [user]);
+
+    // Listen for real-time session enrollment notifications
+    useEffect(() => {
+        if (!user || (user.role !== 'learner' && user.role !== 'student')) return;
+
+        const handleStudentAdded = (payload) => {
+            console.log('Real-time: Added to session', payload);
+            const newSession = payload?.session;
+            if (newSession) {
+                // Add new session to the list
+                setSessions(prev => {
+                    const normalized = normalizeSessionList([...prev, newSession]);
+                    return normalized;
+                });
+                // Show success notification
+                setSuccessMessage(`You've been added to ${newSession.title || 'a session'}`);
+                setTimeout(() => setSuccessMessage(''), 5000);
+            }
+        };
+
+        const handleStudentRemoved = (payload) => {
+            console.log('Real-time: Removed from session', payload);
+            const removedSessionId = payload?.session?._id || payload?.session?.id || payload?.sessionId;
+            if (removedSessionId) {
+                // Remove session from the list
+                setSessions(prev => prev.filter(s => (s._id || s.id) !== removedSessionId));
+                // Show notification
+                setSuccessMessage(`You've been removed from ${payload?.session?.title || 'a session'}`);
+                setTimeout(() => setSuccessMessage(''), 5000);
+            }
+        };
+
+        const unsubscribeAdded = socketService.on('session:student-added', handleStudentAdded);
+        const unsubscribeRemoved = socketService.on('session:student-removed', handleStudentRemoved);
+
+        return () => {
+            unsubscribeAdded();
+            unsubscribeRemoved();
+        };
     }, [user]);
 
     useEffect(() => {
@@ -153,10 +193,9 @@ const SessionsPage = () => {
         const matchesSearch = (session.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.tutorName || '').toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesType = filterType === 'all' || (session.type || '').toLowerCase() === filterType.toLowerCase();
         const bucket = getStatusBucket(session.status);
         const matchesStatus = statusFilter === 'all' || bucket === statusFilter;
-        return matchesSearch && matchesType && matchesStatus;
+        return matchesSearch && matchesStatus;
     });
 
     const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
@@ -219,11 +258,9 @@ const SessionsPage = () => {
             const bucket = getStatusBucket(session.status);
             if (bucket === 'upcoming') acc.upcoming += 1;
             if (bucket === 'completed') acc.completed += 1;
-            if ((session.type || '').toLowerCase() === 'workshop') acc.workshops += 1;
-            if ((session.type || '').toLowerCase() === '1-on-1') acc.oneOnOne += 1;
             return acc;
         },
-        { upcoming: 0, completed: 0, workshops: 0, oneOnOne: 0 }
+        { upcoming: 0, completed: 0 }
     );
 
     const totalHours = sessions.reduce((acc, session) => {
@@ -385,23 +422,6 @@ const SessionsPage = () => {
                                     borderColor: 'var(--input-border)'
                                 }}
                             />
-                        </div>
-                        <div className="flex gap-2">
-                            {['all', 'workshop', '1-on-1', 'group'].map(type => (
-                                <button
-                                    key={type}
-                                    onClick={() => {
-                                        setFilterType(type);
-                                        setCurrentPage(1);
-                                    }}
-                                    className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${filterType === type
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                                        }`}
-                                >
-                                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                                </button>
-                            ))}
                         </div>
                     </div>
 
@@ -649,18 +669,6 @@ const SessionsPage = () => {
                                 >
                                     <div className="text-lg font-bold text-green-600 dark:text-green-400">{statusCounts.completed}</div>
                                     <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Completed</div>
-                                </div>
-                                <div className="p-3 rounded-lg text-center"
-                                    style={{ backgroundColor: 'var(--bg-hover)' }}
-                                >
-                                    <div className="text-lg font-bold text-purple-600 dark:text-purple-400">{statusCounts.workshops}</div>
-                                    <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Workshops</div>
-                                </div>
-                                <div className="p-3 rounded-lg text-center"
-                                    style={{ backgroundColor: 'var(--bg-hover)' }}
-                                >
-                                    <div className="text-lg font-bold text-indigo-600 dark:text-indigo-400">{statusCounts.oneOnOne}</div>
-                                    <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>1-on-1</div>
                                 </div>
                             </div>
                         </div>

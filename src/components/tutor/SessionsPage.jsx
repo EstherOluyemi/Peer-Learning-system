@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import {
   Calendar, Users, Clock, Edit, Trash2, Plus, Search, Filter,
-  ChevronLeft, ChevronRight, Eye, MessageSquare, Star, AlertCircle, Video, X
+  ChevronLeft, ChevronRight, Eye, MessageSquare, Star, AlertCircle, Video, X, CheckCircle2
 } from 'lucide-react';
 import api from '../../services/api';
 import { normalizeSessionList } from '../../services/sessionService';
@@ -20,6 +20,7 @@ const SessionsPage = () => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
   const [selectedSession, setSelectedSession] = useState(null);
   const [deletingSessionId, setDeletingSessionId] = useState(null);
   const [quickStats, setQuickStats] = useState({
@@ -46,6 +47,24 @@ const SessionsPage = () => {
       state: sessionData ? { sessionData } : undefined
     });
   }, [searchParams, navigate, location.state, sessions]);
+
+  useEffect(() => {
+    const message = location.state?.message;
+    if (!message) return;
+
+    setSuccessMessage(message);
+
+    navigate(location.pathname, {
+      replace: true,
+      state: null
+    });
+
+    const timeoutId = setTimeout(() => {
+      setSuccessMessage('');
+    }, 5000);
+
+    return () => clearTimeout(timeoutId);
+  }, [location.pathname, location.state, navigate]);
 
   const formatDateTime = (dateString) => {
     if (!dateString) return { date: 'TBD', time: '--', dayMonth: 'TBD', timeLabel: '--' };
@@ -112,7 +131,18 @@ const SessionsPage = () => {
     try {
       setDeletingSessionId(sessionId);
       await api.delete(`/v1/tutor/sessions/${sessionId}`);
-      setSessions(prev => prev.filter(s => s._id !== sessionId));
+      setError(null);
+      setSuccessMessage('Session deleted successfully.');
+      setSessions(prev => {
+        const updatedSessions = prev.filter(s => (s._id || s.id) !== sessionId);
+        setQuickStats({
+          total: updatedSessions.length,
+          ongoing: updatedSessions.filter(s => s.status === 'ongoing').length,
+          completed: updatedSessions.filter(s => s.status === 'completed').length,
+          scheduled: updatedSessions.filter(s => s.status === 'scheduled').length
+        });
+        return updatedSessions;
+      });
       setSelectedSession(null);
     } catch (err) {
       setError('Failed to delete session. Please try again.');
@@ -171,6 +201,19 @@ const SessionsPage = () => {
             className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline"
           >
             Retry
+          </button>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center gap-3 text-emerald-700 dark:text-emerald-400">
+          <CheckCircle2 className="w-5 h-5 shrink-0" />
+          <p className="text-sm font-medium">{successMessage}</p>
+          <button
+            onClick={() => setSuccessMessage('')}
+            className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline"
+          >
+            Dismiss
           </button>
         </div>
       )}

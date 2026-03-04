@@ -4,11 +4,13 @@ import { Link } from 'react-router-dom';
 import heroBackground from '../assets/students-learning.jpg';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
 import { useAccessibility } from '../context/hooks';
+import { useTheme } from '../context/ThemeContext';
 
 const Landing = () => {
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { highContrast, textSize } = useAccessibility();
+  const { darkMode } = useTheme();
   const sectionRefs = useRef([]);
 
   useEffect(() => {
@@ -156,7 +158,7 @@ const Landing = () => {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className={`min-h-screen bg-linear-to-b from-slate-50 to-white transition-colors duration-300 ${highContrast ? 'high-contrast' : ''} ${sidebarOpen ? 'overflow-hidden' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
+    <div className={`min-h-screen bg-linear-to-b from-slate-50 to-white text-slate-900 dark:from-slate-950 dark:to-slate-900 dark:text-slate-100 transition-colors duration-300 ${highContrast ? 'high-contrast' : ''} ${sidebarOpen ? 'overflow-hidden' : ''} ${darkMode ? 'dark-theme-active' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
       
       {/* Sidebar / Mobile Navigation Drawer */}
       <div 
@@ -171,24 +173,24 @@ const Landing = () => {
         
         {/* Sidebar Content */}
         <div 
-          className={`absolute right-0 top-0 bottom-0 w-72 bg-white shadow-2xl transition-transform duration-300 transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          className={`absolute right-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 shadow-2xl transition-transform duration-300 transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation menu"
         >
           <div className="flex flex-col h-full">
-            <div className="p-6 flex items-center justify-between border-b border-slate-100">
+            <div className="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-700">
               <div className="flex items-center space-x-2">
                 {peerlearnLogo ? (
                   <img src={peerlearnLogo} alt="" className="h-8 w-auto" />
                 ) : (
                   <Users className="w-6 h-6 text-blue-600" />
                 )}
-                <span className="font-bold text-slate-900">PeerLearn</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100">PeerLearn</span>
               </div>
               <button 
                 onClick={closeSidebar}
-                className="p-2 text-slate-500 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-blue-600 rounded"
+                className="p-2 text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-blue-600 rounded"
                 aria-label="Close menu"
               >
                 <X className="w-6 h-6" />
@@ -198,7 +200,7 @@ const Landing = () => {
             <nav className="flex-1 p-6 space-y-4">
               <a 
                 href="#features" 
-                className="flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600"
+                className="flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600"
                 onClick={closeSidebar}
               >
                 <Zap className="w-5 h-5 text-blue-600" />
@@ -206,14 +208,14 @@ const Landing = () => {
               </a>
               <button 
                 onClick={scrollToTestimonials}
-                className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700 font-medium transition-colors text-left focus-visible:outline-2 focus-visible:outline-blue-600"
+                className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium transition-colors text-left focus-visible:outline-2 focus-visible:outline-blue-600"
               >
                 <Star className="w-5 h-5 text-amber-500" />
                 <span>Testimonials</span>
               </button>
               <Link 
                 to="/login" 
-                className="flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600"
+                className="flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600"
                 onClick={closeSidebar}
               >
                 <Users className="w-5 h-5 text-indigo-600" />
@@ -221,7 +223,7 @@ const Landing = () => {
               </Link>
             </nav>
             
-            <div className="p-6 border-t border-slate-100">
+            <div className="p-6 border-t border-slate-100 dark:border-slate-700">
               <Link 
                 to="/role-selection" 
                 className="block w-full text-center bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all focus-visible:outline-2 focus-visible:outline-blue-600"
@@ -272,8 +274,9 @@ const Landing = () => {
         
         /* Focus visible styles */
         *:focus-visible {
-          outline: 2px solid #3b82f6;
-          outline-offset: 2px;
+          outline: 3px solid #2563eb;
+          outline-offset: 3px;
+          box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
         }
         
         @keyframes fadeInUp {
@@ -331,6 +334,11 @@ const Landing = () => {
         .testimonial-card {
           transition: all 0.3s ease;
           border: 2px solid #e2e8f0; /* Default border */
+        }
+
+        .dark .testimonial-card {
+          border-color: #334155;
+          background-color: #0f172a;
         }
         
         .testimonial-card:hover {
@@ -413,7 +421,7 @@ const Landing = () => {
           </div>
         </nav>
         {/* Hero Content */}
-        <div className="relative z-10 container mx-auto px-6 pt-20 pb-16 flex flex-col items-start" id="main-content" tabIndex={-1} role="main" aria-label="Main content">
+        <div className="relative z-10 container mx-auto px-6 pt-20 pb-16 flex flex-col items-start" id="main-content" tabIndex={0} role="main" aria-label="Main content">
           <span className="block text-white text-lg mb-4" role="doc-subtitle">🎓 Transform Your Learning Journey</span>
           <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
             Learn <span className="text-blue-300">Together,</span>
@@ -435,7 +443,7 @@ const Landing = () => {
 
       </header>
       {/* Stats Section - ACCESSIBLE */}
-      <section className="py-16 bg-white" aria-label="Platform statistics">
+      <section className="py-16 bg-white dark:bg-slate-900" aria-label="Platform statistics" tabIndex={0}>
         <div className="container mx-auto px-6">
           <div 
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
@@ -449,15 +457,15 @@ const Landing = () => {
                   key={index}
                   role="listitem"
                   tabIndex={0} 
-                  className="text-center p-6 rounded-2xl bg-linear-to-b from-white to-slate-50 border border-slate-100 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  className="text-center p-6 rounded-2xl bg-linear-to-b from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   style={{ animationDelay: `${index * 100}ms` }}
                   aria-label={`${stat.label}: ${stat.number}`}
                 >
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-blue-50 to-white rounded-2xl mb-4 border border-slate-100" aria-hidden="true">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-blue-50 to-white dark:from-slate-700 dark:to-slate-800 rounded-2xl mb-4 border border-slate-100 dark:border-slate-600" aria-hidden="true">
                     <Icon className="w-8 h-8 text-blue-600" />
                   </div>
-                  <div className="text-4xl font-bold text-slate-900 mb-2" aria-hidden="true">{stat.number}</div>
-                  <div className="text-slate-600 font-medium">{stat.label}</div>
+                  <div className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-2" aria-hidden="true">{stat.number}</div>
+                  <div className="text-slate-600 dark:text-slate-300 font-medium">{stat.label}</div>
                 </div>
               );
             })}
@@ -466,17 +474,17 @@ const Landing = () => {
       </section>
 
       {/* Features Section - ACCESSIBLE */}
-      <section id="features" className="py-20 bg-linear-to-b from-white to-slate-50">
+      <section id="features" className="py-20 bg-linear-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950" tabIndex={0}>
         <div className="container mx-auto px-6">
           <div 
             className="text-center max-w-3xl mx-auto mb-16"
             ref={el => sectionRefs.current[3] = el}
           >
-            <h2 id="features-heading" className="text-4xl font-bold text-slate-900 mb-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded" tabIndex={-1}>
+            <h2 id="features-heading" className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded" tabIndex={0}>
               Everything You Need for
               <span className="text-blue-600"> Effective Learning</span>
             </h2>
-            <p className="text-xl text-slate-600 leading-relaxed">
+            <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
               Our platform combines cutting-edge technology with proven learning methodologies to create the perfect peer learning environment.
             </p>
           </div>
@@ -492,7 +500,7 @@ const Landing = () => {
               return (
                 <article 
                   key={index} 
-                  className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-blue-200 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-within:shadow-xl"
+                  className="group bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-400 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-within:shadow-xl"
                   style={{ animationDelay: `${index * 100}ms` }}
                   role="listitem"
                   tabIndex={0}
@@ -502,8 +510,8 @@ const Landing = () => {
                   <div className={`w-14 h-14 ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`} aria-hidden="true">
                     <Icon className="w-7 h-7" aria-hidden="true" />
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-900 mb-4">{feature.title}</h3>
-                  <p id={`feature-desc-${index}`} className="text-slate-600 leading-relaxed">{feature.desc}</p>
+                  <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">{feature.title}</h3>
+                  <p id={`feature-desc-${index}`} className="text-slate-600 dark:text-slate-300 leading-relaxed">{feature.desc}</p>
                 </article>
               );
             })}
@@ -512,16 +520,16 @@ const Landing = () => {
       </section>
 
       {/* Testimonials Marquee Section - UPDATED & ACCESSIBLE */}
-      <section id="testimonials" className="py-20 bg-white overflow-hidden">
+      <section id="testimonials" className="py-20 bg-white dark:bg-slate-900 overflow-hidden" tabIndex={0}>
         <div className="container mx-auto px-6">
           <div 
             className="text-center max-w-3xl mx-auto mb-16"
             ref={el => sectionRefs.current[5] = el}
           >
-            <h2 id="testimonials-heading" className="text-4xl font-bold text-slate-900 mb-4" tabIndex={-1}>
+            <h2 id="testimonials-heading" className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4" tabIndex={0}>
               What Our Community Says
             </h2>
-            <p className="text-xl text-slate-600 leading-relaxed">
+            <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
               Hear from learners and tutors who transformed their educational journey with PeerLearn
             </p>
           </div>
@@ -534,8 +542,8 @@ const Landing = () => {
             aria-label="Customer testimonials carousel - Use arrow keys to navigate"
           >
             {/* linear overlay on edges */}
-            <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white via-white to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white via-white to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
+            <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 z-10 pointer-events-none" aria-hidden="true"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 z-10 pointer-events-none" aria-hidden="true"></div>
             
             {/* Marquee Row 1 - Moves LEFT (faster: 30s) */}
             <div className="flex animate-marquee-left mb-10" role="list" aria-label="Testimonials - Row 1">
@@ -544,10 +552,10 @@ const Landing = () => {
                   key={`first-${testimonial.id}-${index}`}
                   role="listitem"
                   tabIndex={0}
-                  className="shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  className="shrink-0 w-80 mx-4 testimonial-card bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 >
                   <Quote className="w-8 h-8 text-blue-400 mb-4 quote-icon transition-transform duration-300" aria-hidden="true" />
-                  <p className="text-slate-700 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
+                  <p className="text-slate-700 dark:text-slate-200 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
                   <div className="flex items-center">
                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-100 shadow-sm mr-4 profile-img transition-transform duration-300">
                       <img 
@@ -558,9 +566,9 @@ const Landing = () => {
                       />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-slate-900 text-base">{testimonial.name}</h4>
-                      <p className="text-sm text-slate-600 sr-only">{testimonial.role}</p>
-                      <p className="text-sm text-slate-600 aria-hidden-text">{testimonial.role}</p>
+                      <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-base">{testimonial.name}</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 sr-only">{testimonial.role}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 aria-hidden-text">{testimonial.role}</p>
                       <div className="flex mt-1" aria-label={`Rating: ${testimonial.rating} out of 5 stars`} role="img">
                         {[...Array(5)].map((_, i) => (
                           <Star 
@@ -583,10 +591,10 @@ const Landing = () => {
                   key={`second-${testimonial.id}-${index}`}
                   role="listitem"
                   tabIndex={0}
-                  className="shrink-0 w-80 mx-4 testimonial-card bg-white rounded-2xl p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  className="shrink-0 w-80 mx-4 testimonial-card bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 >
                   <Quote className="w-8 h-8 text-emerald-400 mb-4 quote-icon transition-transform duration-300" aria-hidden="true" />
-                  <p className="text-slate-700 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
+                  <p className="text-slate-700 dark:text-slate-200 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
                   <div className="flex items-center">
                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-100 shadow-sm mr-4 profile-img transition-transform duration-300">
                       <img 
@@ -597,9 +605,9 @@ const Landing = () => {
                       />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-slate-900 text-base">{testimonial.name}</h4>
-                      <p className="text-sm text-slate-600 sr-only">{testimonial.role}</p>
-                      <p className="text-sm text-slate-600 aria-hidden-text">{testimonial.role}</p>
+                      <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-base">{testimonial.name}</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 sr-only">{testimonial.role}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 aria-hidden-text">{testimonial.role}</p>
                       <div className="flex mt-1" aria-label={`Rating: ${testimonial.rating} out of 5 stars`} role="img">
                         {[...Array(5)].map((_, i) => (
                           <Star 
@@ -626,7 +634,7 @@ const Landing = () => {
               Join Our Community
               <ArrowRight className="ml-3 w-5 h-5" />
             </Link>
-            <p className="text-slate-500 text-sm mt-4">
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-4">
               Join {stats[0].number} learners and {stats[1].number} tutors already transforming education
             </p>
           </div>
@@ -634,7 +642,7 @@ const Landing = () => {
       </section>
 
       {/* Footer - UPDATED LOGO SIZE & ACCESSIBLE */}
-      <footer className="bg-gray-900 text-gray-300 py-10 reveal" role="contentinfo">
+      <footer className="bg-gray-900 dark:bg-slate-950 text-gray-300 py-10 reveal" role="contentinfo" tabIndex={0}>
         <div className="max-w-2xl mx-auto text-center px-4">
           <div className="flex items-center justify-center gap-3 mb-4">
             {peerlearnLogo ? (

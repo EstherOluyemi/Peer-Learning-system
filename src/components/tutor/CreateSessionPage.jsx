@@ -5,18 +5,12 @@ import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Calendar, Clock, Users, BookOpen,
   Video, Save,
-  AlertCircle, HelpCircle, Loader2
+  AlertCircle, HelpCircle, Loader2, Copy, CheckCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { featureFlags } from '../../config/featureFlags';
-import GoogleMeetAuthPanel from '../meet/GoogleMeetAuthPanel';
-import {
-  getGoogleMeetAuthStatus,
-  getOrCreatePermanentGoogleMeetLink,
-  refreshGoogleMeetAuth,
-  revokeGoogleMeetAuth
-} from '../../services/googleMeetService';
+import { createInstantGoogleMeetLink } from '../../services/googleMeetService';
 
 const CreateSessionPage = () => {
   const { user } = useAuth();
@@ -36,17 +30,15 @@ const CreateSessionPage = () => {
     meetingLink: '',
     // REMOVED: studentId — not needed here. Sessions are created by the tutor.
     // Students enroll separately. The backend uses req.tutor._id as owner.
-    enableGoogleMeet: true,
-    sessionType: 'video'
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(!!editId);
   const [apiError, setApiError] = useState(null);
-  const [googleMeetStatus, setGoogleMeetStatus] = useState({ connected: false, expiresAt: null, scopes: [] });
-  const [googleMeetLoading, setGoogleMeetLoading] = useState(false);
-  const [googleMeetError, setGoogleMeetError] = useState('');
+  const [generatedMeetLink, setGeneratedMeetLink] = useState('');
+  const [meetLinkLoading, setMeetLinkLoading] = useState(false);
+  const [meetLinkCopied, setMeetLinkCopied] = useState(false);
 
   useEffect(() => {
     if (editId && location.state?.sessionData) {
@@ -95,28 +87,6 @@ const CreateSessionPage = () => {
     }
   }, [editId, location.state?.sessionData]);
 
-  useEffect(() => {
-    if (!featureFlags.googleMeet) return;
-    let active = true;
-    const fetchStatus = async () => {
-      setGoogleMeetLoading(true);
-      setGoogleMeetError('');
-      const status = await getGoogleMeetAuthStatus();
-      if (!active) return;
-      setGoogleMeetStatus({
-        connected: status.connected,
-        expiresAt: status.expiresAt,
-        scopes: status.scopes || [],
-      });
-      if (status.error) {
-        setGoogleMeetError(status.error.message || 'Unable to verify Google Meet connection.');
-      }
-      setGoogleMeetLoading(false);
-    };
-    fetchStatus();
-    return () => { active = false; };
-  }, []);
-
   const validateForm = () => {
     const newErrors = {};
     if (!formData.title.trim()) newErrors.title = 'Session title is required';
@@ -149,35 +119,10 @@ const CreateSessionPage = () => {
       const endDateTime = new Date(startDateTime.getTime() + durationMinutes * 60000);
       let meetingLink = formData.meetingLink?.trim();
       let meetingId;
-      const meetingTitle = formData.title.trim();
-      const scheduledTime = startDateTime.toISOString();
-      const shouldCreateMeet = featureFlags.googleMeet && formData.sessionType === 'video' && formData.enableGoogleMeet;
+      const shouldAttachGeneratedMeet = featureFlags.googleMeet && Boolean(generatedMeetLink);
 
-      if (!editId && shouldCreateMeet) {
-        if (!googleMeetStatus.connected) {
-          setApiError('Connect Google Meet before generating a meeting link.');
-          return;
-        }
-        try {
-          // FIX: Don't send tutorId/studentId — backend uses req.tutor._id
-          const meetingResponse = await getOrCreatePermanentGoogleMeetLink({
-            meetingTitle,
-            scheduledTime,
-            durationMinutes
-          });
-          meetingLink = meetingResponse?.joinUrl || meetingLink;
-          meetingId = meetingResponse?.meetingId;
-          if (!meetingLink) {
-            setApiError('Google Meet creation succeeded but no join link was returned.');
-            return;
-          }
-        } catch (err) {
-          if (err?.code === 'AUTH_FAILED') {
-            setGoogleMeetError('Google authorization expired. Reconnect to continue.');
-          }
-          setApiError(err?.message || 'Failed to create Google Meet session. Please try again.');
-          return;
-        }
+      if (!editId && shouldAttachGeneratedMeet) {
+        meetingLink = generatedMeetLink;
       }
 
       const payload = {
@@ -194,19 +139,20 @@ const CreateSessionPage = () => {
 
       if (editId) {
         await api.patch(`/v1/tutor/sessions/${editId}`, payload);
-        navigate('/dashboard-tutor/sessions');
+        navigate('/dashboard-tutor/sessions', {
+          state: { updatedSessionId: editId, message: 'Session updated successfully.' }
+        });
       } else {
         const createdSession = await api.post('/v1/tutor/sessions', payload);
         const createdPayload = createdSession?.data || createdSession;
         // Unwrap nested data if needed: { success, data: { _id, ... } }
         const sessionData = createdPayload?.data || createdPayload;
         const createdId = sessionData?._id || sessionData?.id;
-        if (createdId) {
-          // FIX: Navigate to session room — SessionRoom.jsx now uses correct API route
-          navigate(`/session/${createdId}`);
-        } else {
-          navigate('/dashboard-tutor/sessions');
-        }
+        navigate('/dashboard-tutor/sessions', {
+          state: createdId
+            ? { createdSessionId: createdId, message: 'Session created successfully.' }
+            : { message: 'Session created successfully.' }
+        });
       }
     } catch (err) {
       console.error('Failed to save session:', err);
@@ -227,52 +173,34 @@ const CreateSessionPage = () => {
     }
   };
 
-  const handleGoogleMeetConnect = async () => {
+  const handleGenerateMeetLink = async () => {
     try {
-      setGoogleMeetLoading(true);
-      setGoogleMeetError('');
-      const response = await api.get('/v1/tutor/google-meet/oauth/start', {
-        params: { redirect: window.location.href }
-      });
-      const payload = response?.data || response;
-      const data = payload?.data || payload;
-      const authUrl = data?.url;
-      if (!authUrl) {
-        setGoogleMeetError('Failed to get Google authorization URL.');
-        return;
+      setMeetLinkLoading(true);
+      setApiError(null);
+      const meetingResponse = await createInstantGoogleMeetLink();
+      const link = meetingResponse?.joinUrl;
+      if (link) {
+        setGeneratedMeetLink(link);
+        setFormData(prev => ({ ...prev, meetingLink: link }));
+      } else {
+        setApiError('Failed to generate Google Meet link. Please try again.');
       }
-      window.location.assign(authUrl);
     } catch (error) {
-      setGoogleMeetError(error?.response?.data?.error?.message || error.message || 'Failed to start Google authorization.');
+      console.error('Meet link generation error:', error);
+      setApiError(error?.message || 'Failed to generate Google Meet link. Please try again.');
     } finally {
-      setGoogleMeetLoading(false);
+      setMeetLinkLoading(false);
     }
   };
 
-  const handleGoogleMeetRefresh = async () => {
-    try {
-      setGoogleMeetLoading(true);
-      setGoogleMeetError('');
-      await refreshGoogleMeetAuth();
-      const status = await getGoogleMeetAuthStatus();
-      setGoogleMeetStatus({ connected: status.connected, expiresAt: status.expiresAt, scopes: status.scopes || [] });
-    } catch (error) {
-      setGoogleMeetError(error.message || 'Unable to refresh Google Meet token.');
-    } finally {
-      setGoogleMeetLoading(false);
-    }
-  };
-
-  const handleGoogleMeetDisconnect = async () => {
-    try {
-      setGoogleMeetLoading(true);
-      setGoogleMeetError('');
-      await revokeGoogleMeetAuth();
-      setGoogleMeetStatus({ connected: false, expiresAt: null, scopes: [] });
-    } catch (error) {
-      setGoogleMeetError(error.message || 'Unable to disconnect Google Meet.');
-    } finally {
-      setGoogleMeetLoading(false);
+  const handleCopyMeetLink = () => {
+    if (generatedMeetLink) {
+      navigator.clipboard.writeText(generatedMeetLink).then(() => {
+        setMeetLinkCopied(true);
+        setTimeout(() => setMeetLinkCopied(false), 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+      });
     }
   };
 
@@ -441,53 +369,86 @@ const CreateSessionPage = () => {
                         <div>
                           <h2 id="google-meet-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Google Meet</h2>
                           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                            Connect once to generate secure Meet links for video sessions.
+                              Optionally generate a Meet link now. No redirect happens during session creation.
                           </p>
                         </div>
                       </div>
 
-                      <GoogleMeetAuthPanel
-                        connected={googleMeetStatus.connected}
-                        expiresAt={googleMeetStatus.expiresAt}
-                        loading={googleMeetLoading}
-                        error={googleMeetError}
-                        onConnect={handleGoogleMeetConnect}
-                        onRefresh={handleGoogleMeetRefresh}
-                        onDisconnect={handleGoogleMeetDisconnect}
-                      />
-
-                      {/* Manual override link — only shown when Google Meet is OFF */}
-                      {!formData.enableGoogleMeet && (
-                        <div className="mt-6">
-                          <label htmlFor="meetingLink" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                            Meeting Link (manual)
-                          </label>
-                          <input
-                            id="meetingLink" name="meetingLink" type="url" value={formData.meetingLink} onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-                            style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
-                            placeholder="https://meet.google.com/..."
-                          />
+                      {/* Instant Google Meet Link Generator */}
+                      <div className="rounded-xl border p-4 space-y-4" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div>
+                            <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                              Quick Google Meet Link
+                            </p>
+                            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                              Create an instant meeting link without any account connection
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleGenerateMeetLink}
+                            disabled={meetLinkLoading}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                          >
+                            {meetLinkLoading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Generating...
+                              </>
+                            ) : (
+                              <>
+                                <Video className="w-4 h-4" />
+                                Generate Link
+                              </>
+                            )}
+                          </button>
                         </div>
-                      )}
 
-                      <div className="mt-6 flex items-center justify-between gap-4 rounded-lg border p-4" style={{ borderColor: 'var(--card-border)' }}>
-                        <div>
-                          <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Auto-generate Google Meet link</p>
-                          <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
-                            Requires a connected Google account. Only available for video sessions.
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, enableGoogleMeet: !prev.enableGoogleMeet }))}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData.enableGoogleMeet ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}`}
-                          aria-pressed={formData.enableGoogleMeet}
-                          aria-label="Toggle Google Meet auto-generation"
-                          disabled={formData.sessionType !== 'video'}
-                        >
-                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.enableGoogleMeet ? 'translate-x-6' : 'translate-x-1'}`} />
-                        </button>
+                        {/* Display Generated Link */}
+                        {generatedMeetLink && (
+                          <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+                            <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300 mb-1">
+                                Meeting link generated
+                              </p>
+                              <p className="text-sm font-mono text-emerald-900 dark:text-emerald-100 truncate">
+                                {generatedMeetLink}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleCopyMeetLink}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-colors shrink-0"
+                              title="Copy to clipboard"
+                            >
+                              {meetLinkCopied ? (
+                                <>
+                                  <CheckCircle className="w-3.5 h-3.5" />
+                                  Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  Copy
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-6">
+                        <label htmlFor="meetingLink" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                          Meeting Link (optional)
+                        </label>
+                        <input
+                          id="meetingLink" name="meetingLink" type="url" value={formData.meetingLink} onChange={handleChange}
+                          className="w-full px-4 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                          style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
+                          placeholder="https://meet.google.com/..."
+                        />
                       </div>
                     </section>
                   )}
@@ -516,28 +477,11 @@ const CreateSessionPage = () => {
                         {errors.maxParticipants && <p className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.maxParticipants}</p>}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Session Format *</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          <button
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, sessionType: 'video' }))}
-                            className={`p-4 rounded-lg border transition-all flex flex-col items-center gap-2 ${formData.sessionType === 'video' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-700 hover:border-slate-400'}`}
-                            style={{ color: 'var(--text-primary)' }} aria-pressed={formData.sessionType === 'video'}
-                          >
-                            <Video className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                            <div className="text-sm font-medium">Video Call</div>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, sessionType: 'text' }))}
-                            className={`p-4 rounded-lg border transition-all flex flex-col items-center gap-2 ${formData.sessionType === 'text' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-700 hover:border-slate-400'}`}
-                            style={{ color: 'var(--text-primary)' }} aria-pressed={formData.sessionType === 'text'}
-                          >
-                            <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                            <div className="text-sm font-medium">Text-Based</div>
-                          </button>
-                        </div>
+                      <div className="rounded-lg border p-4" style={{ borderColor: 'var(--card-border)' }}>
+                        <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Session Communication</p>
+                        <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                          Every session includes both a group chat and optional Google Meet link.
+                        </p>
                       </div>
                     </div>
                   </section>
