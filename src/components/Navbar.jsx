@@ -57,6 +57,7 @@ const Navbar = ({
                     sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                 }`}
                 onClick={() => setSidebarOpen(false)}
+                aria-hidden="true"
             />
 
             <aside
@@ -66,6 +67,7 @@ const Navbar = ({
                     borderColor: 'var(--border-color)',
                     transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
                 }}
+                aria-label="Sidebar navigation"
             >
                 <div className="flex flex-col h-full">
                     <div
@@ -91,12 +93,13 @@ const Navbar = ({
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                            aria-label="Close sidebar"
                         >
                             <X className="w-6 h-6" />
                         </button>
                     </div>
 
-                    <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
+                    <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar" aria-label="Primary navigation">
                         {navItems.map((item, idx) => (
                             <Link key={idx} to={item.to} onClick={() => setSidebarOpen(false)}>
                                 <NavItemContent item={item} />
@@ -167,6 +170,7 @@ const Navbar = ({
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                         title="Logout"
+                                        aria-label="Logout"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"

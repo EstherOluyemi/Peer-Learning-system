@@ -4,8 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Calendar, Clock, Users, BookOpen,
-  Video, Zap, Save,
-  CheckCircle, AlertCircle, HelpCircle, Loader2
+  Video, Save,
+  AlertCircle, HelpCircle, Loader2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
@@ -37,15 +37,7 @@ const CreateSessionPage = () => {
     // REMOVED: studentId — not needed here. Sessions are created by the tutor.
     // Students enroll separately. The backend uses req.tutor._id as owner.
     enableGoogleMeet: true,
-    sessionType: 'video',
-    accessibilityFeatures: {
-      captions: true,
-      transcript: false,
-      highContrast: true,
-      keyboardNav: true,
-      screenReader: true,
-      altText: true
-    }
+    sessionType: 'video'
   });
 
   const [errors, setErrors] = useState({});
@@ -226,18 +218,10 @@ const CreateSessionPage = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (name.startsWith('accessibilityFeatures.')) {
-      const feature = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        accessibilityFeatures: { ...prev.accessibilityFeatures, [feature]: checked }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -291,15 +275,6 @@ const CreateSessionPage = () => {
       setGoogleMeetLoading(false);
     }
   };
-
-  const accessibilityFeatures = [
-    { id: 'captions', label: 'Live Captions', description: 'Real-time captioning for hearing impaired' },
-    { id: 'transcript', label: 'Transcript', description: 'Session transcript available' },
-    { id: 'highContrast', label: 'High Contrast Mode', description: 'Supports high contrast display' },
-    { id: 'keyboardNav', label: 'Keyboard Navigation', description: 'Full keyboard accessibility' },
-    { id: 'screenReader', label: 'Screen Reader Ready', description: 'Compatible with screen readers' },
-    { id: 'altText', label: 'Alt Text for Images', description: 'Descriptive text for visual content' }
-  ];
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
@@ -564,42 +539,6 @@ const CreateSessionPage = () => {
                           </button>
                         </div>
                       </div>
-                    </div>
-                  </section>
-
-                  {/* Accessibility Features */}
-                  <section aria-labelledby="accessibility-heading" className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                        <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div>
-                        <h2 id="accessibility-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Accessibility Features</h2>
-                        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Make your session inclusive for all learners</p>
-                      </div>
-                    </div>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {accessibilityFeatures.map((feature) => (
-                        <label
-                          key={feature.id}
-                          className={`flex items-start p-4 rounded-lg border cursor-pointer transition-all ${formData.accessibilityFeatures[feature.id] ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-700 hover:border-slate-400'}`}
-                        >
-                          <input
-                            type="checkbox"
-                            name={`accessibilityFeatures.${feature.id}`}
-                            checked={formData.accessibilityFeatures[feature.id] || false}
-                            onChange={handleChange}
-                            className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{feature.label}</span>
-                              {formData.accessibilityFeatures[feature.id] && <CheckCircle className="w-5 h-5 text-green-500" />}
-                            </div>
-                            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{feature.description}</p>
-                          </div>
-                        </label>
-                      ))}
                     </div>
                   </section>
 

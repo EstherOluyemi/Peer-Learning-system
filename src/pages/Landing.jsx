@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import heroBackground from '../assets/students-learning.jpg';
 import peerlearnLogo from '../assets/peerlearn-logo.png';
 import { useAccessibility } from '../context/hooks';
-import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
 const Landing = () => {
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -158,7 +157,6 @@ const Landing = () => {
 
   return (
     <div className={`min-h-screen bg-linear-to-b from-slate-50 to-white transition-colors duration-300 ${highContrast ? 'high-contrast' : ''} ${sidebarOpen ? 'overflow-hidden' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
-      <AccessibilityToolbar />
       
       {/* Sidebar / Mobile Navigation Drawer */}
       <div 
@@ -415,8 +413,8 @@ const Landing = () => {
           </div>
         </nav>
         {/* Hero Content */}
-        <div className="relative z-10 container mx-auto px-6 pt-20 pb-16 flex flex-col items-start" id="main-content">
-          <span className="block text-white text-lg mb-4" role="doc-subtitile">🎓 Transform Your Learning Journey</span>
+        <div className="relative z-10 container mx-auto px-6 pt-20 pb-16 flex flex-col items-start" id="main-content" tabIndex={-1} role="main" aria-label="Main content">
+          <span className="block text-white text-lg mb-4" role="doc-subtitle">🎓 Transform Your Learning Journey</span>
           <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
             Learn <span className="text-blue-300">Together,</span>
             <span className="block">Grow <span className="text-emerald-300">Together</span></span>

@@ -72,12 +72,13 @@ class SocketService {
 
     _open() {
         const token = this._token || localStorage.getItem('peerlearn_token');
-        if (!token) {
-            console.warn('[socket] No auth token – skipping connect');
-            return;
-        }
+        const url = token
+            ? `${WS_BASE}/ws?token=${encodeURIComponent(token)}`
+            : `${WS_BASE}/ws`;
 
-        const url = `${WS_BASE}/ws?token=${encodeURIComponent(token)}`;
+        if (!token) {
+            console.warn('[socket] No auth token found, attempting cookie-based websocket auth');
+        }
         try {
             this._ws = new WebSocket(url);
         } catch (err) {

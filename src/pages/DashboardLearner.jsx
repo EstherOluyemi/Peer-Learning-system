@@ -246,37 +246,40 @@ const DashboardLearner = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat, i) => (
-          <div key={i} className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md"
-            style={{
-              backgroundColor: 'var(--card-bg)',
-              borderColor: 'var(--card-border)'
-            }}>
-            <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-xl ${stat.bg}`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+      <section aria-labelledby="stats-heading">
+        <h2 id="stats-heading" className="sr-only">Learning Statistics</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="list">
+          {statCards.map((stat, i) => (
+            <article key={i} role="listinput" aria-label={`${stat.label}: ${stat.value}`} className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md"
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                borderColor: 'var(--card-border)'
+              }}>
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-xl ${stat.bg}`} aria-hidden="true">
+                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }} aria-hidden="true">{stat.value}</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true">{stat.label}</p>
+                </div>
               </div>
-              <div>
-                <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</div>
-                <div className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
       {/* Recommended Sessions Section */}
-      <div className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+      <section aria-labelledby="recommended-heading" className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
-          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Recommended for You</h2>
+          <h2 id="recommended-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Recommended for You</h2>
           <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
-            View All <ChevronRight className="w-4 h-4" />
+            View All <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6" role="list">
           {recommendedSessions.map((session, idx) => (
-            <div key={idx} className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400"
+            <article key={idx} role="listitem" aria-label={`Recommended session: ${session.title} by ${session.tutor}, rated ${session.rating} stars`} className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
               onClick={() => navigate('/dashboard-learner/sessions')}
             >
@@ -286,40 +289,40 @@ const DashboardLearner = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                  <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" aria-hidden="true" />
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{session.rating}</span>
                 </div>
                 <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{session.students} students</p>
               </div>
               <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>with {session.tutor}</p>
-            </div>
+            </article>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Top Tutors Section */}
-      <div className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+      <section aria-labelledby="toptutors-heading" className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
-          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Top Rated Tutors</h2>
+          <h2 id="toptutors-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Top Rated Tutors</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6" role="list">
           {topTutors.map((tutor, idx) => (
-            <div key={idx} className="p-4 rounded-xl border text-center transition-all hover:shadow-md"
+            <article key={idx} role="listitem" aria-label={`Top tutor: ${tutor.name}, ${tutor.subject}, ${tutor.rating} star rating, ${tutor.students} students`} className="p-4 rounded-xl border text-center transition-all hover:shadow-md"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
             >
-              <div className="text-4xl mb-2">{tutor.image}</div>
+              <div className="text-4xl mb-2" aria-hidden="true">{tutor.image}</div>
               <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>{tutor.name}</h3>
               <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>{tutor.subject}</p>
-              <div className="flex items-center justify-center gap-1 mb-2">
+              <div className="flex items-center justify-center gap-1 mb-2" aria-label="5 star rating" aria-hidden="true">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
                 ))}
               </div>
               <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{tutor.students} students</p>
-            </div>
+            </article>
           ))}
         </div>
-      </div>
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <div className="lg:col-span-2 space-y-6">

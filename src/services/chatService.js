@@ -67,3 +67,33 @@ export const getContacts = async () => {
     const res = await api.get('/v1/chat/contacts');
     return normalize(res) ?? [];
 };
+
+/**
+ * Edit an existing message.
+ * @param {string} messageId
+ * @param {string} newText
+ */
+export const editMessage = async (messageId, newText) => {
+    const res = await api.patch(`/v1/chat/messages/${messageId}`, { text: newText });
+    return normalize(res);
+};
+
+/**
+ * Add or toggle a reaction emoji on a message.
+ * @param {string} messageId
+ * @param {string} emoji
+ */
+export const addReaction = async (messageId, emoji) => {
+    const res = await api.post(`/v1/chat/messages/${messageId}/react`, { emoji });
+    return normalize(res);
+};
+
+/**
+ * Remove a reaction emoji from a message.
+ * @param {string} messageId
+ * @param {string} emoji
+ */
+export const removeReaction = async (messageId, emoji) => {
+    const res = await api.delete(`/v1/chat/messages/${messageId}/react`, { data: { emoji } });
+    return normalize(res);
+};

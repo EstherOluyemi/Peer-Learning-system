@@ -87,6 +87,7 @@ const StudentsPage = () => {
       name: value.name || value.fullName || 'Student',
       email: value.email || value.username || '',
       avatar: value.avatar || value.profileImage || value.photoUrl || null,
+      isAdded: Boolean(value.isAdded),
       sessions: Array.isArray(value.sessions) ? value.sessions : [],
       upcomingSessions: value.upcomingSessions || 0,
       completedSessions: value.completedSessions || 0,
@@ -230,26 +231,33 @@ const StudentsPage = () => {
     setAddStudentError(null);
 
     try {
-      const endpoint = term
-        ? `/v1/tutor/students/available?query=${encodeURIComponent(term)}`
-        : '/v1/tutor/students/available';
+      const raw = await api.get('/v1/tutor/students/search', {
+        params: {
+          search: term,
+          page: 1,
+          limit: 20,
+        },
+      });
 
-      const raw = await api.get(endpoint);
-      const resultList = Array.isArray(raw)
-        ? raw
-        : Array.isArray(raw?.data)
-          ? raw.data
-          : Array.isArray(raw?.students)
-            ? raw.students
+      const payload = raw?.data || raw;
+      const resultList = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.students)
+          ? payload.students
+          : Array.isArray(payload?.data)
+            ? payload.data
             : [];
 
-      const existingIds = new Set(students.map(s => s._id));
-      const available = resultList
+      const existingIds = new Set(students.map((s) => s._id));
+      const candidates = resultList
         .map(normalizeStudentRecord)
         .filter(Boolean)
-        .filter(s => !existingIds.has(s._id));
+        .map((student) => ({
+          ...student,
+          isAdded: student.isAdded || existingIds.has(student._id),
+        }));
 
-      setCandidateStudents(available);
+      setCandidateStudents(candidates);
       setAddStudentError(null);
     } catch (err) {
       console.error('Failed to fetch available students:', {
@@ -259,7 +267,7 @@ const StudentsPage = () => {
         payload: err?.payload,
       });
       if (err?.status === 404) {
-        setAddStudentError('Backend endpoint not found. Please check with your administrator.');
+        setAddStudentError('Student search endpoint is not available yet on backend.');
       } else {
         const errorMsg = err?.message || 'Unable to load students right now. Please try again.';
         setAddStudentError(errorMsg);
@@ -280,13 +288,13 @@ const StudentsPage = () => {
   }, [addStudentQuery, isAddStudentOpen, students]);
 
   const handleAddStudent = async (student) => {
-    if (!student?._id || addingStudentId === student._id) return;
+    if (!student?._id || addingStudentId === student._id || student.isAdded) return;
 
     setAddingStudentId(student._id);
     setAddStudentError(null);
 
     try {
-      const raw = await api.post('/v1/tutor/students', { studentId: student._id });
+      const raw = await api.post('/v1/tutor/students/add', { studentId: student._id });
       const candidate = normalizeStudentRecord(raw?.student || raw?.data?.student || raw?.data || raw);
       const addedStudent = candidate || {
         ...student,
@@ -302,7 +310,11 @@ const StudentsPage = () => {
         setAllSessions(buildAllSessions(next));
         return next;
       });
-      setCandidateStudents(prev => prev.filter(s => s._id !== addedStudent._id));
+      setCandidateStudents(prev => prev.map(s =>
+        s._id === addedStudent._id
+          ? { ...s, isAdded: true }
+          : s
+      ));
       setAddStudentSuccess(`${addedStudent.name} added successfully.`);
       setAddingStudentId(null);
     } catch (err) {
@@ -614,17 +626,17 @@ const StudentsPage = () => {
                         </div>
                         <button
                           onClick={() => handleAddStudent(student)}
-                          disabled={addingStudentId === student._id}
+                          disabled={addingStudentId === student._id || student.isAdded}
                           className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white transition-colors"
                         >
-                          {addingStudentId === student._id ? 'Adding…' : 'Add'}
+                          {student.isAdded ? 'Added' : addingStudentId === student._id ? 'Adding…' : 'Add'}
                         </button>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <p className="p-4 text-sm text-center" style={{ color: 'var(--text-secondary)' }}>
-                    {addStudentQuery.trim() ? 'Student does not exist.' : 'No available students found.'}
+                    {addStudentQuery.trim() ? 'No students found for your search.' : 'No students found.'}
                   </p>
                 )}
               </div>

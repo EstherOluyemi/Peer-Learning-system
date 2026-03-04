@@ -7,6 +7,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { ChatProvider } from './context/ChatContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AccessibilityToolbar from './components/AccessibilityToolbar';
+import SkipToContent from './components/common/SkipToContext';
 
 // Pages
 import Landing from './pages/Landing';
@@ -53,6 +54,7 @@ function App() {
           <AccessibilityProvider>
             <ThemeProvider>
               <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+                <SkipToContent />
                 <AccessibilityToolbar />
                 <Routes>
                   <Route path="/" element={<Landing />} />

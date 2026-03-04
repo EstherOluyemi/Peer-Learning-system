@@ -211,6 +211,36 @@ export const ChatProvider = ({ children }) => {
             );
         });
 
+        // message:edited – message was edited by sender
+        const offEdited = socketService.on('message:edited', ({ conversationId, message }) => {
+            setConversations(prev =>
+                prev.map(c => {
+                    if ((c._id || c.id) !== conversationId) return c;
+                    return {
+                        ...c,
+                        messages: (c.messages || []).map(m =>
+                            (m._id || m.id) === (message._id || message.id) ? message : m
+                        ),
+                    };
+                })
+            );
+        });
+
+        // message:reaction – reaction was added/removed
+        const offReaction = socketService.on('message:reaction', ({ conversationId, message }) => {
+            setConversations(prev =>
+                prev.map(c => {
+                    if ((c._id || c.id) !== conversationId) return c;
+                    return {
+                        ...c,
+                        messages: (c.messages || []).map(m =>
+                            (m._id || m.id) === (message._id || message.id) ? message : m
+                        ),
+                    };
+                })
+            );
+        });
+
         // conversation:new – someone started a conversation with us
         const offConvNew = socketService.on('conversation:new', (conv) => {
             upsertConversation(conv);
@@ -225,7 +255,7 @@ export const ChatProvider = ({ children }) => {
         });
 
         return () => {
-            offNew(); offSent(); offRead(); offConvNew(); offOnline(); offOffline();
+            offNew(); offSent(); offRead(); offEdited(); offReaction(); offConvNew(); offOnline(); offOffline();
         };
     }, [user, upsertConversation]);
 

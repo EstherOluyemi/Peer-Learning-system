@@ -3,7 +3,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
     BookOpen, Clock, TrendingUp, Star, Users, Calendar,
     User, Settings, Plus, Menu, Search, Bell, MessageSquare,
@@ -11,19 +11,31 @@ import {
 } from 'lucide-react';
 import Navbar from '../Navbar';
 import { useChat } from '../../context/ChatContext';
-import api from '../../services/api';
+import SkipToContent from '../common/SkipToContext';
+import socketService from '../../services/socketService';
+import {
+    clearAllNotifications,
+    getNotifications,
+    getUnreadNotificationCount,
+    markNotificationAsRead,
+    normalizeNotificationFromSocket,
+} from '../../services/notificationService';
 
 const LearnerLayout = ({ children }) => {
     const { user, logout } = useAuth();
     const { darkMode, toggleTheme } = useTheme();
     const navigate = useNavigate();
+    const location = useLocation();
     const { totalUnread } = useChat();
 
     const [sidebarOpen, setSidebarOpen] = React.useState(false);
     const [showNotifications, setShowNotifications] = React.useState(false);
     const [notifications, setNotifications] = React.useState([]);
+    const [unreadCount, setUnreadCount] = React.useState(0);
     const [loadingNotifications, setLoadingNotifications] = React.useState(false);
+    const [notificationsError, setNotificationsError] = React.useState(null);
     const notificationRef = React.useRef(null);
+    const mainContentRef = React.useRef(null);
 
     const navItems = [
         { label: 'Dashboard', icon: BookOpen, to: '/dashboard-learner' },
@@ -49,22 +61,94 @@ const LearnerLayout = ({ children }) => {
         const fetchNotifications = async () => {
             if (!showNotifications) return;
             setLoadingNotifications(true);
+            setNotificationsError(null);
             try {
-                const response = await api.get('/v1/learner/notifications');
-                setNotifications(response?.data || response || []);
+                const { notifications: items } = await getNotifications({ page: 1, limit: 20 });
+                setNotifications(items);
+                setUnreadCount(items.filter((item) => !item.read).length);
             } catch (err) {
-                console.log('Notifications endpoint not available, using mock data');
-                setNotifications([
-                    { _id: '1', type: 'session', message: 'Your session starts in 30 minutes', time: new Date(Date.now() - 5 * 60000).toISOString(), read: false },
-                    { _id: '2', type: 'approval', message: 'Your enrollment was approved!', time: new Date(Date.now() - 3600000).toISOString(), read: false },
-                    { _id: '3', type: 'message', message: 'New message from your tutor', time: new Date(Date.now() - 2 * 3600000).toISOString(), read: true },
-                ]);
+                console.error('Failed to load notifications:', {
+                    status: err?.status,
+                    code: err?.code,
+                    message: err?.message,
+                    payload: err?.payload,
+                });
+                setNotifications([]);
+                setNotificationsError(err?.message || 'Could not load notifications.');
             } finally {
                 setLoadingNotifications(false);
             }
         };
         fetchNotifications();
     }, [showNotifications]);
+
+    React.useEffect(() => {
+        let mounted = true;
+
+        const loadUnreadCount = async () => {
+            try {
+                const count = await getUnreadNotificationCount();
+                if (mounted) setUnreadCount(count);
+            } catch {
+                if (mounted) {
+                    setUnreadCount((prev) => prev);
+                }
+            }
+        };
+
+        loadUnreadCount();
+        return () => { mounted = false; };
+    }, []);
+
+    React.useEffect(() => {
+        const offNew = socketService.on('notification:new', (payload) => {
+            const notification = normalizeNotificationFromSocket(payload);
+            if (!notification?._id) return;
+
+            setNotifications((prev) => {
+                if (prev.some((item) => item._id === notification._id)) return prev;
+                return [notification, ...prev];
+            });
+
+            if (!notification.read) {
+                setUnreadCount((prev) => prev + 1);
+            }
+        });
+
+        const offRead = socketService.on('notification:read', (payload) => {
+            const notificationId = payload?.notificationId || payload?._id || payload?.id;
+            if (!notificationId) return;
+
+            setNotifications((prev) =>
+                prev.map((item) => (item._id === notificationId ? { ...item, read: true } : item))
+            );
+            setUnreadCount((prev) => Math.max(0, prev - 1));
+        });
+
+        const offAllRead = socketService.on('notification:all-read', () => {
+            setNotifications((prev) => prev.map((item) => ({ ...item, read: true })));
+            setUnreadCount(0);
+        });
+
+        const offUnread = socketService.on('notification:unread-count', (payload) => {
+            const count = typeof payload?.count === 'number'
+                ? payload.count
+                : typeof payload?.unreadCount === 'number'
+                    ? payload.unreadCount
+                    : null;
+
+            if (count !== null) {
+                setUnreadCount(count);
+            }
+        });
+
+        return () => {
+            offNew();
+            offRead();
+            offAllRead();
+            offUnread();
+        };
+    }, []);
 
     React.useEffect(() => {
         const handleClickOutside = (e) => {
@@ -78,22 +162,41 @@ const LearnerLayout = ({ children }) => {
         }
     }, [showNotifications]);
 
+    React.useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                setShowNotifications(false);
+            }
+        };
+
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, []);
+
+    React.useEffect(() => {
+        if (mainContentRef.current) {
+            mainContentRef.current.focus();
+        }
+    }, [location.pathname]);
+
     const markAsRead = async (notificationId) => {
         try {
-            await api.patch(`/v1/learner/notifications/${notificationId}/read`);
+            await markNotificationAsRead(notificationId);
         } catch (err) {
             console.log('Mark as read not available');
         }
         setNotifications(prev => prev.map(n => n._id === notificationId ? { ...n, read: true } : n));
+        setUnreadCount((prev) => Math.max(0, prev - 1));
     };
 
     const clearAll = async () => {
         try {
-            await api.delete('/v1/learner/notifications');
+            await clearAllNotifications();
         } catch (err) {
             console.log('Clear all not available');
         }
         setNotifications([]);
+        setUnreadCount(0);
     };
 
     const formatNotificationTime = (time) => {
@@ -109,10 +212,9 @@ const LearnerLayout = ({ children }) => {
         return `${days}d ago`;
     };
 
-    const unreadCount = notifications.filter(n => !n.read).length;
-
     return (
         <div className="flex min-h-screen">
+            <SkipToContent />
             <Navbar
                 navItems={navItems}
                 bottomItems={bottomItems}
@@ -138,6 +240,7 @@ const LearnerLayout = ({ children }) => {
                             style={{ color: 'var(--text-secondary)' }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                            aria-label="Open sidebar"
                         >
                             <Menu className="w-6 h-6" />
                         </button>
@@ -146,6 +249,7 @@ const LearnerLayout = ({ children }) => {
                             <input
                                 type="text"
                                 placeholder="Find sessions or tutors..."
+                                aria-label="Search sessions or tutors"
                                 className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all"
                                 style={{
                                     backgroundColor: 'var(--input-bg)',
@@ -161,6 +265,9 @@ const LearnerLayout = ({ children }) => {
                                 onClick={() => setShowNotifications(!showNotifications)}
                                 className="relative p-2 rounded-full transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                                 style={{ color: 'var(--text-secondary)' }}
+                                aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+                                aria-expanded={showNotifications}
+                                aria-controls="learner-notifications-panel"
                             >
                                 <Bell className="w-6 h-6" />
                                 {unreadCount > 0 && (
@@ -170,6 +277,9 @@ const LearnerLayout = ({ children }) => {
 
                             {showNotifications && (
                                 <div
+                                    id="learner-notifications-panel"
+                                    role="dialog"
+                                    aria-label="Notifications panel"
                                     className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl shadow-2xl border overflow-hidden z-50"
                                     style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
                                 >
@@ -189,6 +299,16 @@ const LearnerLayout = ({ children }) => {
                                         {loadingNotifications ? (
                                             <div className="p-8 text-center">
                                                 <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                                            </div>
+                                        ) : notificationsError ? (
+                                            <div className="p-6 text-center">
+                                                <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{notificationsError}</p>
+                                                <button
+                                                    onClick={() => setShowNotifications(false)}
+                                                    className="text-xs text-blue-600 hover:underline"
+                                                >
+                                                    Close
+                                                </button>
                                             </div>
                                         ) : notifications.length > 0 ? (
                                             notifications.map((notif) => (
@@ -234,6 +354,7 @@ const LearnerLayout = ({ children }) => {
                         <button
                             onClick={() => navigate('/dashboard-learner/profile')}
                             className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+                            aria-label="Open profile"
                         >
                             <div className="text-right hidden md:block">
                                 <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{user?.name || 'Student'}</div>
@@ -249,7 +370,7 @@ const LearnerLayout = ({ children }) => {
                     </div>
                 </header>
 
-                <main className="flex-1 p-4 sm:p-8 overflow-y-auto" style={{
+                <main id="main-content" ref={mainContentRef} tabIndex={-1} className="flex-1 p-4 sm:p-8 overflow-y-auto" style={{
                     backgroundColor: 'var(--bg-primary)',
                     color: 'var(--text-primary)',
                     transition: 'background-color 0.3s ease, color 0.3s ease'

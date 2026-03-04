@@ -10,7 +10,15 @@ import {
 } from 'lucide-react';
 import Navbar from '../Navbar';
 import { useChat } from '../../context/ChatContext';
-import api from '../../services/api';
+import SkipToContent from '../common/SkipToContext';
+import socketService from '../../services/socketService';
+import {
+  clearAllNotifications,
+  getNotifications,
+  getUnreadNotificationCount,
+  markNotificationAsRead,
+  normalizeNotificationFromSocket,
+} from '../../services/notificationService';
 
 const TutorLayout = () => {
   const { user, logout } = useAuth();
@@ -22,8 +30,11 @@ const TutorLayout = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [notificationsError, setNotificationsError] = useState(null);
   const notificationRef = useRef(null);
+  const mainContentRef = useRef(null);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -34,22 +45,94 @@ const TutorLayout = () => {
     const fetchNotifications = async () => {
       if (!showNotifications) return;
       setLoadingNotifications(true);
+      setNotificationsError(null);
       try {
-        const response = await api.get('/v1/tutor/notifications');
-        setNotifications(response?.data || response || []);
+        const { notifications: items } = await getNotifications({ page: 1, limit: 20 });
+        setNotifications(items);
+        setUnreadCount(items.filter((item) => !item.read).length);
       } catch (err) {
-        console.log('Notifications endpoint not available, using mock data');
-        setNotifications([
-          { _id: '1', type: 'enrollment', message: 'New student enrolled in Math Session', time: new Date(Date.now() - 5 * 60000).toISOString(), read: false },
-          { _id: '2', type: 'message', message: 'New message from Sarah Johnson', time: new Date(Date.now() - 30 * 60000).toISOString(), read: false },
-          { _id: '3', type: 'review', message: 'You received a 5-star review', time: new Date(Date.now() - 2 * 3600000).toISOString(), read: true },
-        ]);
+        console.error('Failed to load notifications:', {
+          status: err?.status,
+          code: err?.code,
+          message: err?.message,
+          payload: err?.payload,
+        });
+        setNotifications([]);
+        setNotificationsError(err?.message || 'Could not load notifications.');
       } finally {
         setLoadingNotifications(false);
       }
     };
     fetchNotifications();
   }, [showNotifications]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadUnreadCount = async () => {
+      try {
+        const count = await getUnreadNotificationCount();
+        if (mounted) setUnreadCount(count);
+      } catch {
+        if (mounted) {
+          setUnreadCount((prev) => prev);
+        }
+      }
+    };
+
+    loadUnreadCount();
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    const offNew = socketService.on('notification:new', (payload) => {
+      const notification = normalizeNotificationFromSocket(payload);
+      if (!notification?._id) return;
+
+      setNotifications((prev) => {
+        if (prev.some((item) => item._id === notification._id)) return prev;
+        return [notification, ...prev];
+      });
+
+      if (!notification.read) {
+        setUnreadCount((prev) => prev + 1);
+      }
+    });
+
+    const offRead = socketService.on('notification:read', (payload) => {
+      const notificationId = payload?.notificationId || payload?._id || payload?.id;
+      if (!notificationId) return;
+
+      setNotifications((prev) =>
+        prev.map((item) => (item._id === notificationId ? { ...item, read: true } : item))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    });
+
+    const offAllRead = socketService.on('notification:all-read', () => {
+      setNotifications((prev) => prev.map((item) => ({ ...item, read: true })));
+      setUnreadCount(0);
+    });
+
+    const offUnread = socketService.on('notification:unread-count', (payload) => {
+      const count = typeof payload?.count === 'number'
+        ? payload.count
+        : typeof payload?.unreadCount === 'number'
+          ? payload.unreadCount
+          : null;
+
+      if (count !== null) {
+        setUnreadCount(count);
+      }
+    });
+
+    return () => {
+      offNew();
+      offRead();
+      offAllRead();
+      offUnread();
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -63,22 +146,41 @@ const TutorLayout = () => {
     }
   }, [showNotifications]);
 
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  useEffect(() => {
+    if (mainContentRef.current) {
+      mainContentRef.current.focus();
+    }
+  }, [location.pathname]);
+
   const markAsRead = async (notificationId) => {
     try {
-      await api.patch(`/v1/tutor/notifications/${notificationId}/read`);
-    } catch (err) {
+      await markNotificationAsRead(notificationId);
+    } catch {
       console.log('Mark as read not available');
     }
     setNotifications(prev => prev.map(n => n._id === notificationId ? { ...n, read: true } : n));
+    setUnreadCount((prev) => Math.max(0, prev - 1));
   };
 
   const clearAll = async () => {
     try {
-      await api.delete('/v1/tutor/notifications');
-    } catch (err) {
+      await clearAllNotifications();
+    } catch {
       console.log('Clear all not available');
     }
     setNotifications([]);
+    setUnreadCount(0);
   };
 
   const formatNotificationTime = (time) => {
@@ -93,8 +195,6 @@ const TutorLayout = () => {
     if (hours < 24) return `${hours}h ago`;
     return `${days}d ago`;
   };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);
@@ -137,6 +237,7 @@ const TutorLayout = () => {
 
   return (
     <div className="flex min-h-screen">
+      <SkipToContent />
       <Navbar
         navItems={navItems}
         bottomItems={bottomItems}
@@ -160,6 +261,7 @@ const TutorLayout = () => {
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 -ml-2 rounded-lg transition-colors"
               style={{ color: 'var(--text-secondary)' }}
+              aria-label="Open sidebar"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -170,6 +272,7 @@ const TutorLayout = () => {
                 placeholder="Search students, sessions..."
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
+                aria-label="Search students and sessions"
                 className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all"
                 style={{
                   backgroundColor: 'var(--input-bg)',
@@ -185,6 +288,9 @@ const TutorLayout = () => {
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="relative p-2 rounded-full transition-colors hover:bg-slate-100 dark:hover:bg-slate-800" 
                 style={{ color: 'var(--text-secondary)' }}
+                aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+                aria-expanded={showNotifications}
+                aria-controls="tutor-notifications-panel"
               >
                 <Bell className="w-6 h-6" />
                 {unreadCount > 0 && (
@@ -194,6 +300,9 @@ const TutorLayout = () => {
 
               {showNotifications && (
                 <div 
+                  id="tutor-notifications-panel"
+                  role="dialog"
+                  aria-label="Notifications panel"
                   className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl shadow-2xl border overflow-hidden z-50"
                   style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
                 >
@@ -213,6 +322,16 @@ const TutorLayout = () => {
                     {loadingNotifications ? (
                       <div className="p-8 text-center">
                         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                      </div>
+                    ) : notificationsError ? (
+                      <div className="p-6 text-center">
+                        <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{notificationsError}</p>
+                        <button
+                          onClick={() => setShowNotifications(false)}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          Close
+                        </button>
                       </div>
                     ) : notifications.length > 0 ? (
                       notifications.map((notif) => (
@@ -258,6 +377,7 @@ const TutorLayout = () => {
             <button
               onClick={() => navigate('/dashboard-tutor/profile')}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+              aria-label="Open profile"
             >
               <div className="text-right hidden md:block">
                 <div className="text-sm font-bold">{user?.name || 'Jane Doe'}</div>
@@ -273,7 +393,7 @@ const TutorLayout = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-8 overflow-y-auto" style={{
+        <main id="main-content" ref={mainContentRef} tabIndex={-1} className="flex-1 p-4 sm:p-8 overflow-y-auto" style={{
           backgroundColor: 'var(--bg-primary)',
           color: 'var(--text-primary)',
           transition: 'background-color 0.3s ease, color 0.3s ease'

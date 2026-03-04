@@ -2,12 +2,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     MessageSquare, Search, Send, X, Plus, Check, CheckCheck,
-    ChevronLeft, AlertCircle, Loader2,
+    ChevronLeft, AlertCircle, Loader2, Edit2, Smile,
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
-import { getContacts } from '../../services/chatService';
+import { getContacts, editMessage, addReaction } from '../../services/chatService';
 import socketService from '../../services/socketService';
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
@@ -66,6 +66,11 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
     const [sending, setSending] = useState(false);
     const [typing, setTyping] = useState(false); // remote user typing
     const [isTyping, setIsTyping] = useState(false); // I am typing
+    const [editingMessageId, setEditingMessageId] = useState(null);
+    const [editText, setEditText] = useState('');
+    const [reactionMenuMessageId, setReactionMenuMessageId] = useState(null);
+    const [editingError, setEditingError] = useState('');
+    const [reactionEmojis] = useState(['👍', '❤️', '😂', '😮', '😢', '🎉', '👏', '🔥']);
     const typingTimer = useRef(null);
     const messagesEnd = useRef(null);
     const inputRef = useRef(null);
@@ -133,8 +138,55 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
     }, [text, activeConvId, sending, sendMessage]);
 
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-        else handleTyping();
+        if (e.key === 'Enter') {
+            if (e.shiftKey) {
+                // Shift+Enter: allow newline
+                handleTyping();
+            } else {
+                // Enter alone: send message
+                e.preventDefault();
+                handleSend();
+            }
+        } else {
+            handleTyping();
+        }
+    };
+
+    // ── Edit message ──────────────────────────────────────────────────────────
+    const startEdit = (message) => {
+        setEditingMessageId(message._id || message.id);
+        setEditText(message.text);
+        setEditingError('');
+    };
+
+    const cancelEdit = () => {
+        setEditingMessageId(null);
+        setEditText('');
+        setEditingError('');
+    };
+
+    const submitEdit = async () => {
+        const trimmed = editText.trim();
+        if (!trimmed) {
+            setEditingError('Message cannot be empty');
+            return;
+        }
+        try {
+            await editMessage(editingMessageId, trimmed);
+            cancelEdit();
+        } catch (err) {
+            setEditingError(err.message || 'Failed to edit message');
+        }
+    };
+
+    // ── React to message ───────────────────────────────────────────────────────
+    const handleReaction = async (messageId, emoji) => {
+        try {
+            await addReaction(messageId, emoji);
+            setReactionMenuMessageId(null);
+        } catch (err) {
+            console.error('[chat] Failed to add reaction:', err);
+        }
     };
 
     // ── Select conversation ───────────────────────────────────────────────────
@@ -321,7 +373,7 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                         const myIdStr = String(myId?._id || myId?.id || myId);
                                         const isMine = senderId === myIdStr;
                                         return (
-                                            <div key={msg._id || msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'} items-end gap-2`}>
+                                            <div key={msg._id || msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'} items-end gap-2 group`}>
                                                 {!isMine && (() => {
                                                     const other = getOtherParticipant(activeConv, myId);
                                                     return (
@@ -330,12 +382,73 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                                     );
                                                 })()}
                                                 <div className={`max-w-xs lg:max-w-sm xl:max-w-md ${isMine ? 'items-end' : 'items-start'} flex flex-col gap-0.5`}>
-                                                    <div className={`px-4 py-2.5 rounded-2xl text-sm break-words ${isMine
-                                                        ? 'bg-blue-600 text-white rounded-br-sm'
-                                                        : 'bg-slate-100 dark:bg-slate-800 rounded-bl-sm'}`}
-                                                        style={isMine ? {} : { color: 'var(--text-primary)' }}>
-                                                        {msg.text}
+                                                    {/* Message bubble with actions */}
+                                                    <div className="flex items-center gap-1.5 group/message">
+                                                        {isMine && (
+                                                            <button
+                                                                onClick={() => startEdit(msg)}
+                                                                className="opacity-0 group-hover/message:opacity-100 p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                                                                title="Edit message"
+                                                            >
+                                                                <Edit2 className="w-3.5 h-3.5 text-slate-500" />
+                                                            </button>
+                                                        )}
+                                                        <div className={`relative px-4 py-2.5 rounded-2xl text-sm break-words ${isMine
+                                                            ? 'bg-blue-600 text-white rounded-br-sm'
+                                                            : 'bg-slate-100 dark:bg-slate-800 rounded-bl-sm'}`}
+                                                            style={isMine ? {} : { color: 'var(--text-primary)' }}>
+                                                            {msg.text}
+                                                            {msg.isEdited && (
+                                                                <span className="text-xs ml-2 opacity-75">(edited)</span>
+                                                            )}
+                                                        </div>
+                                                        <div className="relative">
+                                                            <button
+                                                                onClick={() => setReactionMenuMessageId(reactionMenuMessageId === (msg._id || msg.id) ? null : (msg._id || msg.id))}
+                                                                className="opacity-0 group-hover/message:opacity-100 p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                                                                title="Add reaction"
+                                                            >
+                                                                <Smile className="w-3.5 h-3.5 text-slate-500" />
+                                                            </button>
+                                                            {/* Reaction emoji picker */}
+                                                            {reactionMenuMessageId === (msg._id || msg.id) && (
+                                                                <div className={`absolute ${isMine ? 'right-0' : 'left-0'} top-full mt-1 bg-white dark:bg-slate-700 rounded-lg shadow-lg p-2 flex gap-1 z-10`}>
+                                                                    {reactionEmojis.map(emoji => (
+                                                                        <button
+                                                                            key={emoji}
+                                                                            onClick={() => handleReaction(msg._id || msg.id, emoji)}
+                                                                            className="text-lg hover:scale-125 transition-transform cursor-pointer"
+                                                                        >
+                                                                            {emoji}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
+
+                                                    {/* Reactions display */}
+                                                    {(msg.reactions || []).length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {Array.from(new Set(msg.reactions.map(r => r.emoji))).map(emoji => {
+                                                                const count = msg.reactions.filter(r => r.emoji === emoji).length;
+                                                                const userReacted = msg.reactions.some(r => r.emoji === emoji && (r.userId === myId || r.userId?._id === myId || r.userId?.id === myId));
+                                                                return (
+                                                                    <button
+                                                                        key={emoji}
+                                                                        onClick={() => handleReaction(msg._id || msg.id, emoji)}
+                                                                        className={`text-sm px-2 py-1 rounded-full transition-colors ${userReacted
+                                                                            ? 'bg-blue-200 dark:bg-blue-900/40'
+                                                                            : 'bg-slate-100 dark:bg-slate-700 opacity-60 hover:opacity-100'}`}
+                                                                    >
+                                                                        {emoji} {count}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+
+                                                    {/* Time and read status */}
                                                     <div className={`flex items-center gap-1 text-xs ${isMine ? 'justify-end' : 'justify-start'}`}
                                                         style={{ color: 'var(--text-tertiary)' }}>
                                                         <span>{formatTime(msg.createdAt)}</span>
@@ -378,22 +491,22 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                             </div>
 
                             {/* Input */}
-                            <div className="px-4 py-3 border-t flex items-center gap-3 shrink-0"
+                            <div className="px-4 py-3 border-t flex items-end gap-3 shrink-0"
                                 style={{ borderColor: 'var(--border-color)' }}>
-                                <input
+                                <textarea
                                     ref={inputRef}
-                                    type="text"
-                                    placeholder="Type a message…"
+                                    placeholder="Type a message… (Shift+Enter for new line)"
                                     value={text}
                                     onChange={e => { setText(e.target.value); handleTyping(); }}
                                     onKeyDown={handleKeyDown}
-                                    className="flex-1 px-4 py-2.5 rounded-full text-sm border-none focus:ring-2 focus:ring-blue-500 transition-all"
-                                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)' }}
+                                    className="flex-1 px-4 py-2.5 rounded-2xl text-sm border-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
+                                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', maxHeight: '120px', minHeight: '44px' }}
+                                    rows="1"
                                 />
                                 <button
                                     onClick={handleSend}
                                     disabled={!text.trim() || sending}
-                                    className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                                 >
                                     {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                                 </button>
@@ -419,6 +532,55 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                     )}
                 </div>
             </div>
+
+            {/* ── Edit Message Modal ── */}
+            {editingMessageId && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                    onClick={cancelEdit}>
+                    <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden"
+                        style={{ backgroundColor: 'var(--card-bg)' }}
+                        onClick={e => e.stopPropagation()}>
+
+                        {/* Modal header */}
+                        <div className="px-6 py-5 border-b flex items-center justify-between"
+                            style={{ borderColor: 'var(--border-color)' }}>
+                            <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Edit Message</h2>
+                            <button onClick={cancelEdit}
+                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+                            </button>
+                        </div>
+
+                        {/* Modal body */}
+                        <div className="px-6 py-4 space-y-3">
+                            <textarea
+                                value={editText}
+                                onChange={e => setEditText(e.target.value)}
+                                className="w-full px-4 py-3 rounded-lg text-sm border-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
+                                style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', minHeight: '100px' }}
+                                autoFocus
+                            />
+                            {editingError && (
+                                <p className="text-xs text-red-500">{editingError}</p>
+                            )}
+                        </div>
+
+                        {/* Modal footer */}
+                        <div className="px-6 py-4 border-t flex items-center justify-end gap-3"
+                            style={{ borderColor: 'var(--border-color)' }}>
+                            <button onClick={cancelEdit}
+                                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)' }}>
+                                Cancel
+                            </button>
+                            <button onClick={submitEdit}
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* ── New Message Modal ── */}
             {showModal && (

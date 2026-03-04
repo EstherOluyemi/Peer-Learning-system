@@ -2,8 +2,11 @@ import React from 'react';
 
 const SkipToContent = () => {
   const handleSkip = () => {
-    const mainContent = document.querySelector('main');
+    const mainContent = document.querySelector('#main-content') || document.querySelector('main');
     if (mainContent) {
+      if (!mainContent.hasAttribute('tabindex')) {
+        mainContent.setAttribute('tabindex', '-1');
+      }
       mainContent.focus();
     }
   };
