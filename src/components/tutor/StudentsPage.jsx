@@ -97,6 +97,7 @@ const StudentsPage = () => {
       email: value.email || value.username || '',
       avatar: value.avatar || value.profileImage || value.photoUrl || null,
       isAdded: Boolean(value.isAdded),
+      isInTutorList: Boolean(value.isInTutorList),
       sessions: Array.isArray(value.sessions) ? value.sessions : [],
       upcomingSessions: value.upcomingSessions || 0,
       completedSessions: value.completedSessions || 0,
@@ -332,6 +333,7 @@ const StudentsPage = () => {
       const raw = await api.get('/v1/tutor/students/search', {
         params: {
           search: term,
+          sessionId: selectedSessionId,
           page: 1,
           limit: 20,
         },
@@ -353,7 +355,7 @@ const StudentsPage = () => {
         .filter(Boolean)
         .map((student) => ({
           ...student,
-          isAdded: student.isAdded || enrolledIds.has(student._id),
+          isAdded: typeof student.isAdded === 'boolean' ? student.isAdded : enrolledIds.has(student._id),
         }));
 
       setCandidateStudents(candidates);
@@ -366,6 +368,11 @@ const StudentsPage = () => {
         payload: err?.payload,
       });
       if (err?.status === 404) {
+        if (err?.code === 'SESSION_NOT_FOUND' || err?.response?.data?.code === 'SESSION_NOT_FOUND') {
+          setAddStudentError('Selected session was not found. Please refresh sessions and try again.');
+          setCandidateStudents([]);
+          return;
+        }
         setAddStudentError('Student search endpoint is not available yet on backend.');
       } else {
         const errorMsg = err?.message || 'Unable to load students right now. Please try again.';

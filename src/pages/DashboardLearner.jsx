@@ -109,14 +109,6 @@ const DashboardLearner = () => {
           setSessions(normalized);
           updateSessionStats(normalized);
           
-          // Mock recommended sessions - in production, backend would return personalized recommendations
-          const mockRecommended = [
-            { title: 'Advanced Python', subject: 'Programming', tutor: 'John Smith', rating: 4.8, students: 120 },
-            { title: 'Data Science Fundamentals', subject: 'Data Science', tutor: 'Sarah Lee', rating: 4.9, students: 95 },
-            { title: 'Business English', subject: 'English Literature', tutor: 'Emma Wilson', rating: 4.7, students: 78 }
-          ];
-          setRecommendedSessions(mockRecommended);
-          
           // Mock top tutors - in production, backend would return actual tutors
           setTopTutors([
             { name: 'Dr. Alex Johnson', subject: 'Mathematics', rating: 5.0, students: 250, image: '👨‍🏫' },
@@ -134,6 +126,46 @@ const DashboardLearner = () => {
             coursesInProgress: 0
           });
           setUpcomingSessions([]);
+        }
+
+        try {
+          const recommendationRes = await api.get('/v1/learner/me/recommendations', {
+            params: { limit: 6 }
+          });
+          const payload = recommendationRes?.data ?? recommendationRes;
+          const recommendationList = Array.isArray(payload?.recommendations)
+            ? payload.recommendations
+            : Array.isArray(payload?.data?.recommendations)
+              ? payload.data.recommendations
+              : Array.isArray(payload?.data)
+                ? payload.data
+                : Array.isArray(payload)
+                  ? payload
+                  : [];
+
+          const mappedRecommendations = recommendationList.map((item, index) => {
+            const sessionData = item?.session || item;
+            const tutorData = item?.tutor || sessionData?.tutor || {};
+            const title = sessionData?.title || item?.title || 'Recommended Session';
+            const subject = sessionData?.subject || item?.subject || 'General';
+            const tutorName = tutorData?.name || item?.tutorName || item?.tutor || 'Tutor';
+            const rating = Number(item?.tutorRating ?? tutorData?.rating ?? item?.rating ?? 0);
+            const students = Number(sessionData?.studentCount ?? sessionData?.studentsCount ?? sessionData?.enrolledCount ?? item?.students ?? 0);
+
+            return {
+              id: sessionData?._id || sessionData?.id || item?._id || item?.id || `${title}-${index}`,
+              title,
+              subject,
+              tutor: tutorName,
+              rating: Number.isFinite(rating) ? rating.toFixed(1) : '0.0',
+              students: Number.isFinite(students) ? students : 0,
+            };
+          });
+
+          setRecommendedSessions(mappedRecommendations);
+        } catch (recommendationError) {
+          console.error('Could not fetch recommendations:', recommendationError);
+          setRecommendedSessions([]);
         }
         
         // Mock activity for now as there's no dedicated endpoint yet
@@ -325,8 +357,8 @@ const DashboardLearner = () => {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6" role="list">
-          {recommendedSessions.map((session, idx) => (
-            <article key={idx} role="listitem" aria-label={`Recommended session: ${session.title} by ${session.tutor}, rated ${session.rating} stars`} className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400"
+          {recommendedSessions.length > 0 ? recommendedSessions.map((session) => (
+            <article key={session.id} role="listitem" aria-label={`Recommended session: ${session.title} by ${session.tutor}, rated ${session.rating} stars`} className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
               onClick={() => navigate('/dashboard-learner/sessions')}
             >
@@ -343,7 +375,11 @@ const DashboardLearner = () => {
               </div>
               <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>with {session.tutor}</p>
             </article>
-          ))}
+          )) : (
+            <div className="col-span-full text-sm" style={{ color: 'var(--text-secondary)' }}>
+              No recommendations available right now. Explore sessions to help personalize this section.
+            </div>
+          )}
         </div>
       </section>
 
