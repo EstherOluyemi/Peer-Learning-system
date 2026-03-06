@@ -114,9 +114,10 @@ const SessionsPage = () => {
         };
     }, [user]);
 
+    const getEnrollmentStatus = (session) =>
+        (session.enrollmentStatus || session.requestStatus || session.approvalStatus || '').toLowerCase();
+
     useEffect(() => {
-        const getEnrollmentStatus = (session) =>
-            session.enrollmentStatus || session.requestStatus || session.approvalStatus;
 
         let latestMessage = '';
         sessions.forEach((session) => {
@@ -337,6 +338,7 @@ const SessionsPage = () => {
                                     const sessionId = session._id || session.id;
                                     const start = formatDateTime(session.startTime);
                                     const isOngoing = (session.status || '').toLowerCase() === 'ongoing';
+                                    const isPendingApproval = getEnrollmentStatus(session) === 'pending';
                                     return (
                                         <div
                                             key={sessionId}
@@ -367,17 +369,17 @@ const SessionsPage = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => {
-                                                        if (!session.meetingLink || session.status === 'completed') return;
+                                                        if (!session.meetingLink || session.status === 'completed' || isPendingApproval) return;
                                                         navigate(`/session/${sessionId}`);
                                                     }}
-                                                    disabled={!session.meetingLink || session.status === 'completed'}
-                                                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${!session.meetingLink || session.status === 'completed'
+                                                    disabled={!session.meetingLink || session.status === 'completed' || isPendingApproval}
+                                                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${!session.meetingLink || session.status === 'completed' || isPendingApproval
                                                         ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                         : 'bg-blue-600 text-white hover:bg-blue-700'
                                                         }`}
                                                 >
                                                     <Video className="w-4 h-4 inline mr-1" />
-                                                    Join
+                                                    {isPendingApproval ? 'Pending Approval' : 'Join'}
                                                 </button>
                                             </div>
                                         </div>
@@ -436,6 +438,7 @@ const SessionsPage = () => {
                                 const startDate = formatDateTime(session.startTime);
                                 const endDate = formatDateTime(session.endTime);
                                 const isOngoing = (session.status || '').toLowerCase() === 'ongoing';
+                                const isPendingApproval = getEnrollmentStatus(session) === 'pending';
 
                                 return (
                                     <div
@@ -475,17 +478,17 @@ const SessionsPage = () => {
                                                         {session.meetingLink && (
                                                             <button
                                                                 onClick={() => {
-                                                                    if (session.status === 'completed') return;
+                                                                    if (session.status === 'completed' || isPendingApproval) return;
                                                                     navigate(`/session/${session._id || session.id}`);
                                                                 }}
-                                                                disabled={session.status === 'completed'}
-                                                                className={`flex items-center gap-1 text-sm font-medium transition-colors ${session.status === 'completed'
+                                                                disabled={session.status === 'completed' || isPendingApproval}
+                                                                className={`flex items-center gap-1 text-sm font-medium transition-colors ${session.status === 'completed' || isPendingApproval
                                                                     ? 'text-slate-400 cursor-not-allowed opacity-60'
                                                                     : 'text-blue-600 hover:underline'
                                                                     }`}
                                                             >
                                                                 <Video className="w-3.5 h-3.5" />
-                                                                {session.status === 'completed' ? 'Session Completed' : 'Join'}
+                                                                {isPendingApproval ? 'Pending Approval' : session.status === 'completed' ? 'Session Completed' : 'Join'}
                                                             </button>
                                                         )}
                                                     </div>
@@ -511,17 +514,17 @@ const SessionsPage = () => {
                                                     </button>
                                                     <button
                                                         onClick={() => {
-                                                            if (!session.meetingLink || session.status === 'completed') return;
+                                                            if (!session.meetingLink || session.status === 'completed' || isPendingApproval) return;
                                                             navigate(`/session/${session._id || session.id}`);
                                                         }}
-                                                        disabled={!session.meetingLink || session.status === 'completed'}
-                                                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${!session.meetingLink || session.status === 'completed'
+                                                        disabled={!session.meetingLink || session.status === 'completed' || isPendingApproval}
+                                                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${!session.meetingLink || session.status === 'completed' || isPendingApproval
                                                             ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                             : 'bg-blue-600 text-white hover:bg-blue-700'
                                                             }`}
                                                     >
                                                         <Video className="w-4 h-4 inline mr-1" />
-                                                        Join
+                                                        {isPendingApproval ? 'Pending Approval' : 'Join'}
                                                     </button>
                                                 </div>
                                                 <button
@@ -797,14 +800,14 @@ const SessionsPage = () => {
                                     <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Meeting</h4>
                                     <button
                                         onClick={() => navigate(`/session/${selectedSession._id || selectedSession.id}`)}
-                                        disabled={selectedSession.status === 'completed'}
-                                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all ${selectedSession.status === 'completed'
+                                        disabled={selectedSession.status === 'completed' || getEnrollmentStatus(selectedSession) === 'pending'}
+                                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all ${selectedSession.status === 'completed' || getEnrollmentStatus(selectedSession) === 'pending'
                                             ? 'bg-slate-400 cursor-not-allowed opacity-60 shadow-none'
                                             : 'bg-blue-600 hover:bg-blue-700 shadow-sm'
                                             }`}
                                     >
                                         <Video className="w-4 h-4" />
-                                        {selectedSession.status === 'completed' ? 'Session Completed' : 'Open Session Room'}
+                                        {getEnrollmentStatus(selectedSession) === 'pending' ? 'Pending Approval' : selectedSession.status === 'completed' ? 'Session Completed' : 'Open Session Room'}
                                     </button>
                                 </div>
                             )}
