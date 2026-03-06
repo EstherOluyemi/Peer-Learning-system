@@ -32,6 +32,5 @@ jobs:
 
           git remote add fork "https://x-access-token:${FORK_SYNC_TOKEN}@github.com/${FORK_REPO}.git"
 
-          # Sync all branches and tags to the fork
           git push fork --prune "refs/heads/*:refs/heads/*"
           git push fork --prune "refs/tags/*:refs/tags/*"
