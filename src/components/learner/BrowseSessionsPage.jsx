@@ -18,6 +18,7 @@ const BrowseSessionsPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [sessions, setSessions] = useState([]);
     const [enrolledSessions, setEnrolledSessions] = useState([]);
+    const [pendingEnrollments, setPendingEnrollments] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -42,10 +43,33 @@ const BrowseSessionsPage = () => {
             try {
                 const enrolledRes = await api.get('/v1/learner/sessions');
                 const enrolledList = Array.isArray(enrolledRes) ? enrolledRes : (enrolledRes?.data && Array.isArray(enrolledRes.data) ? enrolledRes.data : []);
-                setEnrolledSessions(enrolledList.map(s => s._id || s.id));
+                
+                console.log('Fetched learner sessions:', enrolledList);
+                
+                // Separate enrolled and pending based on enrollmentStatus, requestStatus, or approvalStatus
+                const enrolled = [];
+                const pending = [];
+                
+                enrolledList.forEach(session => {
+                    const sessionId = session._id || session.id;
+                    // Check all possible enrollment status fields
+                    const enrollStatus = session.enrollmentStatus || session.requestStatus || session.approvalStatus || session.status;
+                    
+                    console.log(`Session ${sessionId}: enrollmentStatus=${session.enrollmentStatus}, requestStatus=${session.requestStatus}, approvalStatus=${session.approvalStatus}, status=${session.status}`);
+                    
+                    if (enrollStatus === 'pending') {
+                        pending.push(sessionId);
+                    } else if (enrollStatus === 'approved' || enrollStatus === 'enrolled' || !enrollStatus) {
+                        enrolled.push(sessionId);
+                    }
+                });
+                
+                setEnrolledSessions(enrolled);
+                setPendingEnrollments(pending);
             } catch (err) {
                 console.log('Could not fetch enrolled sessions:', err);
                 setEnrolledSessions([]);
+                setPendingEnrollments([]);
             }
 
             // Extract unique subjects
@@ -96,25 +120,42 @@ const BrowseSessionsPage = () => {
     );
 
     const handleJoinSession = async (sessionId) => {
-        if (!sessionId || isEnrolled(sessionId)) {
+        if (!sessionId || isEnrolled(sessionId) || isPending(sessionId)) {
             return;
         }
         try {
             setJoiningId(sessionId);
             setError(null);
+            
             const response = await api.post(`/v1/learner/sessions/${sessionId}/join`);
-
-            // Update enrolled sessions list
-            setEnrolledSessions((prev) => (prev.includes(sessionId) ? prev : [...prev, sessionId]));
-            setSuccessMessage('Successfully enrolled in the session!');
-            setShowEnrollModal(false);
-
-            await fetchData();
-
-            setTimeout(() => {
-                setSuccessMessage('');
-            }, 3000);
+            
+            // Extract response data - API returns { status: "success", data: { status: "pending", ... } }
+            const enrollmentData = response?.data?.data || response?.data || response;
+            const enrollmentStatus = enrollmentData.status;
+            
+            // Check the status from API response
+            if (enrollmentStatus === 'pending') {
+                setPendingEnrollments((prev) => [...prev, sessionId]);
+                setSuccessMessage('Enrollment request submitted and is pending approval!');
+                setShowEnrollModal(false);
+                
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 3000);
+            } else if (enrollmentStatus === 'approved' || enrollmentStatus === 'enrolled') {
+                setEnrolledSessions((prev) => (prev.includes(sessionId) ? prev : [...prev, sessionId]));
+                setSuccessMessage('Successfully enrolled in the session!');
+                setShowEnrollModal(false);
+                
+                await fetchData();
+                
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 3000);
+            }
         } catch (err) {
+            console.error('Join session error:', err);
             setError(err.response?.data?.message || err.message || 'Failed to join session. Please try again.');
         } finally {
             setJoiningId(null);
@@ -143,6 +184,10 @@ const BrowseSessionsPage = () => {
 
     const isEnrolled = (sessionId) => {
         return enrolledSessions.includes(sessionId);
+    };
+
+    const isPending = (sessionId) => {
+        return pendingEnrollments.includes(sessionId);
     };
 
     const getAvailabilityStatus = (session) => {
@@ -343,6 +388,7 @@ const BrowseSessionsPage = () => {
                                 const sessionId = session._id || session.id;
                                 const isFull = availability.status === 'Full';
                                 const enrolled = isEnrolled(sessionId);
+                                const pending = isPending(sessionId);
 
                                 return (
                                     <div
@@ -431,6 +477,13 @@ const BrowseSessionsPage = () => {
                                                             className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 text-sm font-medium cursor-default"
                                                         >
                                                             Enrolled ✓
+                                                        </button>
+                                                    ) : pending ? (
+                                                        <button
+                                                            className="px-4 py-2 rounded-lg bg-gray-300 text-gray-500 dark:bg-gray-700 dark:text-gray-400 text-sm font-medium cursor-not-allowed"
+                                                            disabled
+                                                        >
+                                                            Pending Approval
                                                         </button>
                                                     ) : (
                                                         <button

@@ -4,6 +4,7 @@ import { Search, Calendar, Users, Star, ArrowLeft, AlertCircle, CheckCircle, Fil
 import { useAuth } from '../context/AuthContext';
 import { useAccessibility } from '../context/hooks';
 import { getAllSessions, joinSession } from '../services/sessionService';
+import api from '../services/api';
 import AccessibilityToolbar from '../components/AccessibilityToolbar';
 
 const BrowseSessionsLearner = () => {
@@ -19,6 +20,7 @@ const BrowseSessionsLearner = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSubject, setFilterSubject] = useState('');
   const [joiningSessionId, setJoiningSessionId] = useState(null);
+  const [pendingEnrollments, setPendingEnrollments] = useState([]);
   const [subjects, setSubjects] = useState([]);
 
   // Redirect if not a learner
@@ -35,6 +37,26 @@ const BrowseSessionsLearner = () => {
         setIsLoading(true);
         const data = await getAllSessions({}, { role: user?.role });
         setSessions(Array.isArray(data) ? data : []);
+
+        // Fetch learner's enrolled sessions to check for pending status
+        try {
+          const enrolledRes = await api.get('/v1/learner/sessions');
+          const enrolledList = Array.isArray(enrolledRes) ? enrolledRes : (enrolledRes?.data && Array.isArray(enrolledRes.data) ? enrolledRes.data : []);
+          
+          // Find sessions with pending status - check all enrollment status fields
+          const pending = enrolledList
+            .filter(session => {
+              const enrollStatus = session.enrollmentStatus || session.requestStatus || session.approvalStatus || session.status;
+              return enrollStatus === 'pending';
+            })
+            .map(session => session._id || session.id);
+          
+          console.log('Pending enrollments found:', pending);
+          setPendingEnrollments(pending);
+        } catch (err) {
+          console.log('Could not fetch enrolled sessions:', err);
+          setPendingEnrollments([]);
+        }
 
         // Extract unique subjects for filter
         const uniqueSubjects = [...new Set(data.map(s => s.subject).filter(Boolean))];
@@ -72,11 +94,31 @@ const BrowseSessionsLearner = () => {
   const handleJoinSession = async (sessionId) => {
     try {
       setJoiningSessionId(sessionId);
-      await joinSession(sessionId);
-      setSuccessMessage('Successfully joined session! Redirecting...');
-      setTimeout(() => {
-        navigate('/my-sessions-learner', { state: { showJoined: true } });
-      }, 2000);
+      setError('');
+      
+      const response = await joinSession(sessionId);
+      
+      // Extract response data - API returns { status: "success", data: { status: "pending", ... } }
+      const enrollmentData = response?.data?.data || response?.data || response;
+      const enrollmentStatus = enrollmentData.status;
+      
+      // Check the status from API response
+      if (enrollmentStatus === 'pending') {
+        setPendingEnrollments((prev) => [...prev, sessionId]);
+        setSuccessMessage('Enrollment request submitted and is pending approval!');
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 3000);
+      } else if (enrollmentStatus === 'approved' || enrollmentStatus === 'enrolled') {
+        setSuccessMessage('Successfully enrolled in the session!');
+        
+        // Navigate to my sessions after 2 seconds for approved enrollments
+        setTimeout(() => {
+          navigate('/my-sessions-learner', { state: { showJoined: true } });
+        }, 2000);
+      }
     } catch (err) {
       setError(err || 'Failed to join session. Please try again.');
     } finally {
@@ -243,6 +285,7 @@ const BrowseSessionsLearner = () => {
             {filteredSessions.map((session) => {
               const availability = getAvailabilityStatus(session);
               const isFull = availability.status === 'Full';
+              const isPending = pendingEnrollments.includes(session._id);
 
               return (
                 <div
@@ -298,16 +341,16 @@ const BrowseSessionsLearner = () => {
                     {/* Join Button */}
                     <button
                       onClick={() => handleJoinSession(session._id)}
-                      disabled={isFull || joiningSessionId === session._id}
+                      disabled={isFull || joiningSessionId === session._id || isPending}
                       className={`w-full py-2.5 rounded-lg font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                        isFull
-                          ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        isFull || isPending
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           : 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-blue-600'
                       }`}
                       aria-busy={joiningSessionId === session._id}
-                      aria-label={`${isFull ? 'Session full' : 'Join'} - ${session.title}`}
+                      aria-label={`${isFull ? 'Session full' : isPending ? 'Enrollment pending' : 'Join'} - ${session.title}`}
                     >
-                      {joiningSessionId === session._id ? 'Joining...' : isFull ? 'Session Full' : 'Join Session'}
+                      {joiningSessionId === session._id ? 'Enrolling...' : isFull ? 'Session Full' : isPending ? 'Pending Approval' : 'Enroll Now'}
                     </button>
                   </div>
                 </div>
