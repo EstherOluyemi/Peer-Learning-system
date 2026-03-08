@@ -108,13 +108,6 @@ const DashboardLearner = () => {
           const normalized = normalizeSessionList(sessionsRes.data || []);
           setSessions(normalized);
           updateSessionStats(normalized);
-          
-          // Mock top tutors - in production, backend would return actual tutors
-          setTopTutors([
-            { name: 'Dr. Alex Johnson', subject: 'Mathematics', rating: 5.0, students: 250, image: '👨‍🏫' },
-            { name: 'Prof. Maria Garcia', subject: 'Physics', rating: 4.9, students: 200, image: '👩‍🏫' },
-            { name: 'James Wilson', subject: 'Computer Science', rating: 4.8, students: 180, image: '👨‍💻' }
-          ]);
         } catch (sessionErr) {
           console.warn('Could not fetch sessions:', sessionErr);
           // Set default empty state
@@ -126,6 +119,43 @@ const DashboardLearner = () => {
             coursesInProgress: 0
           });
           setUpcomingSessions([]);
+        }
+
+        // Fetch top-rated tutors
+        try {
+          const tutorsRes = await api.get('/v1/tutors', {
+            params: { 
+              limit: 3, 
+              sortBy: 'rating', 
+              order: 'desc' 
+            }
+          });
+          console.log('Top tutors response:', tutorsRes);
+          const payload = tutorsRes?.data ?? tutorsRes;
+          const tutorsList = Array.isArray(payload?.tutors) 
+            ? payload.tutors 
+            : Array.isArray(payload?.data) 
+              ? payload.data 
+              : Array.isArray(payload) 
+                ? payload 
+                : [];
+          
+          const mappedTutors = tutorsList.map(tutor => ({
+            _id: tutor._id || tutor.id,
+            name: tutor.name || tutor.userId?.name || 'Unknown Tutor',
+            subject: Array.isArray(tutor.subjects) && tutor.subjects.length > 0 
+              ? tutor.subjects[0] 
+              : tutor.subject || 'General',
+            rating: tutor.rating || tutor.averageRating || 0,
+            students: tutor.totalStudents || tutor.studentCount || 0,
+            image: tutor.image || tutor.avatar || '👨‍🏫'
+          }));
+          
+          setTopTutors(mappedTutors.slice(0, 3));
+        } catch (tutorErr) {
+          console.warn('Could not fetch top tutors:', tutorErr);
+          // Fallback to empty array or keep loading state
+          setTopTutors([]);
         }
 
         try {
@@ -292,7 +322,7 @@ const DashboardLearner = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-0 space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -329,7 +359,7 @@ const DashboardLearner = () => {
         <h2 id="stats-heading" className="sr-only">Learning Statistics</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="list">
           {statCards.map((stat, i) => (
-            <article key={i} role="listinput" aria-label={`${stat.label}: ${stat.value}`} className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md"
+            <article key={i} role="listitem" aria-label={`${stat.label}: ${stat.value}`} className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md"
               style={{
                 backgroundColor: 'var(--card-bg)',
                 borderColor: 'var(--card-border)'
@@ -350,13 +380,13 @@ const DashboardLearner = () => {
 
       {/* Recommended Sessions Section */}
       <section aria-labelledby="recommended-heading" className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-        <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="p-4 sm:p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
           <h2 id="recommended-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Recommended for You</h2>
           <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
             View All <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6" role="list">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 sm:p-6" role="list">
           {recommendedSessions.length > 0 ? recommendedSessions.map((session) => (
             <article key={session.id} role="listitem" aria-label={`Recommended session: ${session.title} by ${session.tutor}, rated ${session.rating} stars`} className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
@@ -385,25 +415,57 @@ const DashboardLearner = () => {
 
       {/* Top Tutors Section */}
       <section aria-labelledby="toptutors-heading" className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-        <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="p-4 sm:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
           <h2 id="toptutors-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Top Rated Tutors</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6" role="list">
-          {topTutors.map((tutor, idx) => (
-            <article key={idx} role="listitem" aria-label={`Top tutor: ${tutor.name}, ${tutor.subject}, ${tutor.rating} star rating, ${tutor.students} students`} className="p-4 rounded-xl border text-center transition-all hover:shadow-md"
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 sm:p-6" role="list">
+          {topTutors.length > 0 ? topTutors.map((tutor, idx) => (
+            <article key={tutor._id || idx} role="listitem" aria-label={`Top tutor: ${tutor.name}, ${tutor.subject}, ${tutor.rating} star rating, ${tutor.students} students`} className="p-4 rounded-xl border text-center transition-all hover:shadow-md cursor-pointer"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
+              onClick={() => navigate('/dashboard-learner/browse-sessions', { state: { tutorId: tutor._id } })}
             >
-              <div className="text-4xl mb-2" aria-hidden="true">{tutor.image}</div>
+              {tutor.image && (tutor.image.startsWith('http') || tutor.image.startsWith('/')) ? (
+                <img 
+                  src={tutor.image} 
+                  alt={`${tutor.name}'s avatar`}
+                  className="w-16 h-16 rounded-full mx-auto mb-2 object-cover border-2 border-blue-200 dark:border-blue-800"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div 
+                className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800"
+                style={{ display: (tutor.image && (tutor.image.startsWith('http') || tutor.image.startsWith('/'))) ? 'none' : 'flex' }}
+                aria-hidden="true"
+              >
+                {tutor.image && !tutor.image.startsWith('http') && !tutor.image.startsWith('/') 
+                  ? tutor.image 
+                  : tutor.name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?'}
+              </div>
               <h3 className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>{tutor.name}</h3>
               <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>{tutor.subject}</p>
-              <div className="flex items-center justify-center gap-1 mb-2" aria-label="5 star rating" aria-hidden="true">
+              <div className="flex items-center justify-center gap-1 mb-2" role="img" aria-label={`Rating: ${tutor.rating.toFixed(1)} out of 5 stars`}>
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                  <Star 
+                    key={i} 
+                    className={`w-3 h-3 ${i < Math.floor(tutor.rating) ? 'fill-yellow-500 text-yellow-500' : 'text-slate-300'}`}
+                    aria-hidden="true"
+                  />
                 ))}
+                <span className="text-xs ml-1 font-semibold" style={{ color: 'var(--text-primary)' }} aria-hidden="true">
+                  {tutor.rating.toFixed(1)}
+                </span>
               </div>
-              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{tutor.students} students</p>
+              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{tutor.students} student{tutor.students !== 1 ? 's' : ''}</p>
             </article>
-          ))}
+          )) : (
+            <div className="col-span-full p-8 text-center" style={{ color: 'var(--text-secondary)' }}>
+              <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No tutors available yet</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -414,7 +476,7 @@ const DashboardLearner = () => {
               backgroundColor: 'var(--card-bg)',
               borderColor: 'var(--card-border)'
             }}>
-            <div className="p-6 border-b flex flex-wrap justify-between items-center gap-4" style={{ borderColor: 'var(--border-color)' }}>
+            <div className="p-4 sm:p-6 border-b flex flex-wrap justify-between items-center gap-4" style={{ borderColor: 'var(--border-color)' }}>
               <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Upcoming Sessions</h2>
               <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
                 View Schedule <ChevronRight className="w-4 h-4" />
@@ -426,7 +488,7 @@ const DashboardLearner = () => {
                   const startDate = formatDateTime(session.startTime);
                   const endTime = formatDateTime(session.endTime).timeLabel;
                   return (
-                    <div key={i} onClick={() => setSelectedSession(session)} className="p-6 cursor-pointer transition-colors" style={{ backgroundColor: 'var(--card-bg)' }}
+                    <div key={i} onClick={() => setSelectedSession(session)} className="p-4 sm:p-6 cursor-pointer transition-colors" style={{ backgroundColor: 'var(--card-bg)' }}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
                     >
@@ -437,7 +499,7 @@ const DashboardLearner = () => {
                             <span className="text-sm font-bold">{startDate.timeLabel}</span>
                           </div>
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-1">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
                               <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{session.title || 'Untitled Session'}</h4>
                               <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(session.status)}`}>
                                 {(session.status || 'scheduled').charAt(0).toUpperCase() + (session.status || 'scheduled').slice(1)}
@@ -475,7 +537,7 @@ const DashboardLearner = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-2xl shadow-sm border p-6"
+          <div className="rounded-2xl shadow-sm border p-4 sm:p-6"
             style={{
               backgroundColor: 'var(--card-bg)',
               borderColor: 'var(--card-border)'
@@ -504,7 +566,7 @@ const DashboardLearner = () => {
             </div>
           </div>
 
-          <div className="rounded-2xl shadow-sm border p-6"
+          <div className="rounded-2xl shadow-sm border p-4 sm:p-6"
             style={{
               backgroundColor: 'var(--card-bg)',
               borderColor: 'var(--card-border)'
@@ -532,7 +594,7 @@ const DashboardLearner = () => {
             </div>
           </div>
 
-          <div className="rounded-2xl shadow-sm border p-6"
+          <div className="rounded-2xl shadow-sm border p-4 sm:p-6"
             style={{
               backgroundColor: 'var(--card-bg)',
               borderColor: 'var(--card-border)'
@@ -557,13 +619,13 @@ const DashboardLearner = () => {
 
     {/* Session Details Modal */}
     {selectedSession && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setSelectedSession(null)}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-3 sm:px-4" onClick={() => setSelectedSession(null)}>
         <div className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
           {/* Modal Header */}
-          <div className="px-6 py-5 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
+          <div className="px-4 sm:px-6 py-4 sm:py-5 border-b flex items-start justify-between gap-3" style={{ borderColor: 'var(--border-color)' }}>
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold wrap-break-word" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
                 <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(selectedSession.status)}`}>
                   {(selectedSession.status || 'scheduled').charAt(0).toUpperCase() + (selectedSession.status || 'scheduled').slice(1)}
                 </span>
@@ -583,7 +645,7 @@ const DashboardLearner = () => {
           </div>
 
           {/* Modal Body */}
-          <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 max-h-[70vh] overflow-y-auto">
             {/* Description */}
             {selectedSession.description && (
               <div>
@@ -669,3 +731,4 @@ const DashboardLearner = () => {
 };
 
 export default DashboardLearner;
+

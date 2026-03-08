@@ -211,7 +211,7 @@ const CreateSessionPage = () => {
       </a>
 
       <header className="border-b" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/dashboard-tutor" className="flex items-center space-x-2 transition" style={{ color: 'var(--text-secondary)' }} aria-label="Back to dashboard">
               <ArrowLeft className="w-5 h-5" />
@@ -228,17 +228,17 @@ const CreateSessionPage = () => {
       </header>
 
       {isLoading ? (
-        <main id="main-content" className="container mx-auto px-6 py-8">
+        <main id="main-content" className="container mx-auto px-4 sm:px-6 py-8">
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
             <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading session...</p>
           </div>
         </main>
       ) : (
-        <main id="main-content" className="container mx-auto px-6 py-8">
+        <main id="main-content" className="container mx-auto px-4 sm:px-6 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
                 {editId ? 'Edit Learning Session' : 'Create Learning Session'}
               </h1>
               <p style={{ color: 'var(--text-secondary)' }}>

@@ -43,6 +43,7 @@ const SettingsPage = () => {
       
       const response = await api.patch('/v1/tutor/me', {
         name: profile.name,
+        email: profile.email,
         bio: profile.bio,
         expertise: profile.expertise,
         availability: profile.availability
@@ -80,6 +81,18 @@ const SettingsPage = () => {
     activeSessions: 3
   });
 
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+
   const handleProfileChange = (field, value) => {
     setProfile(prev => ({ ...prev, [field]: value }));
   };
@@ -92,6 +105,45 @@ const SettingsPage = () => {
     setSchedule(prev => ({ ...prev, [field]: value }));
   };
 
+  const handlePasswordChange = (field, value) => {
+    setPasswordData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      if (passwordData.newPassword !== passwordData.confirmPassword) {
+        setError('New passwords do not match');
+        return;
+      }
+
+      if (passwordData.newPassword.length < 6) {
+        setError('New password must be at least 6 characters');
+        return;
+      }
+
+      setSaving(true);
+      setError(null);
+
+      await api.post('/v1/tutor/auth/change-password', {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+
+      setSuccessMessage('Password updated successfully!');
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update password');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
+  };
+
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -101,7 +153,7 @@ const SettingsPage = () => {
 
   const renderProfileTab = () => (
     <div className="space-y-6">
-      <div className="p-6 rounded-2xl shadow-sm border"
+      <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
         style={{
           backgroundColor: 'var(--card-bg)',
           borderColor: 'var(--card-border)'
@@ -201,7 +253,7 @@ const SettingsPage = () => {
         </div>
       </div>
 
-      <div className="p-6 rounded-2xl shadow-sm border"
+      <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
         style={{
           backgroundColor: 'var(--card-bg)',
           borderColor: 'var(--card-border)'
@@ -241,7 +293,7 @@ const SettingsPage = () => {
 
   const renderNotificationsTab = () => (
     <div className="space-y-6">
-      <div className="p-6 rounded-2xl shadow-sm border"
+      <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
         style={{
           backgroundColor: 'var(--card-bg)',
           borderColor: 'var(--card-border)'
@@ -283,7 +335,7 @@ const SettingsPage = () => {
 
   const renderScheduleTab = () => (
     <div className="space-y-6">
-      <div className="p-6 rounded-2xl shadow-sm border"
+      <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
         style={{
           backgroundColor: 'var(--card-bg)',
           borderColor: 'var(--card-border)'
@@ -378,7 +430,7 @@ const SettingsPage = () => {
 
   const renderSecurityTab = () => (
     <div className="space-y-6">
-      <div className="p-6 rounded-2xl shadow-sm border"
+      <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
         style={{
           backgroundColor: 'var(--card-bg)',
           borderColor: 'var(--card-border)'
@@ -417,7 +469,7 @@ const SettingsPage = () => {
         </div>
       </div>
 
-      <div className="p-6 rounded-2xl shadow-sm border"
+      <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
         style={{
           backgroundColor: 'var(--card-bg)',
           borderColor: 'var(--card-border)'
@@ -429,16 +481,24 @@ const SettingsPage = () => {
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Current Password</label>
             <div className="relative">
               <input
-                type="password"
+                type={showPasswords.current ? "text" : "password"}
+                value={passwordData.currentPassword}
+                onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
                 style={{
                   backgroundColor: 'var(--input-bg)',
                   color: 'var(--input-text)',
                   borderColor: 'var(--input-border)'
                 }}
+                aria-label="Current password"
               />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600">
-                <Eye className="w-4 h-4" />
+              <button 
+                type="button"
+                onClick={() => togglePasswordVisibility('current')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                aria-label={showPasswords.current ? "Hide current password" : "Show current password"}
+              >
+                {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -446,16 +506,24 @@ const SettingsPage = () => {
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>New Password</label>
             <div className="relative">
               <input
-                type="password"
+                type={showPasswords.new ? "text" : "password"}
+                value={passwordData.newPassword}
+                onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
                 style={{
                   backgroundColor: 'var(--input-bg)',
                   color: 'var(--input-text)',
                   borderColor: 'var(--input-border)'
                 }}
+                aria-label="New password"
               />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600">
-                <Eye className="w-4 h-4" />
+              <button 
+                type="button"
+                onClick={() => togglePasswordVisibility('new')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                aria-label={showPasswords.new ? "Hide new password" : "Show new password"}
+              >
+                {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -463,23 +531,39 @@ const SettingsPage = () => {
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Confirm New Password</label>
             <div className="relative">
               <input
-                type="password"
+                type={showPasswords.confirm ? "text" : "password"}
+                value={passwordData.confirmPassword}
+                onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
                 style={{
                   backgroundColor: 'var(--input-bg)',
                   color: 'var(--input-text)',
                   borderColor: 'var(--input-border)'
                 }}
+                aria-label="Confirm new password"
               />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600">
-                <Eye className="w-4 h-4" />
+              <button 
+                type="button"
+                onClick={() => togglePasswordVisibility('confirm')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                aria-label={showPasswords.confirm ? "Hide confirmation password" : "Show confirmation password"}
+              >
+                {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
         </div>
         <div className="mt-4 flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-            <Save className="w-4 h-4" />
+          <button 
+            onClick={handleChangePassword}
+            disabled={saving || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
             Update Password
           </button>
         </div>
@@ -501,14 +585,14 @@ const SettingsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your account preferences and configurations.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-1">
-          <div className="p-6 rounded-2xl shadow-sm border"
+          <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
             style={{
               backgroundColor: 'var(--card-bg)',
               borderColor: 'var(--card-border)'

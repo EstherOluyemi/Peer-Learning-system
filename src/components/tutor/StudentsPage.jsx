@@ -537,7 +537,7 @@ const StudentsPage = () => {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Students</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Students</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your students and track their progress.</p>
         </div>
         <div className="flex gap-3 flex-wrap">
@@ -595,7 +595,7 @@ const StudentsPage = () => {
             return (
               <div
                 key={student._id}
-                className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+                className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
               >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">

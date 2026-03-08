@@ -284,7 +284,7 @@ const SessionsPage = () => {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Sessions</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Sessions</h1>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your learning sessions and track progress.</p>
                 </div>
                 <button
@@ -443,7 +443,7 @@ const SessionsPage = () => {
                                 return (
                                     <div
                                         key={session._id || session.id}
-                                        className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+                                        className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                                         style={{
                                             backgroundColor: 'var(--card-bg)',
                                             borderColor: 'var(--card-border)'
@@ -914,3 +914,4 @@ const SessionsPage = () => {
 };
 
 export default SessionsPage;
+

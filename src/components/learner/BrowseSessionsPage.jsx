@@ -14,7 +14,7 @@ const BrowseSessionsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterSubject, setFilterSubject] = useState('all');
     const [filterLevel, setFilterLevel] = useState('all');
-    const [sortBy, setSortBy] = useState('upcoming'); // upcoming, popular, newest
+    const [sortBy, setSortBy] = useState('recommended'); // recommended, upcoming, popular, newest
     const [currentPage, setCurrentPage] = useState(1);
     const [sessions, setSessions] = useState([]);
     const [enrolledSessions, setEnrolledSessions] = useState([]);
@@ -34,9 +34,9 @@ const BrowseSessionsPage = () => {
         try {
             setLoading(true);
 
-            // Fetch all available sessions
+            // Fetch all available sessions with sortBy parameter for backend smart matching
             const role = user?.role === 'student' ? 'learner' : user?.role;
-            const sessionsList = await getAllSessions({}, { role });
+            const sessionsList = await getAllSessions({ sortBy }, { role });
             setSessions(sessionsList);
 
             // Fetch learner's enrolled sessions
@@ -85,9 +85,9 @@ const BrowseSessionsPage = () => {
 
     useEffect(() => {
         fetchData();
-    }, [fetchData]);
+    }, [fetchData, sortBy]);
 
-    // Filter and sort sessions
+    // Filter sessions (backend now handles sorting via smart matching)
     const filteredSessions = sessions.filter(session => {
         const matchesSearch = (session.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (session.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -99,19 +99,9 @@ const BrowseSessionsPage = () => {
         return matchesSearch && matchesSubject && matchesLevel;
     });
 
-    // Sort sessions
-    const sortedSessions = [...filteredSessions].sort((a, b) => {
-        switch (sortBy) {
-            case 'upcoming':
-                return new Date(a.startTime || 0) - new Date(b.startTime || 0);
-            case 'popular':
-                return (b.studentIds?.length || 0) - (a.studentIds?.length || 0);
-            case 'newest':
-                return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-            default:
-                return 0;
-        }
-    });
+    // Backend handles sorting now, so we just use filteredSessions directly
+    // (sortBy parameter is passed to API for smart matching)
+    const sortedSessions = filteredSessions;
 
     const totalPages = Math.ceil(sortedSessions.length / itemsPerPage);
     const currentSessions = sortedSessions.slice(
@@ -234,7 +224,7 @@ const BrowseSessionsPage = () => {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Browse Sessions</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Browse Sessions</h1>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                         Find and join tutoring sessions - {sortedSessions.length} available
                     </p>
@@ -364,7 +354,9 @@ const BrowseSessionsPage = () => {
                                             backgroundColor: 'var(--input-bg)',
                                             color: 'var(--input-text)',
                                         }}
+                                        aria-label="Sort sessions by"
                                     >
+                                        <option value="recommended">Recommended for You</option>
                                         <option value="upcoming">Upcoming</option>
                                         <option value="popular">Most Popular</option>
                                         <option value="newest">Newest</option>
@@ -393,7 +385,7 @@ const BrowseSessionsPage = () => {
                                 return (
                                     <div
                                         key={sessionId}
-                                        className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+                                        className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                                         style={{
                                             backgroundColor: 'var(--card-bg)',
                                             borderColor: 'var(--card-border)'
@@ -792,3 +784,4 @@ const BrowseSessionsPage = () => {
 };
 
 export default BrowseSessionsPage;
+

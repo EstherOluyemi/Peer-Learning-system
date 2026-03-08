@@ -112,7 +112,7 @@ const CreateSessionPage = () => {
 
     const renderStep1 = () => (
         <div className="space-y-6">
-            <div className="p-6 rounded-2xl shadow-sm border"
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                 style={{
                     backgroundColor: 'var(--card-bg)',
                     borderColor: 'var(--card-border)'
@@ -205,7 +205,7 @@ const CreateSessionPage = () => {
                 </div>
             </div>
 
-            <div className="p-6 rounded-2xl shadow-sm border"
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                 style={{
                     backgroundColor: 'var(--card-bg)',
                     borderColor: 'var(--card-border)'
@@ -278,7 +278,7 @@ const CreateSessionPage = () => {
                 </div>
             </div>
 
-            <div className="p-6 rounded-2xl shadow-sm border"
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                 style={{
                     backgroundColor: 'var(--card-bg)',
                     borderColor: 'var(--card-border)'
@@ -342,7 +342,7 @@ const CreateSessionPage = () => {
 
     const renderStep2 = () => (
         <div className="space-y-6">
-            <div className="p-6 rounded-2xl shadow-sm border"
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                 style={{
                     backgroundColor: 'var(--card-bg)',
                     borderColor: 'var(--card-border)'
@@ -401,7 +401,7 @@ const CreateSessionPage = () => {
                 )}
             </div>
 
-            <div className="p-6 rounded-2xl shadow-sm border"
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                 style={{
                     backgroundColor: 'var(--card-bg)',
                     borderColor: 'var(--card-border)'
@@ -443,7 +443,7 @@ const CreateSessionPage = () => {
                 </div>
             </div>
 
-            <div className="p-6 rounded-2xl shadow-sm border"
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                 style={{
                     backgroundColor: 'var(--card-bg)',
                     borderColor: 'var(--card-border)'
@@ -572,7 +572,7 @@ const CreateSessionPage = () => {
                 </div>
 
                 <div className="space-y-6">
-                    <div className="p-6 rounded-2xl shadow-sm border"
+                    <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                         style={{
                             backgroundColor: 'var(--card-bg)',
                             borderColor: 'var(--card-border)'
@@ -604,7 +604,7 @@ const CreateSessionPage = () => {
                         </div>
                     </div>
 
-                    <div className="p-6 rounded-2xl shadow-sm border"
+                    <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                         style={{
                             backgroundColor: 'var(--card-bg)',
                             borderColor: 'var(--card-border)'

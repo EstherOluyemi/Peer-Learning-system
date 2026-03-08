@@ -112,7 +112,7 @@ const TutorProfilePage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Profile</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Profile</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your tutor profile and settings</p>
         </div>
         {!isEditing && (
@@ -163,7 +163,7 @@ const TutorProfilePage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Profile Card */}
           <div className="lg:col-span-1">
-            <div className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
               <div className="flex flex-col items-center text-center">
                 <div className="relative mb-4">
                   <img
@@ -199,7 +199,7 @@ const TutorProfilePage = () => {
 
           {/* Info Card */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
               <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Basic Information</h3>
               
               {isEditing ? (
@@ -279,7 +279,7 @@ const TutorProfilePage = () => {
               )}
             </div>
 
-            <div className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
               <h3 className="text-lg font-bold mb-3" style={{ color: 'var(--text-primary)' }}>Bio</h3>
               <p style={{ color: 'var(--text-secondary)' }}>{profile.bio || 'No bio added yet. Edit your profile to add one.'}</p>
             </div>
@@ -290,7 +290,7 @@ const TutorProfilePage = () => {
       {/* Expertise Tab */}
       {activeTab === 'expertise' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+          <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Areas of Expertise</h3>
             <div className="space-y-2">
               {editedProfile.expertise && editedProfile.expertise.length > 0 ? (
@@ -306,7 +306,7 @@ const TutorProfilePage = () => {
             </div>
           </div>
 
-          <div className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+          <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Qualifications</h3>
             <p style={{ color: 'var(--text-secondary)' }}>{editedProfile.qualifications || 'No qualifications added yet.'}</p>
           </div>
@@ -316,7 +316,7 @@ const TutorProfilePage = () => {
       {/* Settings Tab */}
       {activeTab === 'settings' && (
         <div className="space-y-4">
-          <div className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+          <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <Bell className="w-5 h-5 text-blue-600" />
@@ -329,7 +329,7 @@ const TutorProfilePage = () => {
             </div>
           </div>
 
-          <div className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+          <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <Shield className="w-5 h-5 text-blue-600" />
@@ -350,3 +350,4 @@ const TutorProfilePage = () => {
 };
 
 export default TutorProfilePage;
+

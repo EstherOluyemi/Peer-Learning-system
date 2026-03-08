@@ -142,9 +142,9 @@ const Login = () => {
         </div>
 
         {/* RIGHT SIDE: Form Container */}
-        <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 lg:px-16 bg-white z-10 min-h-screen">
+        <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white z-10 min-h-screen">
 
-          <div className="w-full max-w-md space-y-8">
+          <div className="w-full max-w-md space-y-6 sm:space-y-8">
 
             {/* Header Section */}
             <header>
@@ -161,7 +161,7 @@ const Login = () => {
                 <span className="text-2xl font-bold text-slate-900 tracking-tight">PeerLearn</span>
               </div>
 
-              <h1 className={`font-bold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-4xl' : 'text-3xl'}`} tabIndex={-1}>
+              <h1 className={`font-bold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
                 Welcome back
               </h1>
               <p className={`mt-2 text-slate-600 ${baseFontSize}`}>

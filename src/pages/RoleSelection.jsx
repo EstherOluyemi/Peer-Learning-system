@@ -10,21 +10,21 @@ const RoleCard = ({ title, description, icon: Icon, isSelected, onClick, id }) =
     id={id}
     type="button"
     onClick={onClick}
-    className={`w-full p-6 rounded-2xl border-2 text-left transition-all duration-300 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${isSelected
+    className={`w-full p-4 sm:p-6 rounded-2xl border-2 text-left transition-all duration-300 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${isSelected
       ? 'border-blue-600 bg-blue-50 shadow-md shadow-blue-100'
       : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-lg hover:shadow-slate-100'
       }`}
     aria-pressed={isSelected}
     aria-label={`${title}. ${description}`}
   >
-    <div className="flex items-center gap-5">
-      <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-colors duration-300 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600'
+    <div className="flex items-center gap-4 sm:gap-5">
+      <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition-colors duration-300 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600'
         }`} aria-hidden="true">
-        {Icon && <Icon className="w-7 h-7" />}
+        {Icon && <Icon className="w-6 h-6 sm:w-7 sm:h-7" />}
       </div>
       <div className="flex-1">
-        <h3 className={`font-bold text-lg ${isSelected ? 'text-blue-900' : 'text-slate-900'}`}>{title}</h3>
-        <p className={`text-sm mt-1 leading-relaxed ${isSelected ? 'text-blue-700' : 'text-slate-500'}`}>{description}</p>
+        <h3 className={`font-bold text-base sm:text-lg ${isSelected ? 'text-blue-900' : 'text-slate-900'}`}>{title}</h3>
+        <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${isSelected ? 'text-blue-700' : 'text-slate-500'}`}>{description}</p>
       </div>
       <div className={`transition-transform duration-300 ${isSelected ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'}`} aria-hidden="true">
         <ArrowRight className={`w-5 h-5 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`} />
@@ -95,8 +95,8 @@ const RoleSelection = () => {
         </Link>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-xl space-y-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-12">
+        <div className="w-full max-w-xl space-y-6 sm:space-y-8">
           {/* Header */}
           <header className="text-center space-y-4">
             <Link
@@ -106,7 +106,7 @@ const RoleSelection = () => {
                 <img src={peerlearnLogo} alt="PeerLearn" className="w-10 h-10" />
               <span className="text-2xl font-bold text-slate-900 tracking-tight">PeerLearn</span>
             </Link>
-            <h1 className={`font-extrabold text-slate-900 tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-4xl' : 'text-3xl'}`} tabIndex={-1}>
+            <h1 className={`font-extrabold text-slate-900 tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
               Choose your journey
             </h1>
             <p className={`text-slate-600 max-w-sm mx-auto ${baseFontSize}`}>
@@ -140,7 +140,7 @@ const RoleSelection = () => {
             <button
               onClick={handleContinue}
               disabled={!role}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${role
+              className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${role
                 ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-500/25 transform hover:-translate-y-0.5'
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
                 }`}
@@ -164,3 +164,4 @@ const RoleSelection = () => {
 };
 
 export default RoleSelection;
+

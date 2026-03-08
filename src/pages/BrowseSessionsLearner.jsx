@@ -163,9 +163,9 @@ const BrowseSessionsLearner = () => {
         Skip to sessions list
       </a>
 
-      <div className="container mx-auto px-6 py-12 max-w-6xl">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-6xl">
         {/* Header */}
-        <header className="mb-8">
+        <header className="mb-6 sm:mb-8">
           <button
             onClick={() => navigate('/dashboard-learner')}
             className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
@@ -174,7 +174,7 @@ const BrowseSessionsLearner = () => {
             Back to Dashboard
           </button>
 
-          <h1 className={`font-bold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-4xl' : 'text-3xl'}`} tabIndex={-1}>
+          <h1 className={`font-bold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
             Browse Sessions
           </h1>
           <p className={`mt-2 text-slate-600 ${baseFontSize}`}>
@@ -206,7 +206,7 @@ const BrowseSessionsLearner = () => {
         )}
 
         {/* Search & Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="space-y-4">
             {/* Search Bar */}
             <div>
@@ -253,16 +253,16 @@ const BrowseSessionsLearner = () => {
 
         {/* Sessions Grid */}
         {isLoading ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center" role="status" aria-label="Loading sessions">
+          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center" role="status" aria-label="Loading sessions">
             <div className="inline-flex items-center gap-3">
               <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
               <p className="text-slate-600">Loading sessions...</p>
             </div>
           </div>
         ) : filteredSessions.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center">
             <Search className="w-12 h-12 text-slate-300 mx-auto mb-4" aria-hidden="true" />
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">No Sessions Found</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">No Sessions Found</h2>
             <p className="text-slate-600 mb-6">
               {searchQuery || filterSubject
                 ? 'Try adjusting your search or filter criteria'
@@ -281,7 +281,7 @@ const BrowseSessionsLearner = () => {
             )}
           </div>
         ) : (
-          <div id="sessions-grid" className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list">
+          <div id="sessions-grid" className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" role="list">
             {filteredSessions.map((session) => {
               const availability = getAvailabilityStatus(session);
               const isFull = availability.status === 'Full';
@@ -294,10 +294,10 @@ const BrowseSessionsLearner = () => {
                   className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all border border-slate-100 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
                 >
                   {/* Session Header */}
-                  <div className="p-6">
+                  <div className="p-4 sm:p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-slate-900 mb-1">{session.title || 'Untitled'}</h3>
+                        <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-1">{session.title || 'Untitled'}</h3>
                         <p className="text-sm text-slate-600">{session.subject || 'General'}</p>
                       </div>
                     </div>
@@ -389,3 +389,4 @@ const BrowseSessionsLearner = () => {
 };
 
 export default BrowseSessionsLearner;
+

@@ -180,7 +180,7 @@ const ReviewsPage = () => {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Reviews</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Reviews</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>View and respond to student feedback.</p>
         </div>
         <div className="flex items-center gap-2 p-3 rounded-xl" style={{ backgroundColor: 'var(--card-bg)' }}>
@@ -267,7 +267,7 @@ const ReviewsPage = () => {
               { label: 'Average Rating', value: stats.average, icon: <TrendingUp className="w-8 h-8 text-green-500" /> },
               { label: 'Response Rate', value: stats.responseRate, icon: <Users className="w-8 h-8 text-blue-500" /> },
             ].map(({ label, value, icon }) => (
-              <div key={label} className="p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+              <div key={label} className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{value}</div>
@@ -284,7 +284,7 @@ const ReviewsPage = () => {
             {currentReviews.length > 0 ? currentReviews.map(review => (
               <div
                 key={review.id}
-                className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+                className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
               >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">

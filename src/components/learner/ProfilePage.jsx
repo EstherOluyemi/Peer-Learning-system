@@ -221,7 +221,7 @@ const ProfilePage = () => {
         <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="p-6 rounded-2xl shadow-sm border"
+                    <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                         style={{
                             backgroundColor: 'var(--card-bg)',
                             borderColor: 'var(--card-border)'
@@ -320,7 +320,7 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
-                    <div className="p-6 rounded-2xl shadow-sm border"
+                    <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                         style={{
                             backgroundColor: 'var(--card-bg)',
                             borderColor: 'var(--card-border)'
@@ -362,7 +362,7 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
-                    <div className="p-6 rounded-2xl shadow-sm border"
+                    <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                         style={{
                             backgroundColor: 'var(--card-bg)',
                             borderColor: 'var(--card-border)'
@@ -406,7 +406,7 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="space-y-6">
-                    <div className="p-6 rounded-2xl shadow-sm border"
+                    <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                         style={{
                             backgroundColor: 'var(--card-bg)',
                             borderColor: 'var(--card-border)'
@@ -432,7 +432,7 @@ const ProfilePage = () => {
     const renderEducationTab = () => (
         <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -455,7 +455,7 @@ const ProfilePage = () => {
                     </div>
                 </div>
 
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -484,7 +484,7 @@ const ProfilePage = () => {
     const renderProgressTab = () => (
         <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -500,7 +500,7 @@ const ProfilePage = () => {
                         </div>
                     </div>
                 </div>
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -519,7 +519,7 @@ const ProfilePage = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -552,7 +552,7 @@ const ProfilePage = () => {
                     </div>
                 </div>
 
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -595,7 +595,7 @@ const ProfilePage = () => {
 
     const renderBadgesTab = () => (
         <div className="space-y-6">
-            <div className="p-6 rounded-2xl shadow-sm border"
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                 style={{
                     backgroundColor: 'var(--card-bg)',
                     borderColor: 'var(--card-border)'
@@ -633,7 +633,7 @@ const ProfilePage = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -666,7 +666,7 @@ const ProfilePage = () => {
                     </div>
                 </div>
 
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -674,7 +674,7 @@ const ProfilePage = () => {
                 >
                     <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Learning Streak</h3>
                     <div className="text-center">
-                        <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">7</div>
+                        <div className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">7</div>
                         <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Days in a row</div>
                         <div className="mt-4 flex justify-center gap-2">
                             {[...Array(7)].map((_, i) => (
@@ -690,7 +690,7 @@ const ProfilePage = () => {
     const renderSettingsTab = () => (
         <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -728,7 +728,7 @@ const ProfilePage = () => {
                     </div>
                 </div>
 
-                <div className="p-6 rounded-2xl shadow-sm border"
+                <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                     style={{
                         backgroundColor: 'var(--card-bg)',
                         borderColor: 'var(--card-border)'
@@ -784,7 +784,7 @@ const ProfilePage = () => {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Profile</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Profile</h1>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your learner profile and settings.</p>
                 </div>
                 <div className="flex gap-3">
@@ -801,7 +801,7 @@ const ProfilePage = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <div className="lg:col-span-1">
-                    <div className="p-6 rounded-2xl shadow-sm border"
+                    <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
                         style={{
                             backgroundColor: 'var(--card-bg)',
                             borderColor: 'var(--card-border)'

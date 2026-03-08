@@ -164,7 +164,7 @@ const ProfileSetup = () => {
                             <div className="mb-6 inline-flex items-center px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-sm font-medium backdrop-blur-sm">
                                 Step 3 of 3: Profile Setup
                             </div>
-                            <h2 className="text-4xl font-bold mb-4">Complete Your Profile</h2>
+                            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Complete Your Profile</h2>
                             <p className="text-lg text-slate-200 max-w-md">
                                 {isTutor
                                     ? "Help students find you by listing your expertise and setting your rate."
@@ -175,8 +175,8 @@ const ProfileSetup = () => {
                 </div>
 
                 {/* RIGHT SIDE: Form */}
-                <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 lg:px-16 bg-white z-10 min-h-screen">
-                    <div className="w-full max-w-md space-y-8">
+                <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white z-10 min-h-screen">
+                    <div className="w-full max-w-md space-y-6 sm:space-y-8">
                         <div>
                             <button
                                 onClick={() => navigate(-1)}
@@ -195,7 +195,7 @@ const ProfileSetup = () => {
                                 <span className="text-2xl font-bold text-slate-900 tracking-tight">PeerLearn</span>
                             </div>
 
-                            <h1 className={`font-bold text-slate-900 ${textSize === 'large' ? 'text-4xl' : 'text-3xl'}`}>
+                            <h1 className={`font-bold text-slate-900 ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`}>
                                 {isTutor ? 'Tutor Profile' : 'Learner Profile'}
                             </h1>
                             <p className={`mt-2 text-slate-600 ${baseFontSize}`}>
@@ -325,3 +325,4 @@ const ProfileSetup = () => {
 };
 
 export default ProfileSetup;
+

@@ -84,10 +84,10 @@ const LearnerMaterialsPage = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto px-4 sm:px-0">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Course Materials</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Course Materials</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Access learning resources from your sessions.
           </p>
@@ -106,7 +106,7 @@ const LearnerMaterialsPage = () => {
       )}
 
       <div className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-        <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="p-4 sm:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
           <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Materials by Session</h2>
         </div>
         <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
@@ -119,7 +119,7 @@ const LearnerMaterialsPage = () => {
             filteredSessions.map((session) => (
               <div key={session._id || session.id}>
                 <div
-                  className="p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition"
+                  className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition"
                   onClick={() => setExpandedSession(expandedSession === (session._id || session.id) ? null : (session._id || session.id))}
                 >
                   <div className="flex items-start gap-4 flex-1">
@@ -154,11 +154,11 @@ const LearnerMaterialsPage = () => {
                 </div>
 
                 {expandedSession === (session._id || session.id) && (
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-6 space-y-3 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 sm:p-6 space-y-3 border-t" style={{ borderColor: 'var(--border-color)' }}>
                     {session.materials.map((material, idx) => (
                       <div
                         key={idx}
-                        className="p-4 rounded-lg border flex items-start justify-between gap-4"
+                        className="p-4 rounded-lg border flex flex-col sm:flex-row items-start justify-between gap-4"
                         style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}
                       >
                         <div className="flex-1 flex items-start gap-3">
@@ -222,3 +222,4 @@ const LearnerMaterialsPage = () => {
 };
 
 export default LearnerMaterialsPage;
+

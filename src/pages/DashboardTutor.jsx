@@ -244,7 +244,7 @@ const DashboardTutor = () => {
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto">
       {error && (
         <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
           <AlertCircle className="w-5 h-5 shrink-0" />
@@ -284,7 +284,7 @@ const DashboardTutor = () => {
             const wrapperProps = stat.link ? { to: stat.link } : {};
             
             return (
-              <CardWrapper key={index} {...wrapperProps} role="listitem" aria-label={`${stat.label}: ${stat.value}`} className="p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+              <CardWrapper key={index} {...wrapperProps} role="listitem" aria-label={`${stat.label}: ${stat.value}`} className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div className={`p-3 rounded-xl ${stat.bg}`} aria-hidden="true">
@@ -360,7 +360,7 @@ const DashboardTutor = () => {
         <div className="lg:col-span-2 space-y-8">
           <div className="rounded-2xl shadow-sm border overflow-hidden"
             style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <div className="p-6 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style={{ borderColor: 'var(--border-color)' }}>
+            <div className="p-4 sm:p-6 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style={{ borderColor: 'var(--border-color)' }}>
               <div>
                 <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Upcoming Sessions</h2>
                 <div className="mt-3 flex items-center gap-2">
@@ -719,3 +719,4 @@ const ActionButton = ({ icon: IconComponent, label, color, onClick }) => (
 );
 
 export default DashboardTutor;
+

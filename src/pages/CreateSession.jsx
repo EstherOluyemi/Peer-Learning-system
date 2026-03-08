@@ -173,7 +173,7 @@ const CreateSession = () => {
 
       {/* Header */}
       <header className="bg-white border-b border-slate-200">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link 
@@ -197,11 +197,11 @@ const CreateSession = () => {
         </div>
       </header>
 
-      <main id="main-content" className="container mx-auto px-6 py-8">
+      <main id="main-content" className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Page Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
               Create Learning Session
             </h1>
             <p className="text-slate-600">
@@ -211,20 +211,20 @@ const CreateSession = () => {
 
           {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="p-4 sm:p-6 md:p-8">
+              <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
                 {/* Basic Information Section */}
                 <section aria-labelledby="basic-info-heading">
-                  <div className="flex items-center space-x-3 mb-6">
+                  <div className="flex items-center space-x-3 mb-4 sm:mb-6">
                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                       <BookOpen className="w-5 h-5 text-blue-600" />
                     </div>
-                    <h2 id="basic-info-heading" className="text-xl font-bold text-slate-900">
+                    <h2 id="basic-info-heading" className="text-lg sm:text-xl font-bold text-slate-900">
                       Basic Information
                     </h2>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
                     {/* Title */}
                     <div className="md:col-span-2">
                       <label htmlFor="title" className="block text-sm font-medium text-slate-900 mb-2">

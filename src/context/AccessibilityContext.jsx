@@ -10,20 +10,9 @@ export const AccessibilityProvider = ({ children }) => {
   const [keyboardShortcutsEnabled, setKeyboardShortcutsEnabled] = useState(true);
 
   useEffect(() => {
-    const focusableRegionSelector = [
-      'main',
-      '[role="main"]',
-      'section',
-      'article',
-      '[role="region"]',
-      'header',
-      'footer',
-      'aside',
-      'nav',
-      '[role="contentinfo"]',
-      '[role="banner"]',
-      '[data-a11y-focus-region="true"]',
-    ].join(',');
+    // Enhanced focus management: Only add tabindex to major landmark regions
+    // that explicitly opt-in via data-a11y-focus-region attribute
+    const focusableRegionSelector = '[data-a11y-focus-region="true"]';
 
     const applyRegionFocusability = () => {
       const regions = document.querySelectorAll(focusableRegionSelector);
@@ -31,7 +20,9 @@ export const AccessibilityProvider = ({ children }) => {
         if (!(element instanceof HTMLElement)) return;
         if (element.hasAttribute('tabindex')) return;
         if (element.getAttribute('aria-hidden') === 'true') return;
-        element.setAttribute('tabindex', '0');
+        // Only add tabindex=-1 so region is focusable programmatically
+        // but not in natural tab order (user must use skip links or deliberate focus)
+        element.setAttribute('tabindex', '-1');
         element.setAttribute('data-a11y-auto-focusable', 'true');
       });
     };

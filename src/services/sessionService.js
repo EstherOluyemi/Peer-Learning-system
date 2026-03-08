@@ -262,11 +262,12 @@ export const rejectEnrollmentRequest = async (requestId) => {
   return null;
 };
 
-// Get session chat messages (for both tutors and learners)
+// Get session chat messages (unified endpoint for both tutors and learners)
 export const getSessionChat = async (sessionId, options = {}) => {
   try {
     const { page = 1, limit = 50 } = options;
-    const response = await api.get(`/v1/tutor/sessions/${sessionId}/chat`, {
+    // Use unified chat endpoint that works for both tutors and learners
+    const response = await api.get(`/v1/chat/sessions/${sessionId}/chat`, {
       params: { page, limit }
     });
     const payload = response?.data ?? response;
@@ -276,50 +277,21 @@ export const getSessionChat = async (sessionId, options = {}) => {
       pagination: data?.pagination || null
     };
   } catch (error) {
-    // Try learner endpoint if tutor endpoint fails
-    if (error?.response?.status === 403 || error?.response?.status === 404) {
-      try {
-        const response = await api.get(`/v1/learner/sessions/${sessionId}/chat`, {
-          params: { page: options.page || 1, limit: options.limit || 50 }
-        });
-        const payload = response?.data ?? response;
-        const data = payload?.data ?? payload;
-        return {
-          messages: Array.isArray(data?.messages) ? data.messages : Array.isArray(data) ? data : [],
-          pagination: data?.pagination || null
-        };
-      } catch (learnerError) {
-        console.error('Error fetching session chat:', learnerError);
-        throw learnerError;
-      }
-    }
     console.error('Error fetching session chat:', error);
     throw error;
   }
 };
 
-// Send a message to session chat
+// Send a message to session chat (unified endpoint for both tutors and learners)
 export const sendSessionChatMessage = async (sessionId, messageText) => {
   try {
-    const response = await api.post(`/v1/tutor/sessions/${sessionId}/chat`, {
+    // Use unified chat endpoint that works for both tutors and learners
+    const response = await api.post(`/v1/chat/sessions/${sessionId}/chat`, {
       message: messageText
     });
     const payload = response?.data ?? response;
     return payload?.data ?? payload;
   } catch (error) {
-    // Try learner endpoint if tutor endpoint fails
-    if (error?.response?.status === 403 || error?.response?.status === 404) {
-      try {
-        const response = await api.post(`/v1/learner/sessions/${sessionId}/chat`, {
-          message: messageText
-        });
-        const payload = response?.data ?? response;
-        return payload?.data ?? payload;
-      } catch (learnerError) {
-        console.error('Error sending session chat message:', learnerError);
-        throw learnerError;
-      }
-    }
     console.error('Error sending session chat message:', error);
     throw error;
   }

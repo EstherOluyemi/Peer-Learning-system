@@ -3,6 +3,8 @@ import { useAccessibility } from '../context/AccessibilityContext';
 import { useTheme } from '../context/ThemeContext';
 import { X, Eye, EyeOff, Plus, Minus, RotateCcw, Sun, Moon } from 'lucide-react';
 import AccessibilityIcon from './icons/AccessibilityIcon';
+import KeyboardShortcuts from './accessibility/KeyboardShortcuts';
+import HighContrastToggle from './accessibility/HIghContrastToggle';
 
 const AccessibilityToolbar = () => {
   const {
@@ -168,8 +170,12 @@ const AccessibilityToolbar = () => {
         </div>
 
         {/* Footer Info */}
-        <div className="mt-5 pt-4 border-t border-gray-200 text-xs text-gray-600 space-y-1">
-          <p className="font-medium text-gray-700 mb-2">Keyboard Shortcuts:</p>
+        <div className="mt-5 pt-4 border-t border-gray-200 text-xs text-gray-600 space-y-3">
+          <p className="font-medium text-gray-700 mb-2">Quick Actions:</p>
+          <div>
+            <KeyboardShortcuts />
+          </div>
+          <p className="font-medium text-gray-700 mt-3 mb-2">Navigation Tips:</p>
           <div className="space-y-1">
             <p><kbd className="bg-gray-200 px-2 py-1 rounded text-xs font-mono">Tab</kbd> to navigate</p>
             <p><kbd className="bg-gray-200 px-2 py-1 rounded text-xs font-mono">Enter</kbd> to select</p>

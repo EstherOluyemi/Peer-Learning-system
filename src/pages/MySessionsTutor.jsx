@@ -99,9 +99,9 @@ const MySessionsTutor = () => {
         Skip to sessions list
       </a>
 
-      <div className="container mx-auto px-6 py-12 max-w-4xl">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-4xl">
         {/* Header */}
-        <header className="mb-8 flex items-center justify-between">
+        <header className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <button
               onClick={() => navigate('/dashboard-tutor')}
@@ -111,7 +111,7 @@ const MySessionsTutor = () => {
               Back to Dashboard
             </button>
 
-            <h1 className={`font-bold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-4xl' : 'text-3xl'}`} tabIndex={-1}>
+            <h1 className={`font-bold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
               My Sessions
             </h1>
             <p className={`mt-2 text-slate-600 ${baseFontSize}`}>
@@ -121,7 +121,7 @@ const MySessionsTutor = () => {
 
           <button
             onClick={() => navigate('/create-session')}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <Plus className="w-5 h-5" aria-hidden="true" />
             <span className="hidden sm:inline">Create Session</span>
@@ -154,16 +154,16 @@ const MySessionsTutor = () => {
 
         {/* Sessions List */}
         {isLoading ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center" role="status" aria-label="Loading sessions">
+          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center" role="status" aria-label="Loading sessions">
             <div className="inline-flex items-center gap-3">
               <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
               <p className="text-slate-600">Loading your sessions...</p>
             </div>
           </div>
         ) : sessions.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center">
             <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" aria-hidden="true" />
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">No Sessions Yet</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">No Sessions Yet</h2>
             <p className="text-slate-600 mb-6">Create your first tutoring session to get started!</p>
             <button
               onClick={() => navigate('/create-session')}
@@ -179,13 +179,13 @@ const MySessionsTutor = () => {
               <div
                 key={session._id}
                 role="listitem"
-                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-6 border border-slate-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-slate-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   {/* Session Info */}
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-slate-900">{session.title || 'Untitled Session'}</h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                      <h3 className="text-lg sm:text-xl font-semibold text-slate-900">{session.title || 'Untitled Session'}</h3>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeColor(session.status)}`}>
                         {session.status}
                       </span>
@@ -286,3 +286,4 @@ const MySessionsTutor = () => {
 };
 
 export default MySessionsTutor;
+

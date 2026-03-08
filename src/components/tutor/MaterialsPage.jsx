@@ -150,10 +150,10 @@ const MaterialsPage = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto px-4 sm:px-0">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Materials</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Materials</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Organize and share resources for your sessions.
           </p>
@@ -174,12 +174,12 @@ const MaterialsPage = () => {
         </div>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
         <label className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Filter by session:</label>
         <select
           value={selectedSessionFilter}
           onChange={(e) => setSelectedSessionFilter(e.target.value)}
-          className="px-3 py-2 border rounded-lg text-sm"
+          className="w-full sm:w-auto px-3 py-2 border rounded-lg text-sm"
           style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)' }}
         >
           <option value="all">All Materials</option>
@@ -192,7 +192,7 @@ const MaterialsPage = () => {
       </div>
 
       <div className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-        <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="p-4 sm:p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
           <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
             Your Materials ({filteredMaterials.length})
           </h2>
@@ -208,8 +208,8 @@ const MaterialsPage = () => {
               const materialId = material._id || material.id;
               
               return (
-                <div key={materialId} className="p-6 flex items-start justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                  <div className="flex items-start gap-4 flex-1 min-w-0">
+                <div key={materialId} className="p-4 sm:p-6 flex flex-col sm:flex-row items-start justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                  <div className="flex items-start gap-4 flex-1 min-w-0 w-full">
                     <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shrink-0">
                       <FileText className="w-6 h-6" />
                     </div>
@@ -298,9 +298,9 @@ const MaterialsPage = () => {
       {/* Upload Modal */}
       {isUploadModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              <h2 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 Upload Material
               </h2>
               <button
@@ -398,7 +398,7 @@ const MaterialsPage = () => {
                 </select>
               </div>
 
-              <div className="flex gap-3 justify-end">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
                 <button
                   onClick={() => {
                     setIsUploadModalOpen(false);
@@ -447,3 +447,4 @@ const MaterialsPage = () => {
 };
 
 export default MaterialsPage;
+

@@ -6,7 +6,7 @@ import { useTheme } from '../../context/ThemeContext';
 import {
   Users, Calendar, Star, MessageSquare,
   BookOpen, Bell, Menu, Search, Settings,
-  Sun, Moon, Check, X
+  Sun, Moon, Check, X, CheckCircle, AlertCircle, Info
 } from 'lucide-react';
 import Navbar from '../Navbar';
 import { useChat } from '../../context/ChatContext';
@@ -196,6 +196,18 @@ const TutorLayout = () => {
     return `${days}d ago`;
   };
 
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'SUCCESS':
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'WARNING':
+        return <AlertCircle className="w-5 h-5 text-orange-600" />;
+      case 'INFO':
+      default:
+        return <Info className="w-5 h-5 text-blue-600" />;
+    }
+  };
+
   const handleSearchChange = (value) => {
     setSearchTerm(value);
     const params = new URLSearchParams(location.search);
@@ -304,8 +316,15 @@ const TutorLayout = () => {
                   id="tutor-notifications-panel"
                   role="dialog"
                   aria-label="Notifications panel"
-                  className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl shadow-2xl border overflow-hidden z-50"
+                  aria-live="polite"
+                  aria-atomic="false"
+                  className="absolute right-0 mt-2 w-[calc(100vw-2rem)] max-w-sm sm:w-96 rounded-xl shadow-2xl border overflow-hidden z-50"
                   style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setShowNotifications(false);
+                    }
+                  }}
                 >
                   <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
                     <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>Notifications</h3>
@@ -345,10 +364,18 @@ const TutorLayout = () => {
                           onClick={() => !notif.read && markAsRead(notif._id)}
                         >
                           <div className="flex items-start gap-3">
+                            <div className="shrink-0 mt-0.5">
+                              {getNotificationIcon(notif.type)}
+                            </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                                 {notif.message || notif.title}
                               </p>
+                              {notif.data?.sessionTitle && (
+                                <p className="text-xs mt-1 text-blue-600 font-medium">
+                                  {notif.data.sessionTitle}
+                                </p>
+                              )}
                               <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
                                 {formatNotificationTime(notif.time || notif.createdAt)}
                               </p>
@@ -356,7 +383,7 @@ const TutorLayout = () => {
                             {!notif.read && (
                               <button
                                 onClick={(e) => { e.stopPropagation(); markAsRead(notif._id); }}
-                                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"
+                                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded shrink-0"
                                 title="Mark as read"
                               >
                                 <Check className="w-4 h-4 text-blue-600" />

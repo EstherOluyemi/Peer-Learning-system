@@ -144,7 +144,7 @@ const LearnerReviewsPage = () => {
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Reviews</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>My Reviews</h1>
         <p style={{ color: 'var(--text-secondary)' }} className="mt-1">
           Share your feedback about tutors and help the community
         </p>
@@ -216,7 +216,7 @@ const LearnerReviewsPage = () => {
 
       {/* ── My Submitted Reviews ── */}
       <div className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-        <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="p-4 sm:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
           <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
             My Reviews ({ratedSessions.length})
           </h2>
@@ -269,7 +269,7 @@ const LearnerReviewsPage = () => {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
             {/* Header */}
-            <div className="p-6 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
+            <div className="p-4 sm:p-6 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
               <div>
                 <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
                   Review for {getTutorName(selectedSession)}
@@ -335,3 +335,4 @@ const LearnerReviewsPage = () => {
 };
 
 export default LearnerReviewsPage;
+

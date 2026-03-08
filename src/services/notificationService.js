@@ -4,6 +4,8 @@ const normalizeNotification = (notification) => ({
   ...notification,
   _id: notification?._id || notification?.id,
   message: notification?.message || notification?.title || '',
+  type: notification?.type || 'INFO',
+  data: notification?.data || null,
   read: Boolean(notification?.read),
   createdAt: notification?.createdAt || notification?.time || new Date().toISOString(),
 });
