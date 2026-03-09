@@ -175,16 +175,11 @@ const MySessionsTutor = () => {
           </div>
         ) : (
           <div className="space-y-4" id="sessions-list" role="list">
-            {sessions.map((session) => {
-              const participantInfo = `${session.studentIds?.length || 0} out of ${session.maxParticipants} participants`;
-              const sessionLabel = `Session: ${session.title || 'Untitled Session'}, subject: ${session.subject || 'No subject'}, ${participantInfo}, status: ${session.status}, scheduled from ${formatDateTime(session.startTime)} to ${formatDateTime(session.endTime)}`;
-              
-              return (
-                <div
-                  key={session._id}
-                  role="listitem"
-                  aria-label={sessionLabel}
-                  className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-slate-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+            {sessions.map((session) => (
+              <div
+                key={session._id}
+                role="listitem"
+                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-slate-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
                 >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   {/* Session Info */}

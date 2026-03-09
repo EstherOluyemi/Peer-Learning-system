@@ -374,7 +374,6 @@ const DashboardLearner = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="list">
           {statCards.map((stat, i) => (
             <article key={i} role="listitem" 
-              aria-label={`${stat.label}: ${stat.value}`}
               className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md"
               style={{
                 backgroundColor: 'var(--card-bg)',
@@ -405,7 +404,6 @@ const DashboardLearner = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 sm:p-6" role="list">
           {recommendedSessions.length > 0 ? recommendedSessions.map((session) => (
             <article key={session.id} role="listitem" tabIndex={0} 
-              aria-label={`Recommended session: ${session.title}, subject: ${session.subject}, tutor: ${session.tutor}, rating: ${session.rating} stars, ${session.students} students`}
               className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
               onClick={() => navigate('/dashboard-learner/sessions')}
@@ -441,7 +439,6 @@ const DashboardLearner = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 sm:p-6" role="list">
           {topTutors.length > 0 ? topTutors.map((tutor, idx) => (
             <article key={tutor._id || idx} role="listitem" tabIndex={0} 
-              aria-label={`Tutor: ${tutor.name}, specializes in ${tutor.subject}, rating: ${tutor.rating.toFixed(1)} out of 5 stars, ${tutor.students} student${tutor.students !== 1 ? 's' : ''}`}
               className="p-4 rounded-xl border text-center transition-all hover:shadow-md cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
               onClick={() => navigate('/dashboard-learner/browse-sessions', { state: { tutorId: tutor._id } })}
@@ -510,10 +507,8 @@ const DashboardLearner = () => {
                 upcomingSessions.map((session, i) => {
                   const startDate = formatDateTime(session.startTime);
                   const endTime = formatDateTime(session.endTime).timeLabel;
-                  const sessionLabel = `Upcoming session: ${session.title || 'Untitled Session'}, subject: ${session.subject || 'Not specified'}, time: ${startDate.timeLabel} to ${endTime}, status: ${session.status || 'scheduled'}`;
                   return (
                     <button key={i} type="button" 
-                      aria-label={sessionLabel}
                       onClick={() => setSelectedSession(session)} className="w-full text-left p-4 sm:p-6 cursor-pointer transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" style={{ backgroundColor: 'var(--card-bg)' }}
                       onKeyDown={(event) => handleKeyboardActivate(event, () => setSelectedSession(session))}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}

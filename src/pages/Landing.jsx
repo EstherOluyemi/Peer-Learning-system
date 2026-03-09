@@ -462,7 +462,6 @@ const Landing = () => {
                   role="listitem"
                   className="text-center p-4 sm:p-6 rounded-2xl bg-linear-to-b from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   style={{ animationDelay: `${index * 100}ms` }}
-                  aria-label={`${stat.label}: ${stat.number}`}
                 >
                   <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-linear-to-br from-blue-50 to-white dark:from-slate-700 dark:to-slate-800 rounded-2xl mb-3 sm:mb-4 border border-slate-100 dark:border-slate-600" aria-hidden="true">
                     <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
@@ -506,7 +505,6 @@ const Landing = () => {
                   className="group bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-400 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-within:shadow-xl"
                   style={{ animationDelay: `${index * 100}ms` }}
                   role="listitem"
-                  aria-label={`${feature.title}: ${feature.desc}`}
                 >
                   <div className={`w-14 h-14 ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`} aria-hidden="true">
                     <Icon className="w-7 h-7" aria-hidden="true" />
@@ -553,7 +551,6 @@ const Landing = () => {
                   key={`first-${testimonial.id}-${index}`}
                   role="listitem"
                   className="shrink-0 w-[18rem] sm:w-80 mx-2 sm:mx-4 testimonial-card bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                  aria-label={`Testimonial from ${testimonial.name}, ${testimonial.role}: ${testimonial.text.substring(0, 100)}...`}
                 >
                   <Quote className="w-8 h-8 text-blue-400 mb-4 quote-icon transition-transform duration-300" aria-hidden="true" />
                   <p className="text-slate-700 dark:text-slate-200 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
@@ -591,7 +588,6 @@ const Landing = () => {
                   key={`second-${testimonial.id}-${index}`}
                   role="listitem"
                   className="shrink-0 w-[18rem] sm:w-80 mx-2 sm:mx-4 testimonial-card bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                  aria-label={`Testimonial from ${testimonial.name}, ${testimonial.role}: ${testimonial.text.substring(0, 100)}...`}
                 >
                   <Quote className="w-8 h-8 text-emerald-400 mb-4 quote-icon transition-transform duration-300" aria-hidden="true" />
                   <p className="text-slate-700 dark:text-slate-200 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>

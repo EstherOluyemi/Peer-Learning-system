@@ -286,14 +286,11 @@ const BrowseSessionsLearner = () => {
               const availability = getAvailabilityStatus(session);
               const isFull = availability.status === 'Full';
               const isPending = pendingEnrollments.includes(session._id);
-              const participantInfo = `${session.studentIds?.length || 0} out of ${session.maxParticipants} participants`;
-              const sessionLabel = `Session: ${session.title || 'Untitled'}, subject: ${session.subject || 'General'}, ${participantInfo}, status: ${availability.status}, scheduled for ${formatDateTime(session.startTime)}`;
 
               return (
                 <div
                   key={session._id}
                   role="listitem"
-                  aria-label={sessionLabel}
                   className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all border border-slate-100 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
                 >
                   {/* Session Header */}

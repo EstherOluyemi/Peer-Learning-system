@@ -298,7 +298,6 @@ const DashboardTutor = () => {
             
             return (
               <CardWrapper key={index} {...wrapperProps} role="listitem" 
-                aria-label={`${stat.label}: ${stat.value}${stat.link ? ', click to view details' : ''}`}
                 className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                 <div className="flex items-center justify-between mb-4">
@@ -337,7 +336,6 @@ const DashboardTutor = () => {
               const createdAt = formatRequestTime(request.createdAt || request.requestedAt);
               return (
                 <li key={requestId} role="listitem" 
-                  aria-label={`Enrollment request from ${learnerName} for session ${sessionTitle}, requested ${createdAt || 'recently'}`}
                   className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border"
                   style={{ borderColor: 'var(--card-border)' }}>
                   <div className="text-sm">
@@ -407,11 +405,9 @@ const DashboardTutor = () => {
                   const endTime = formatDateTime(session.endTime).timeLabel;
                   const participantCount = session.studentIds?.length || 0;
                   const maxParticipants = session.maxParticipants || 0;
-                  const sessionLabel = `Scheduled session: ${session.title || 'Untitled Session'}, subject: ${session.subject || 'General'}, ${participantCount} out of ${maxParticipants} students enrolled, time: ${startDate.time} to ${endTime}, status: ${session.status || 'scheduled'}`;
                   
                   return (
                     <article key={session._id || session.id} role="listitem" tabIndex={0} 
-                      aria-label={sessionLabel}
                       className="p-6 transition-colors group cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                       onClick={() => setSelectedSession(session)}
                       onKeyDown={(event) => handleKeyboardActivate(event, () => setSelectedSession(session))}
