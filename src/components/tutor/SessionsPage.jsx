@@ -1,5 +1,5 @@
 // src/components/tutor/SessionsPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import {
   Calendar, Users, Clock, Edit, Trash2, Plus, Search, Filter,
@@ -8,6 +8,7 @@ import {
 import api from '../../services/api';
 import { normalizeSessionList } from '../../services/sessionService';
 import { useAuth } from '../../context/AuthContext';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 const SessionsPage = () => {
   const { user } = useAuth();
@@ -30,6 +31,16 @@ const SessionsPage = () => {
     scheduled: 0
   });
   const itemsPerPage = 8;
+
+  const closeSelectedSession = useCallback(() => setSelectedSession(null), []);
+  const sessionModalRef = useFocusTrap(Boolean(selectedSession), closeSelectedSession);
+
+  const handleKeyboardActivate = (event, action) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      action();
+    }
+  };
 
   // Redirect to edit page if edit param is present
   useEffect(() => {
@@ -268,11 +279,15 @@ const SessionsPage = () => {
                   <div
                     key={session._id}
                     onClick={() => setSelectedSession(session)}
+                    onKeyDown={(event) => handleKeyboardActivate(event, () => setSelectedSession(session))}
+                    tabIndex={0}
+                    role="button"
                     className="cursor-pointer p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                     style={{
                       backgroundColor: 'var(--card-bg)',
                       borderColor: 'var(--card-border)'
                     }}
+                    aria-label={`View details for ${session.title || 'session'}`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                       <div className="flex flex-col sm:flex-row sm:items-start gap-4 flex-1">
@@ -416,13 +431,13 @@ const SessionsPage = () => {
 
       {/* Session Details Modal */}
       {selectedSession && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setSelectedSession(null)}>
-          <div className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={closeSelectedSession}>
+          <div ref={sessionModalRef} role="dialog" aria-modal="true" aria-labelledby="tutor-sessions-modal-title" tabIndex={-1} className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="px-6 py-5 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
+                  <h3 id="tutor-sessions-modal-title" className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
                   <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(selectedSession.status)}`}>
                     {(selectedSession.status || 'scheduled').charAt(0).toUpperCase() + (selectedSession.status || 'scheduled').slice(1)}
                   </span>
@@ -432,7 +447,7 @@ const SessionsPage = () => {
                 )}
               </div>
               <button
-                onClick={() => setSelectedSession(null)}
+                onClick={closeSelectedSession}
                 className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 style={{ color: 'var(--text-secondary)' }}
                 aria-label="Close modal"
@@ -516,7 +531,7 @@ const SessionsPage = () => {
             {/* Modal Footer */}
             <div className="px-6 py-4 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
               <button
-                onClick={() => setSelectedSession(null)}
+                onClick={closeSelectedSession}
                 className="px-4 py-2 rounded-lg border font-medium transition-colors"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
               >

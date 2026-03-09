@@ -81,7 +81,7 @@ const BrowseSessionsPage = () => {
         } finally {
             setLoading(false);
         }
-    }, [user?.role]);
+    }, [user?.role, sortBy]);
 
     useEffect(() => {
         fetchData();

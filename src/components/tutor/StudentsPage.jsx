@@ -1,5 +1,5 @@
 // src/components/tutor/StudentsPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Users, Search, MessageSquare, Calendar,
   ChevronLeft, ChevronRight, Eye, UserPlus, AlertCircle,
@@ -8,6 +8,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { updateSession } from '../../services/sessionService';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 /* ─── helpers ─────────────────────────────────────────────────────── */
 const normalizeId = (value) => {
@@ -72,6 +73,15 @@ const StudentsPage = () => {
   const [removingStudentSession, setRemovingStudentSession] = useState(null); // "studentId-sessionId"
   const navigate = useNavigate();
   const itemsPerPage = 8;
+
+  const closeAddStudentModal = useCallback(() => {
+    setIsAddStudentOpen(false);
+    setAddStudentError(null);
+    setAddingStudentId(null);
+  }, []);
+  const addStudentModalRef = useFocusTrap(Boolean(isAddStudentOpen), closeAddStudentModal);
+  const closeDetailStudentModal = useCallback(() => setDetailStudent(null), []);
+  const detailStudentModalRef = useFocusTrap(Boolean(detailStudent), closeDetailStudentModal);
 
   // Derived unique sessions list from all student sessions for the filter dropdown
   const [allSessions, setAllSessions] = useState([]);
@@ -736,29 +746,27 @@ const StudentsPage = () => {
       {isAddStudentOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => {
-            setIsAddStudentOpen(false);
-            setAddStudentError(null);
-            setAddingStudentId(null);
-          }}
+          onClick={closeAddStudentModal}
         >
           <div
+            ref={addStudentModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-student-modal-title"
+            tabIndex={-1}
             className="w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden"
             style={{ backgroundColor: 'var(--card-bg)' }}
             onClick={e => e.stopPropagation()}
           >
             <div className="px-6 py-5 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
               <div>
-                <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Add Student to Session</h3>
+                <h3 id="add-student-modal-title" className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Add Student to Session</h3>
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Choose a session, then search and add a learner.</p>
               </div>
               <button
-                onClick={() => {
-                  setIsAddStudentOpen(false);
-                  setAddStudentError(null);
-                  setAddingStudentId(null);
-                }}
+                onClick={closeAddStudentModal}
                 className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                aria-label="Close add student dialog"
               >
                 <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
               </button>
@@ -845,11 +853,7 @@ const StudentsPage = () => {
 
             <div className="px-6 py-4 border-t flex justify-end" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
               <button
-                onClick={() => {
-                  setIsAddStudentOpen(false);
-                  setAddStudentError(null);
-                  setAddingStudentId(null);
-                }}
+                onClick={closeAddStudentModal}
                 className="px-4 py-2 rounded-lg border font-medium transition-colors"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
               >
@@ -863,9 +867,14 @@ const StudentsPage = () => {
       {detailStudent && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setDetailStudent(null)}
+          onClick={closeDetailStudentModal}
         >
           <div
+            ref={detailStudentModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="student-detail-modal-title"
+            tabIndex={-1}
             className="w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden"
             style={{ backgroundColor: 'var(--card-bg)' }}
             onClick={e => e.stopPropagation()}
@@ -875,11 +884,11 @@ const StudentsPage = () => {
               <div className="flex items-center gap-3">
                 <Avatar name={detailStudent.name} avatar={detailStudent.avatar} size="w-11 h-11" />
                 <div>
-                  <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>{detailStudent.name}</h3>
+                  <h3 id="student-detail-modal-title" className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>{detailStudent.name}</h3>
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{detailStudent.email}</p>
                 </div>
               </div>
-              <button onClick={() => setDetailStudent(null)} className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+              <button onClick={closeDetailStudentModal} className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" aria-label="Close student details">
                 <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
               </button>
             </div>
@@ -982,7 +991,7 @@ const StudentsPage = () => {
             {/* Footer */}
             <div className="px-6 py-4 border-t flex justify-end" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
               <button
-                onClick={() => setDetailStudent(null)}
+                onClick={closeDetailStudentModal}
                 className="px-4 py-2 rounded-lg border font-medium transition-colors"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
               >

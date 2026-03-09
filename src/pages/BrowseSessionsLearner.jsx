@@ -253,7 +253,7 @@ const BrowseSessionsLearner = () => {
 
         {/* Sessions Grid */}
         {isLoading ? (
-          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center" role="status" aria-label="Loading sessions">
+          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center" role="status" aria-live="polite">
             <div className="inline-flex items-center gap-3">
               <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
               <p className="text-slate-600">Loading sessions...</p>
@@ -286,11 +286,14 @@ const BrowseSessionsLearner = () => {
               const availability = getAvailabilityStatus(session);
               const isFull = availability.status === 'Full';
               const isPending = pendingEnrollments.includes(session._id);
+              const participantInfo = `${session.studentIds?.length || 0} out of ${session.maxParticipants} participants`;
+              const sessionLabel = `Session: ${session.title || 'Untitled'}, subject: ${session.subject || 'General'}, ${participantInfo}, status: ${availability.status}, scheduled for ${formatDateTime(session.startTime)}`;
 
               return (
                 <div
                   key={session._id}
                   role="listitem"
+                  aria-label={sessionLabel}
                   className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all border border-slate-100 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
                 >
                   {/* Session Header */}
@@ -315,7 +318,7 @@ const BrowseSessionsLearner = () => {
                       </p>
                       <p className="flex items-center gap-2 text-slate-600">
                         <Users className="w-4 h-4 shrink-0" aria-hidden="true" />
-                        <span aria-label={`${session.studentIds?.length || 0} participants out of ${session.maxParticipants} maximum`}>
+                        <span>
                           {session.studentIds?.length || 0} / {session.maxParticipants}
                         </span>
                       </p>

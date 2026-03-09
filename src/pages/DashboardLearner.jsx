@@ -1,5 +1,5 @@
 // src/pages/DashboardLearner.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { normalizeSessionList } from '../services/sessionService';
@@ -9,6 +9,7 @@ import {
   User, Search, Bell, ChevronRight, AlertCircle, Video, X, Users, Zap
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 const DashboardLearner = () => {
   const { user } = useAuth();
@@ -32,6 +33,19 @@ const DashboardLearner = () => {
   const [leavingSessionId, setLeavingSessionId] = useState(null);
   const [enrollmentMessage, setEnrollmentMessage] = useState('');
   const enrollmentStatusRef = useRef({});
+
+  const closeSelectedSession = useCallback(() => {
+    setSelectedSession(null);
+  }, []);
+
+  const sessionModalRef = useFocusTrap(Boolean(selectedSession), closeSelectedSession);
+
+  const handleKeyboardActivate = (event, action) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      action();
+    }
+  };
 
   const formatDateTime = (dateString) => {
     if (!dateString) return { date: 'TBD', time: '--', dayMonth: 'TBD', timeLabel: '--' };
@@ -342,14 +356,14 @@ const DashboardLearner = () => {
       </div>
 
       {enrollmentMessage && (
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-md flex items-center gap-3">
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-md flex items-center gap-3" role="status" aria-live="polite">
           <Zap className="w-5 h-5 text-blue-500" />
           <p className="text-blue-700 font-medium">{enrollmentMessage}</p>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md flex items-center gap-3">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md flex items-center gap-3" role="alert">
           <AlertCircle className="w-5 h-5 text-red-500" />
           <p className="text-red-700 font-medium">{error}</p>
         </div>
@@ -359,7 +373,9 @@ const DashboardLearner = () => {
         <h2 id="stats-heading" className="sr-only">Learning Statistics</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="list">
           {statCards.map((stat, i) => (
-            <article key={i} role="listitem" aria-label={`${stat.label}: ${stat.value}`} className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md"
+            <article key={i} role="listitem" 
+              aria-label={`${stat.label}: ${stat.value}`}
+              className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md"
               style={{
                 backgroundColor: 'var(--card-bg)',
                 borderColor: 'var(--card-border)'
@@ -369,8 +385,8 @@ const DashboardLearner = () => {
                   <stat.icon className={`w-6 h-6 ${stat.color}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }} aria-hidden="true">{stat.value}</p>
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true">{stat.label}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</p>
                 </div>
               </div>
             </article>
@@ -388,9 +404,12 @@ const DashboardLearner = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 sm:p-6" role="list">
           {recommendedSessions.length > 0 ? recommendedSessions.map((session) => (
-            <article key={session.id} role="listitem" aria-label={`Recommended session: ${session.title} by ${session.tutor}, rated ${session.rating} stars`} className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400"
+            <article key={session.id} role="listitem" tabIndex={0} 
+              aria-label={`Recommended session: ${session.title}, subject: ${session.subject}, tutor: ${session.tutor}, rating: ${session.rating} stars, ${session.students} students`}
+              className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
               onClick={() => navigate('/dashboard-learner/sessions')}
+              onKeyDown={(event) => handleKeyboardActivate(event, () => navigate('/dashboard-learner/sessions'))}
             >
               <div className="mb-3">
                 <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{session.title}</h3>
@@ -399,6 +418,7 @@ const DashboardLearner = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" aria-hidden="true" />
+                  <span className="sr-only">Rating</span>
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{session.rating}</span>
                 </div>
                 <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{session.students} students</p>
@@ -420,9 +440,12 @@ const DashboardLearner = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 sm:p-6" role="list">
           {topTutors.length > 0 ? topTutors.map((tutor, idx) => (
-            <article key={tutor._id || idx} role="listitem" aria-label={`Top tutor: ${tutor.name}, ${tutor.subject}, ${tutor.rating} star rating, ${tutor.students} students`} className="p-4 rounded-xl border text-center transition-all hover:shadow-md cursor-pointer"
+            <article key={tutor._id || idx} role="listitem" tabIndex={0} 
+              aria-label={`Tutor: ${tutor.name}, specializes in ${tutor.subject}, rating: ${tutor.rating.toFixed(1)} out of 5 stars, ${tutor.students} student${tutor.students !== 1 ? 's' : ''}`}
+              className="p-4 rounded-xl border text-center transition-all hover:shadow-md cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
               onClick={() => navigate('/dashboard-learner/browse-sessions', { state: { tutorId: tutor._id } })}
+              onKeyDown={(event) => handleKeyboardActivate(event, () => navigate('/dashboard-learner/browse-sessions', { state: { tutorId: tutor._id } }))}
             >
               {tutor.image && (tutor.image.startsWith('http') || tutor.image.startsWith('/')) ? (
                 <img 
@@ -436,7 +459,7 @@ const DashboardLearner = () => {
                 />
               ) : null}
               <div 
-                className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800"
+                className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl border-2 border-blue-200 dark:border-blue-800 bg-linear-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800"
                 style={{ display: (tutor.image && (tutor.image.startsWith('http') || tutor.image.startsWith('/'))) ? 'none' : 'flex' }}
                 aria-hidden="true"
               >
@@ -454,7 +477,7 @@ const DashboardLearner = () => {
                     aria-hidden="true"
                   />
                 ))}
-                <span className="text-xs ml-1 font-semibold" style={{ color: 'var(--text-primary)' }} aria-hidden="true">
+                <span className="text-xs ml-1 font-semibold" style={{ color: 'var(--text-primary)' }}>
                   {tutor.rating.toFixed(1)}
                 </span>
               </div>
@@ -487,8 +510,12 @@ const DashboardLearner = () => {
                 upcomingSessions.map((session, i) => {
                   const startDate = formatDateTime(session.startTime);
                   const endTime = formatDateTime(session.endTime).timeLabel;
+                  const sessionLabel = `Upcoming session: ${session.title || 'Untitled Session'}, subject: ${session.subject || 'Not specified'}, time: ${startDate.timeLabel} to ${endTime}, status: ${session.status || 'scheduled'}`;
                   return (
-                    <div key={i} onClick={() => setSelectedSession(session)} className="p-4 sm:p-6 cursor-pointer transition-colors" style={{ backgroundColor: 'var(--card-bg)' }}
+                    <button key={i} type="button" 
+                      aria-label={sessionLabel}
+                      onClick={() => setSelectedSession(session)} className="w-full text-left p-4 sm:p-6 cursor-pointer transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" style={{ backgroundColor: 'var(--card-bg)' }}
+                      onKeyDown={(event) => handleKeyboardActivate(event, () => setSelectedSession(session))}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card-bg)'}
                     >
@@ -512,7 +539,7 @@ const DashboardLearner = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   );
                 })
               ) : (
@@ -619,13 +646,13 @@ const DashboardLearner = () => {
 
     {/* Session Details Modal */}
     {selectedSession && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-3 sm:px-4" onClick={() => setSelectedSession(null)}>
-        <div className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-3 sm:px-4" onClick={closeSelectedSession}>
+        <div ref={sessionModalRef} role="dialog" aria-modal="true" aria-labelledby="learner-session-modal-title" tabIndex={-1} className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
           {/* Modal Header */}
           <div className="px-4 sm:px-6 py-4 sm:py-5 border-b flex items-start justify-between gap-3" style={{ borderColor: 'var(--border-color)' }}>
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                <h3 className="text-xl sm:text-2xl font-bold wrap-break-word" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
+                <h3 id="learner-session-modal-title" className="text-xl sm:text-2xl font-bold wrap-break-word" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
                 <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(selectedSession.status)}`}>
                   {(selectedSession.status || 'scheduled').charAt(0).toUpperCase() + (selectedSession.status || 'scheduled').slice(1)}
                 </span>
@@ -635,7 +662,7 @@ const DashboardLearner = () => {
               )}
             </div>
             <button
-              onClick={() => setSelectedSession(null)}
+              onClick={closeSelectedSession}
               className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               style={{ color: 'var(--text-secondary)' }}
               aria-label="Close modal"
@@ -709,7 +736,7 @@ const DashboardLearner = () => {
           {/* Modal Footer */}
           <div className="px-6 py-4 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
             <button
-              onClick={() => setSelectedSession(null)}
+              onClick={closeSelectedSession}
               className="px-4 py-2 rounded-lg border font-medium transition-colors"
               style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
             >

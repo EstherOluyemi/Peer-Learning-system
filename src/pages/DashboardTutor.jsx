@@ -1,5 +1,5 @@
 // src/pages/DashboardTutor.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Users, Calendar, Star, Trash2,
@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import CalendarPage from '../components/tutor/CalendarPage';
 import { approveEnrollmentRequest, getTutorEnrollmentRequests, normalizeSessionList, rejectEnrollmentRequest } from '../services/sessionService';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 const DashboardTutor = () => {
   const { user } = useAuth();
@@ -30,6 +31,18 @@ const DashboardTutor = () => {
   const [recentReviews, setRecentReviews] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [requestActionId, setRequestActionId] = useState(null);
+
+  const closeSelectedSession = useCallback(() => setSelectedSession(null), []);
+  const closeCalendarModal = useCallback(() => setShowCalendarModal(false), []);
+  const sessionModalRef = useFocusTrap(Boolean(selectedSession), closeSelectedSession);
+  const calendarModalRef = useFocusTrap(Boolean(showCalendarModal), closeCalendarModal);
+
+  const handleKeyboardActivate = (event, action) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      action();
+    }
+  };
 
   const searchQuery = (searchParams.get('q') || '').trim().toLowerCase();
 
@@ -284,7 +297,9 @@ const DashboardTutor = () => {
             const wrapperProps = stat.link ? { to: stat.link } : {};
             
             return (
-              <CardWrapper key={index} {...wrapperProps} role="listitem" aria-label={`${stat.label}: ${stat.value}`} className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+              <CardWrapper key={index} {...wrapperProps} role="listitem" 
+                aria-label={`${stat.label}: ${stat.value}${stat.link ? ', click to view details' : ''}`}
+                className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div className={`p-3 rounded-xl ${stat.bg}`} aria-hidden="true">
@@ -295,8 +310,8 @@ const DashboardTutor = () => {
                   )}
                 </div>
                 <div>
-                  <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }} aria-hidden="true">{stat.value}</p>
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true">{stat.label}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</p>
                 </div>
               </CardWrapper>
             );
@@ -307,7 +322,7 @@ const DashboardTutor = () => {
       <section aria-labelledby="enrollment-heading" className="rounded-2xl shadow-sm border p-6" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="flex items-center justify-between mb-4">
           <h2 id="enrollment-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Enrollment Requests</h2>
-          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" aria-label={`${pendingRequests.length} pending requests`}>
+          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
             {pendingRequests.length} pending
           </span>
         </div>
@@ -321,7 +336,9 @@ const DashboardTutor = () => {
               const sessionTitle = request.session?.title || request.sessionTitle || request.sessionName || 'Session';
               const createdAt = formatRequestTime(request.createdAt || request.requestedAt);
               return (
-                <li key={requestId} role="listitem" aria-label={`Enrollment request from ${learnerName} for ${sessionTitle}`} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border"
+                <li key={requestId} role="listitem" 
+                  aria-label={`Enrollment request from ${learnerName} for session ${sessionTitle}, requested ${createdAt || 'recently'}`}
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl border"
                   style={{ borderColor: 'var(--card-border)' }}>
                   <div className="text-sm">
                     <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{learnerName}</p>
@@ -390,10 +407,14 @@ const DashboardTutor = () => {
                   const endTime = formatDateTime(session.endTime).timeLabel;
                   const participantCount = session.studentIds?.length || 0;
                   const maxParticipants = session.maxParticipants || 0;
+                  const sessionLabel = `Scheduled session: ${session.title || 'Untitled Session'}, subject: ${session.subject || 'General'}, ${participantCount} out of ${maxParticipants} students enrolled, time: ${startDate.time} to ${endTime}, status: ${session.status || 'scheduled'}`;
                   
                   return (
-                    <article key={session._id || session.id} role="listitem" aria-label={`${session.title || 'Untitled Session'}, ${session.subject || 'General'}, ${startDate.date} at ${startDate.time}`} className="p-6 transition-colors group cursor-pointer"
+                    <article key={session._id || session.id} role="listitem" tabIndex={0} 
+                      aria-label={sessionLabel}
+                      className="p-6 transition-colors group cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                       onClick={() => setSelectedSession(session)}
+                      onKeyDown={(event) => handleKeyboardActivate(event, () => setSelectedSession(session))}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
@@ -555,12 +576,12 @@ const DashboardTutor = () => {
 
       {/* Session Details Modal */}
       {selectedSession && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setSelectedSession(null)}>
-          <div className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={closeSelectedSession}>
+          <div ref={sessionModalRef} role="dialog" aria-modal="true" aria-labelledby="tutor-session-modal-title" tabIndex={-1} className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="px-6 py-5 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
               <div className="flex-1">
-                <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                <h3 id="tutor-session-modal-title" className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                   {selectedSession.title || 'Session Details'}
                 </h3>
                 <div className="flex flex-wrap items-center gap-2">
@@ -574,7 +595,7 @@ const DashboardTutor = () => {
                 </div>
               </div>
               <button
-                onClick={() => setSelectedSession(null)}
+                onClick={closeSelectedSession}
                 className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 style={{ color: 'var(--text-secondary)' }}
                 aria-label="Close modal"
@@ -658,7 +679,7 @@ const DashboardTutor = () => {
             {/* Modal Footer */}
             <div className="px-6 py-4 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
               <button
-                onClick={() => setSelectedSession(null)}
+                onClick={closeSelectedSession}
                 className="px-4 py-2 rounded-lg border font-medium transition-colors"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
               >
@@ -685,12 +706,12 @@ const DashboardTutor = () => {
 
       {/* Calendar Modal */}
       {showCalendarModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setShowCalendarModal(false)}>
-          <div className="w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={closeCalendarModal}>
+          <div ref={calendarModalRef} role="dialog" aria-modal="true" aria-labelledby="tutor-calendar-modal-title" tabIndex={-1} className="w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-5 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
-              <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Session Calendar</h3>
+              <h3 id="tutor-calendar-modal-title" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Session Calendar</h3>
               <button
-                onClick={() => setShowCalendarModal(false)}
+                onClick={closeCalendarModal}
                 className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 <X className="w-5 h-5" />

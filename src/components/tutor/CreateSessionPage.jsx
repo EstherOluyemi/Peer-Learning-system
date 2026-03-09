@@ -213,7 +213,7 @@ const CreateSessionPage = () => {
       <header className="border-b" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/dashboard-tutor" className="flex items-center space-x-2 transition" style={{ color: 'var(--text-secondary)' }} aria-label="Back to dashboard">
+            <Link to="/dashboard-tutor" className="flex items-center space-x-2 transition" style={{ color: 'var(--text-secondary)' }}>
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Back to Dashboard</span>
             </Link>

@@ -179,7 +179,6 @@ const CreateSession = () => {
               <Link 
                 to="/dashboard" 
                 className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 transition"
-                aria-label="Back to dashboard"
               >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="font-medium">Back to Dashboard</span>

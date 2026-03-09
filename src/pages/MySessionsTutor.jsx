@@ -154,7 +154,7 @@ const MySessionsTutor = () => {
 
         {/* Sessions List */}
         {isLoading ? (
-          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center" role="status" aria-label="Loading sessions">
+          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center" role="status" aria-live="polite">
             <div className="inline-flex items-center gap-3">
               <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
               <p className="text-slate-600">Loading your sessions...</p>
@@ -175,12 +175,17 @@ const MySessionsTutor = () => {
           </div>
         ) : (
           <div className="space-y-4" id="sessions-list" role="list">
-            {sessions.map((session) => (
-              <div
-                key={session._id}
-                role="listitem"
-                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-slate-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
-              >
+            {sessions.map((session) => {
+              const participantInfo = `${session.studentIds?.length || 0} out of ${session.maxParticipants} participants`;
+              const sessionLabel = `Session: ${session.title || 'Untitled Session'}, subject: ${session.subject || 'No subject'}, ${participantInfo}, status: ${session.status}, scheduled from ${formatDateTime(session.startTime)} to ${formatDateTime(session.endTime)}`;
+              
+              return (
+                <div
+                  key={session._id}
+                  role="listitem"
+                  aria-label={sessionLabel}
+                  className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-slate-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+                >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   {/* Session Info */}
                   <div className="flex-1">
@@ -200,7 +205,7 @@ const MySessionsTutor = () => {
                       </p>
                       <p className="flex items-center gap-2 text-slate-600">
                         <Users className="w-4 h-4" aria-hidden="true" />
-                        <span aria-label={`${session.studentIds?.length || 0} participants out of ${session.maxParticipants} maximum`}>
+                        <span>
                           {session.studentIds?.length || 0} / {session.maxParticipants} Participants
                         </span>
                       </p>

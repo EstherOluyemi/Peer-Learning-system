@@ -10,12 +10,12 @@ const RoleCard = ({ title, description, icon: Icon, isSelected, onClick, id }) =
     id={id}
     type="button"
     onClick={onClick}
+    aria-label={`${title}: ${description}`}
     className={`w-full p-4 sm:p-6 rounded-2xl border-2 text-left transition-all duration-300 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${isSelected
       ? 'border-blue-600 bg-blue-50 shadow-md shadow-blue-100'
       : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-lg hover:shadow-slate-100'
       }`}
     aria-pressed={isSelected}
-    aria-label={`${title}. ${description}`}
   >
     <div className="flex items-center gap-4 sm:gap-5">
       <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition-colors duration-300 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600'

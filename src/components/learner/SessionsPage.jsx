@@ -9,6 +9,7 @@ import api from '../../services/api';
 import { normalizeSessionList, getSessionRating, rateSession } from '../../services/sessionService';
 import { useAuth } from '../../context/AuthContext';
 import socketService from '../../services/socketService';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 const SessionsPage = () => {
     const { user } = useAuth();
@@ -31,6 +32,8 @@ const SessionsPage = () => {
     const itemsPerPage = 8;
 
     const enrollmentStatusRef = useRef({});
+    const closeSelectedSession = useCallback(() => setSelectedSession(null), []);
+    const sessionModalRef = useFocusTrap(Boolean(selectedSession), closeSelectedSession);
 
     useEffect(() => {
         if (!user || (user.role !== 'learner' && user.role !== 'student')) return;
@@ -596,14 +599,14 @@ const SessionsPage = () => {
                                     <Calendar className="w-8 h-8 text-slate-400" />
                                 </div>
                                 <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-                                    {searchTerm || filterType !== 'all' ? 'No sessions found' : 'No enrolled sessions yet'}
+                                    {searchTerm || statusFilter !== 'all' ? 'No sessions found' : 'No enrolled sessions yet'}
                                 </h3>
                                 <p className="text-sm max-w-xs mx-auto mb-6" style={{ color: 'var(--text-secondary)' }}>
-                                    {searchTerm || filterType !== 'all'
+                                    {searchTerm || statusFilter !== 'all'
                                         ? "We couldn't find any sessions matching your filters. Try adjusting your search."
                                         : "You haven't joined any sessions yet. Browse available sessions to get started!"}
                                 </p>
-                                {!searchTerm && filterType === 'all' && (
+                                {!searchTerm && statusFilter === 'all' && (
                                     <button
                                         onClick={() => navigate('/dashboard-learner/browse-sessions')}
                                         className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95"
@@ -728,13 +731,13 @@ const SessionsPage = () => {
 
             {/* Session Details Modal */}
             {selectedSession && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setSelectedSession(null)}>
-                    <div className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={closeSelectedSession}>
+                    <div ref={sessionModalRef} role="dialog" aria-modal="true" aria-labelledby="learner-sessions-modal-title" tabIndex={-1} className="w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={(e) => e.stopPropagation()}>
                         {/* Modal Header */}
                         <div className="px-6 py-5 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
                             <div className="flex-1">
                                 <div className="flex items-center gap-3 mb-2">
-                                    <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
+                                    <h3 id="learner-sessions-modal-title" className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{selectedSession.title}</h3>
                                     <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(selectedSession.status)}`}>
                                         {(selectedSession.status || 'scheduled').charAt(0).toUpperCase() + (selectedSession.status || 'scheduled').slice(1)}
                                     </span>
@@ -744,7 +747,7 @@ const SessionsPage = () => {
                                 )}
                             </div>
                             <button
-                                onClick={() => setSelectedSession(null)}
+                                onClick={closeSelectedSession}
                                 className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                                 style={{ color: 'var(--text-secondary)' }}
                                 aria-label="Close modal"
@@ -884,7 +887,7 @@ const SessionsPage = () => {
                         {/* Modal Footer */}
                         <div className="px-6 py-4 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
                             <button
-                                onClick={() => setSelectedSession(null)}
+                                onClick={closeSelectedSession}
                                 className="px-4 py-2 rounded-lg border font-medium transition-colors"
                                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
                             >

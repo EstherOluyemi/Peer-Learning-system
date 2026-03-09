@@ -1,10 +1,11 @@
 // src/components/tutor/ReviewsPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Star, Users, Calendar, TrendingUp, Search,
   ChevronLeft, ChevronRight, Eye, ThumbsUp, MessageCircle, AlertCircle, X, Send
 } from 'lucide-react';
 import api from '../../services/api';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 /* ─── helpers ─────────────────────────────────────────────────────── */
 /**
@@ -79,6 +80,14 @@ const ReviewsPage = () => {
   const [submittingResponse, setSubmittingResponse] = useState(false);
 
   const itemsPerPage = 8;
+
+  const closeDetailReview = useCallback(() => setDetailReview(null), []);
+  const closeRespondModal = useCallback(() => {
+    setRespondTarget(null);
+    setResponseText('');
+  }, []);
+  const detailModalRef = useFocusTrap(Boolean(detailReview), closeDetailReview);
+  const respondModalRef = useFocusTrap(Boolean(respondTarget), closeRespondModal);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -397,18 +406,18 @@ const ReviewsPage = () => {
 
       {/* ══ Detail Modal ══ */}
       {detailReview && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setDetailReview(null)}>
-          <div className="w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={closeDetailReview}>
+          <div ref={detailModalRef} role="dialog" aria-modal="true" aria-labelledby="review-detail-modal-title" tabIndex={-1} className="w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div className="px-6 py-5 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
               <div className="flex items-center gap-3">
                 <Avatar name={detailReview.studentName} avatar={detailReview.studentAvatar} size="w-10 h-10" />
                 <div>
-                  <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>{detailReview.studentName}</h3>
+                  <h3 id="review-detail-modal-title" className="font-bold" style={{ color: 'var(--text-primary)' }}>{detailReview.studentName}</h3>
                   <StarRow rating={detailReview.rating} />
                 </div>
               </div>
-              <button onClick={() => setDetailReview(null)} className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+              <button onClick={closeDetailReview} className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" aria-label="Close review details">
                 <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
               </button>
             </div>
@@ -446,7 +455,7 @@ const ReviewsPage = () => {
             </div>
             {/* Footer */}
             <div className="px-6 py-4 border-t flex justify-end gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
-              <button onClick={() => setDetailReview(null)} className="px-4 py-2 rounded-lg border font-medium transition-colors" style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
+              <button onClick={closeDetailReview} className="px-4 py-2 rounded-lg border font-medium transition-colors" style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
                 Close
               </button>
               {detailReview.responses.length === 0 && (
@@ -464,11 +473,11 @@ const ReviewsPage = () => {
 
       {/* ══ Respond Modal ══ */}
       {respondTarget && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => { setRespondTarget(null); setResponseText(''); }}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-xl w-full" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={closeRespondModal}>
+          <div ref={respondModalRef} role="dialog" aria-modal="true" aria-labelledby="review-respond-modal-title" tabIndex={-1} className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-xl w-full" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Respond to Review</h2>
-              <button onClick={() => { setRespondTarget(null); setResponseText(''); }} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+              <h2 id="review-respond-modal-title" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Respond to Review</h2>
+              <button onClick={closeRespondModal} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg" aria-label="Close respond modal">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -500,7 +509,7 @@ const ReviewsPage = () => {
 
             <div className="flex gap-3 justify-end">
               <button
-                onClick={() => { setRespondTarget(null); setResponseText(''); }}
+                onClick={closeRespondModal}
                 className="px-4 py-2 rounded-lg border transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
                 disabled={submittingResponse}
