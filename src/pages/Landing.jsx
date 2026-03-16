@@ -275,12 +275,7 @@ const Landing = () => {
           white-space: normal;
         }
         
-        /* Focus visible styles */
-        *:focus-visible {
-          outline: 3px solid #2563eb;
-          outline-offset: 3px;
-          box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
-        }
+
         
         @keyframes fadeInUp {
           from {

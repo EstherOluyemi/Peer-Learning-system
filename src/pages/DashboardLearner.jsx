@@ -356,16 +356,16 @@ const DashboardLearner = () => {
       </div>
 
       {enrollmentMessage && (
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-md flex items-center gap-3" role="status" aria-live="polite">
-          <Zap className="w-5 h-5 text-blue-500" />
-          <p className="text-blue-700 font-medium">{enrollmentMessage}</p>
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-400 p-4 rounded-r-md flex items-center gap-3" role="status" aria-live="polite">
+          <Zap className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+          <p className="text-blue-700 dark:text-blue-300 font-medium">{enrollmentMessage}</p>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md flex items-center gap-3" role="alert">
-          <AlertCircle className="w-5 h-5 text-red-500" />
-          <p className="text-red-700 font-medium">{error}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-400 p-4 rounded-r-md flex items-center gap-3" role="alert">
+          <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400" />
+          <p className="text-red-700 dark:text-red-300 font-medium">{error}</p>
         </div>
       )}
 
@@ -397,14 +397,14 @@ const DashboardLearner = () => {
       <section aria-labelledby="recommended-heading" className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="p-4 sm:p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
           <h2 id="recommended-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Recommended for You</h2>
-          <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
+          <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center">
             View All <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 sm:p-6" role="list">
           {recommendedSessions.length > 0 ? recommendedSessions.map((session) => (
             <article key={session.id} role="listitem" tabIndex={0} 
-              className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
               onClick={() => navigate('/dashboard-learner/sessions')}
               onKeyDown={(event) => handleKeyboardActivate(event, () => navigate('/dashboard-learner/sessions'))}
@@ -498,7 +498,7 @@ const DashboardLearner = () => {
             }}>
             <div className="p-4 sm:p-6 border-b flex flex-wrap justify-between items-center gap-4" style={{ borderColor: 'var(--border-color)' }}>
               <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Upcoming Sessions</h2>
-              <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
+              <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center">
                 View Schedule <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -548,7 +548,7 @@ const DashboardLearner = () => {
                   </p>
                   <button 
                     onClick={() => navigate('/dashboard-learner/sessions')}
-                    className="text-sm font-bold text-blue-600 hover:underline"
+                    className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     Find a Tutor
                   </button>
@@ -598,7 +598,7 @@ const DashboardLearner = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>This Month</p>
-                  <p className="text-sm font-bold text-emerald-600">{Math.floor(Math.random() * 80 + 20)}%</p>
+                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{Math.floor(Math.random() * 80 + 20)}%</p>
                 </div>
                 <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.floor(Math.random() * 80 + 20)}%` }}></div>
@@ -607,7 +607,7 @@ const DashboardLearner = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Engagement</p>
-                  <p className="text-sm font-bold text-blue-600">8/10</p>
+                  <p className="text-sm font-bold text-blue-600 dark:text-blue-400">8/10</p>
                 </div>
                 <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div className="h-full bg-blue-500 rounded-full" style={{ width: '80%' }}></div>

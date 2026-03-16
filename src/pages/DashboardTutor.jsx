@@ -394,7 +394,7 @@ const DashboardTutor = () => {
                   ))}
                 </div>
               </div>
-              <Link to="/dashboard-tutor/sessions" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center">
+              <Link to="/dashboard-tutor/sessions" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center">
                 View All <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -447,7 +447,7 @@ const DashboardTutor = () => {
                                 className={`inline-flex items-center gap-1 text-xs font-semibold mt-2 transition-colors ${
                                   session.status === 'completed' 
                                     ? 'text-slate-400 cursor-not-allowed opacity-60' 
-                                    : 'text-blue-600 hover:underline'
+                                    : 'text-blue-600 dark:text-blue-400 hover:underline'
                                 }`}
                               >
                                 <Video className="w-3 h-3" /> Open Session Room
@@ -482,14 +482,14 @@ const DashboardTutor = () => {
                   {searchQuery ? (
                     <button
                       onClick={() => setSearchParams({})}
-                      className="text-sm font-bold text-blue-600 hover:underline"
+                      className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       Clear search
                     </button>
                   ) : (
                     <button
                       onClick={() => navigate('/dashboard-tutor/create-session')}
-                      className="text-sm font-bold text-blue-600 hover:underline"
+                      className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       Create your first session
                     </button>

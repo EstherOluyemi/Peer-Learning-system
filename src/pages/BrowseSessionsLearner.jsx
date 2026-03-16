@@ -126,7 +126,7 @@ const BrowseSessionsLearner = () => {
     }
   };
 
-  const containerClass = highContrast ? 'bg-white text-black' : 'bg-slate-50';
+  const containerClass = highContrast ? 'bg-white text-black' : 'bg-slate-50 dark:bg-slate-900';
   const baseFontSize = textSize === 'large' ? 'text-lg' : 'text-base';
 
   const formatDateTime = (dateString) => {
@@ -146,9 +146,9 @@ const BrowseSessionsLearner = () => {
   const getAvailabilityStatus = (session) => {
     const currentStudents = session.studentIds?.length || 0;
     if (currentStudents >= session.maxParticipants) {
-      return { status: 'Full', color: 'text-red-600 bg-red-50' };
+      return { status: 'Full', color: 'text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400' };
     }
-    return { status: `${session.maxParticipants - currentStudents} spots left`, color: 'text-green-600 bg-green-50' };
+    return { status: `${session.maxParticipants - currentStudents} spots left`, color: 'text-green-600 bg-green-50 dark:bg-green-900/30 dark:text-green-400' };
   };
 
   return (
@@ -168,16 +168,16 @@ const BrowseSessionsLearner = () => {
         <header className="mb-6 sm:mb-8">
           <button
             onClick={() => navigate('/dashboard-learner')}
-            className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+            className="inline-flex items-center text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
           >
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
             Back to Dashboard
           </button>
 
-          <h1 className={`font-bold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
+          <h1 className={`font-bold text-slate-900 dark:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
             Browse Sessions
           </h1>
-          <p className={`mt-2 text-slate-600 ${baseFontSize}`}>
+          <p className={`mt-2 text-slate-600 dark:text-slate-300 ${baseFontSize}`}>
             Find and join tutoring sessions that match your learning goals
           </p>
         </header>
@@ -206,11 +206,11 @@ const BrowseSessionsLearner = () => {
         )}
 
         {/* Search & Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg dark:shadow-slate-900/50 border border-transparent dark:border-slate-700 p-4 sm:p-6 mb-6 sm:mb-8 transition-colors">
           <div className="space-y-4">
             {/* Search Bar */}
             <div>
-              <label htmlFor="search" className={`block font-medium text-slate-900 mb-2 ${baseFontSize}`}>
+              <label htmlFor="search" className={`block font-medium text-slate-900 dark:text-white mb-2 ${baseFontSize}`}>
                 <Search className="inline w-4 h-4 mr-2" aria-hidden="true" />
                 Search Sessions
               </label>
@@ -219,7 +219,7 @@ const BrowseSessionsLearner = () => {
                 id="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition-all"
+                className="w-full px-4 py-3 rounded-xl border bg-transparent dark:bg-slate-700 text-slate-900 dark:text-white border-slate-200 dark:border-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:outline-none transition-all"
                 placeholder="Search by title or topic..."
                 aria-label="Search for sessions by title or topic"
               />
@@ -228,7 +228,7 @@ const BrowseSessionsLearner = () => {
             {/* Subject Filter */}
             {subjects.length > 0 && (
               <div>
-                <label htmlFor="subject-filter" className={`block font-medium text-slate-900 mb-2 ${baseFontSize}`}>
+                <label htmlFor="subject-filter" className={`block font-medium text-slate-900 dark:text-white mb-2 ${baseFontSize}`}>
                   <Filter className="inline w-4 h-4 mr-2" aria-hidden="true" />
                   Filter by Subject
                 </label>
@@ -236,7 +236,7 @@ const BrowseSessionsLearner = () => {
                   id="subject-filter"
                   value={filterSubject}
                   onChange={(e) => setFilterSubject(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border bg-transparent dark:bg-slate-700 text-slate-900 dark:text-white border-slate-200 dark:border-slate-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:outline-none transition-all"
                   aria-label="Filter sessions by subject"
                 >
                   <option value="">All Subjects</option>
@@ -253,17 +253,17 @@ const BrowseSessionsLearner = () => {
 
         {/* Sessions Grid */}
         {isLoading ? (
-          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center" role="status" aria-live="polite">
+          <div className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl shadow-lg p-8 sm:p-12 text-center transition-colors" role="status" aria-live="polite">
             <div className="inline-flex items-center gap-3">
-              <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
-              <p className="text-slate-600">Loading sessions...</p>
+              <div className="w-4 h-4 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"></div>
+              <p className="text-slate-600 dark:text-slate-300">Loading sessions...</p>
             </div>
           </div>
         ) : filteredSessions.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center">
-            <Search className="w-12 h-12 text-slate-300 mx-auto mb-4" aria-hidden="true" />
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">No Sessions Found</h2>
-            <p className="text-slate-600 mb-6">
+          <div className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl shadow-lg p-8 sm:p-12 text-center transition-colors">
+            <Search className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" aria-hidden="true" />
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">No Sessions Found</h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
               {searchQuery || filterSubject
                 ? 'Try adjusting your search or filter criteria'
                 : 'Check back soon for new sessions!'}
@@ -291,14 +291,14 @@ const BrowseSessionsLearner = () => {
                 <div
                   key={session._id}
                   role="listitem"
-                  className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all border border-slate-100 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+                  className="bg-white dark:bg-slate-800 rounded-2xl shadow-md hover:shadow-lg transition-all border border-slate-100 dark:border-slate-700 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
                 >
                   {/* Session Header */}
                   <div className="p-4 sm:p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-1">{session.title || 'Untitled'}</h3>
-                        <p className="text-sm text-slate-600">{session.subject || 'General'}</p>
+                        <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-1">{session.title || 'Untitled'}</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">{session.subject || 'General'}</p>
                       </div>
                     </div>
 
@@ -309,11 +309,11 @@ const BrowseSessionsLearner = () => {
 
                     {/* Session Details */}
                     <div className="space-y-2 text-sm mb-4">
-                      <p className="flex items-center gap-2 text-slate-600">
+                      <p className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                         <Calendar className="w-4 h-4 shrink-0" aria-hidden="true" />
                         {formatDateTime(session.startTime)}
                       </p>
-                      <p className="flex items-center gap-2 text-slate-600">
+                      <p className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                         <Users className="w-4 h-4 shrink-0" aria-hidden="true" />
                         <span>
                           {session.studentIds?.length || 0} / {session.maxParticipants}
@@ -323,7 +323,7 @@ const BrowseSessionsLearner = () => {
 
                     {/* Description (if available) */}
                     {session.description && (
-                      <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
                         {session.description}
                       </p>
                     )}
@@ -332,7 +332,7 @@ const BrowseSessionsLearner = () => {
                     {session.tutor?.rating && (
                       <div className="flex items-center gap-1 mb-4">
                         <Star className="w-4 h-4 fill-amber-400 text-amber-400" aria-hidden="true" />
-                        <span className="text-sm text-slate-600">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
                           {session.tutor.rating.toFixed(1)} ({session.tutor.reviewCount} reviews)
                         </span>
                       </div>

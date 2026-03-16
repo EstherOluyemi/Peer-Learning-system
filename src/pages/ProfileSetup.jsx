@@ -116,7 +116,7 @@ const ProfileSetup = () => {
     };
 
     const baseFontSize = textSize === 'large' ? 'text-lg' : 'text-base';
-    const containerClass = highContrast ? 'bg-white text-black contrast-more' : 'bg-slate-50';
+    const containerClass = highContrast ? 'bg-white dark:bg-black text-black dark:text-white contrast-more' : 'bg-slate-50 dark:bg-slate-950';
 
     if (isSuccess) {
         return (
@@ -175,7 +175,7 @@ const ProfileSetup = () => {
                 </div>
 
                 {/* RIGHT SIDE: Form */}
-                <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white z-10 min-h-screen">
+                <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white dark:bg-slate-900 z-10 min-h-screen transition-colors duration-300">
                     <div className="w-full max-w-md space-y-6 sm:space-y-8">
                         <div>
                             <button
@@ -192,13 +192,13 @@ const ProfileSetup = () => {
                                     alt="PeerLearn"
                                     className="w-10 h-10 object-contain"
                                 />
-                                <span className="text-2xl font-bold text-slate-900 tracking-tight">PeerLearn</span>
+                                <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">PeerLearn</span>
                             </div>
 
-                            <h1 className={`font-bold text-slate-900 ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`}>
+                            <h1 className={`font-bold text-slate-900 dark:text-slate-100 ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`}>
                                 {isTutor ? 'Tutor Profile' : 'Learner Profile'}
                             </h1>
-                            <p className={`mt-2 text-slate-600 ${baseFontSize}`}>
+                            <p className={`mt-2 text-slate-600 dark:text-slate-400 ${baseFontSize}`}>
                                 This information helps us personalize your experience.
                             </p>
                         </div>
@@ -213,7 +213,7 @@ const ProfileSetup = () => {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Bio Field */}
                             <div className="space-y-2">
-                                <label htmlFor="bio" className={`block font-semibold text-slate-900 ${baseFontSize}`}>
+                                <label htmlFor="bio" className={`block font-semibold text-slate-900 dark:text-slate-100 ${baseFontSize}`}>
                                     Bio (Optional)
                                 </label>
                                 <div className="relative group">
@@ -226,7 +226,7 @@ const ProfileSetup = () => {
                                         rows="4"
                                         value={formData.bio}
                                         onChange={handleChange}
-                                        className={`block w-full pl-10 pr-4 py-3 rounded-xl border text-slate-900 ${errors.bio ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 focus:ring-blue-100 focus:border-blue-500'} focus:outline-none focus:ring-4 transition-all resize-none text-sm`}
+                                        className={`block w-full pl-10 pr-4 py-3 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${errors.bio ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 dark:border-slate-700 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-500'} focus:outline-none focus:ring-4 transition-all resize-none text-sm`}
                                         placeholder={isTutor ? "Describe your teaching experience and style..." : "Tell us about your learning goals..."}
                                     ></textarea>
                                 </div>
@@ -241,7 +241,7 @@ const ProfileSetup = () => {
 
                             {/* Subjects Field (Compulsory) */}
                             <div className="space-y-2">
-                                <label htmlFor="currentSubject" className={`block font-semibold text-slate-900 ${baseFontSize}`}>
+                                <label htmlFor="currentSubject" className={`block font-semibold text-slate-900 dark:text-slate-100 ${baseFontSize}`}>
                                     {isTutor ? 'Subjects you Teach' : 'Subjects you want to Learn'} <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative group">
@@ -255,7 +255,7 @@ const ProfileSetup = () => {
                                         value={formData.currentSubject}
                                         onChange={handleChange}
                                         onKeyDown={handleAddSubject}
-                                        className={`block w-full pl-10 pr-12 py-3 rounded-xl border text-slate-900 ${errors.subjects ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 focus:ring-blue-100 focus:border-blue-500'} focus:outline-none focus:ring-4 transition-all text-sm`}
+                                        className={`block w-full pl-10 pr-12 py-3 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${errors.subjects ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 dark:border-slate-700 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-500'} focus:outline-none focus:ring-4 transition-all text-sm`}
                                         placeholder="Type a subject and press Enter"
                                     />
                                     <button
@@ -272,7 +272,7 @@ const ProfileSetup = () => {
                                     {formData.subjects.map((subject, index) => (
                                         <span
                                             key={index}
-                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100 group animate-in zoom-in-95 duration-200"
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium border border-blue-100 dark:border-blue-800 group animate-in zoom-in-95 duration-200"
                                         >
                                             {subject}
                                             <button
@@ -313,7 +313,7 @@ const ProfileSetup = () => {
                                 </div>
                             </button>
 
-                            <p className="text-center text-xs text-slate-500">
+                            <p className="text-center text-xs text-slate-500 dark:text-slate-400">
                                 You can update these details later in your settings.
                             </p>
                         </form>

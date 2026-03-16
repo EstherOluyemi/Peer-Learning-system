@@ -162,7 +162,7 @@ const CreateSession = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
       {/* Accessibility Skip Link */}
       <a 
         href="#main-content" 
@@ -172,13 +172,13 @@ const CreateSession = () => {
       </a>
 
       {/* Header */}
-      <header className="bg-white border-b border-slate-200">
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 transition-colors">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link 
                 to="/dashboard" 
-                className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 transition"
+                className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition"
               >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="font-medium">Back to Dashboard</span>
@@ -186,8 +186,8 @@ const CreateSession = () => {
             </div>
             <div className="flex items-center space-x-3">
               <div className="hidden md:block">
-                <span className="text-sm text-slate-600">Creating session as:</span>
-                <span className="ml-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                <span className="text-sm text-slate-600 dark:text-slate-400">Creating session as:</span>
+                <span className="ml-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
                   {user?.fullName || 'Tutor'}
                 </span>
               </div>
@@ -200,25 +200,25 @@ const CreateSession = () => {
         <div className="max-w-4xl mx-auto">
           {/* Page Header */}
           <div className="mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
               Create Learning Session
             </h1>
-            <p className="text-slate-600">
+            <p className="text-slate-600 dark:text-slate-400">
               Design an accessible, engaging learning experience for your students
             </p>
           </div>
 
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
             <div className="p-4 sm:p-6 md:p-8">
               <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
                 {/* Basic Information Section */}
                 <section aria-labelledby="basic-info-heading">
                   <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
+                      <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <h2 id="basic-info-heading" className="text-lg sm:text-xl font-bold text-slate-900">
+                    <h2 id="basic-info-heading" className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
                       Basic Information
                     </h2>
                   </div>
@@ -226,7 +226,7 @@ const CreateSession = () => {
                   <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
                     {/* Title */}
                     <div className="md:col-span-2">
-                      <label htmlFor="title" className="block text-sm font-medium text-slate-900 mb-2">
+                      <label htmlFor="title" className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Session Title *
                       </label>
                       <input
@@ -235,7 +235,7 @@ const CreateSession = () => {
                         type="text"
                         value={formData.title}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 rounded-lg border ${errors.title ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                        className={`w-full px-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white ${errors.title ? 'border-red-300 dark:border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
                         placeholder="e.g., Introduction to React Hooks"
                         aria-required="true"
                         aria-invalid={!!errors.title}
@@ -251,7 +251,7 @@ const CreateSession = () => {
 
                     {/* Description */}
                     <div className="md:col-span-2">
-                      <label htmlFor="description" className="block text-sm font-medium text-slate-900 mb-2">
+                      <label htmlFor="description" className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Description *
                       </label>
                       <textarea
@@ -260,7 +260,7 @@ const CreateSession = () => {
                         value={formData.description}
                         onChange={handleChange}
                         rows="4"
-                        className={`w-full px-4 py-3 rounded-lg border ${errors.description ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                        className={`w-full px-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white ${errors.description ? 'border-red-300 dark:border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
                         placeholder="Describe what students will learn in this session..."
                         aria-required="true"
                         aria-invalid={!!errors.description}
@@ -276,7 +276,7 @@ const CreateSession = () => {
 
                     {/* Subject */}
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-slate-900 mb-2">
+                      <label htmlFor="subject" className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Subject *
                       </label>
                       <select
@@ -284,7 +284,7 @@ const CreateSession = () => {
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 rounded-lg border ${errors.subject ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                        className={`w-full px-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white ${errors.subject ? 'border-red-300 dark:border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
                         aria-required="true"
                         aria-invalid={!!errors.subject}
                         aria-describedby={errors.subject ? 'subject-error' : undefined}
@@ -306,7 +306,7 @@ const CreateSession = () => {
 
                     {/* Difficulty */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-900 mb-2">
+                      <label className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Difficulty Level *
                       </label>
                       <div className="flex space-x-3">
@@ -315,7 +315,7 @@ const CreateSession = () => {
                             key={level.value}
                             type="button"
                             onClick={() => setFormData(prev => ({ ...prev, difficulty: level.value }))}
-                            className={`flex-1 px-4 py-3 rounded-lg border ${formData.difficulty === level.value ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'} transition-colors`}
+                            className={`flex-1 px-4 py-3 rounded-lg border bg-white dark:bg-slate-700 ${formData.difficulty === level.value ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-400'} transition-colors`}
                             aria-pressed={formData.difficulty === level.value}
                           >
                             <span className={`px-2 py-1 ${level.color} rounded text-xs font-medium mb-2 inline-block`}>
@@ -334,12 +334,12 @@ const CreateSession = () => {
                 </section>
 
                 {/* Scheduling Section */}
-                <section aria-labelledby="scheduling-heading" className="pt-8 border-t border-slate-200">
+                <section aria-labelledby="scheduling-heading" className="pt-8 border-t border-slate-200 dark:border-slate-700 transition-colors">
                   <div className="flex items-center space-x-3 mb-6">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <h2 id="scheduling-heading" className="text-xl font-bold text-slate-900">
+                    <h2 id="scheduling-heading" className="text-xl font-bold text-slate-900 dark:text-white">
                       Scheduling
                     </h2>
                   </div>
@@ -347,7 +347,7 @@ const CreateSession = () => {
                   <div className="grid md:grid-cols-3 gap-6">
                     {/* Date */}
                     <div>
-                      <label htmlFor="date" className="block text-sm font-medium text-slate-900 mb-2">
+                      <label htmlFor="date" className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Date *
                       </label>
                       <div className="relative">
@@ -359,7 +359,7 @@ const CreateSession = () => {
                           value={formData.date}
                           onChange={handleChange}
                           min={new Date().toISOString().split('T')[0]}
-                          className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.date ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                          className={`w-full pl-12 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white ${errors.date ? 'border-red-300 dark:border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
                           aria-required="true"
                           aria-invalid={!!errors.date}
                           aria-describedby={errors.date ? 'date-error' : undefined}
@@ -375,7 +375,7 @@ const CreateSession = () => {
 
                     {/* Time */}
                     <div>
-                      <label htmlFor="time" className="block text-sm font-medium text-slate-900 mb-2">
+                      <label htmlFor="time" className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Time *
                       </label>
                       <div className="relative">
@@ -386,7 +386,7 @@ const CreateSession = () => {
                           type="time"
                           value={formData.time}
                           onChange={handleChange}
-                          className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.time ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                          className={`w-full pl-12 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white ${errors.time ? 'border-red-300 dark:border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
                           aria-required="true"
                           aria-invalid={!!errors.time}
                           aria-describedby={errors.time ? 'time-error' : undefined}
@@ -402,7 +402,7 @@ const CreateSession = () => {
 
                     {/* Duration */}
                     <div>
-                      <label htmlFor="duration" className="block text-sm font-medium text-slate-900 mb-2">
+                      <label htmlFor="duration" className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Duration (minutes) *
                       </label>
                       <div className="relative">
@@ -416,7 +416,7 @@ const CreateSession = () => {
                           step="15"
                           value={formData.duration}
                           onChange={handleChange}
-                          className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.duration ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                          className={`w-full pl-12 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white ${errors.duration ? 'border-red-300 dark:border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
                           aria-required="true"
                           aria-invalid={!!errors.duration}
                           aria-describedby={errors.duration ? 'duration-error' : undefined}
@@ -428,7 +428,7 @@ const CreateSession = () => {
                           {errors.duration}
                         </p>
                       )}
-                      <p className="mt-2 text-sm text-slate-500">
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                         Recommended: 60-90 minutes for optimal engagement
                       </p>
                     </div>
@@ -436,12 +436,12 @@ const CreateSession = () => {
                 </section>
 
                 {/* Session Details Section */}
-                <section aria-labelledby="details-heading" className="pt-8 border-t border-slate-200">
+                <section aria-labelledby="details-heading" className="pt-8 border-t border-slate-200 dark:border-slate-700 transition-colors">
                   <div className="flex items-center space-x-3 mb-6">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Users className="w-5 h-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
+                      <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <h2 id="details-heading" className="text-xl font-bold text-slate-900">
+                    <h2 id="details-heading" className="text-xl font-bold text-slate-900 dark:text-white">
                       Session Details
                     </h2>
                   </div>
@@ -449,7 +449,7 @@ const CreateSession = () => {
                   <div className="grid md:grid-cols-2 gap-6">
                     {/* Max Participants */}
                     <div>
-                      <label htmlFor="maxParticipants" className="block text-sm font-medium text-slate-900 mb-2">
+                      <label htmlFor="maxParticipants" className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Maximum Participants *
                       </label>
                       <div className="relative">
@@ -462,7 +462,7 @@ const CreateSession = () => {
                           max="50"
                           value={formData.maxParticipants}
                           onChange={handleChange}
-                          className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.maxParticipants ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
+                          className={`w-full pl-12 pr-4 py-3 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white ${errors.maxParticipants ? 'border-red-300 dark:border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:ring-blue-500'} focus:outline-none focus:ring-2`}
                           aria-required="true"
                           aria-invalid={!!errors.maxParticipants}
                           aria-describedby={errors.maxParticipants ? 'maxParticipants-error' : undefined}
@@ -478,9 +478,9 @@ const CreateSession = () => {
 
                     {/* Meeting Link */}
                     <div className="md:col-span-2">
-                      <label htmlFor="meetingLink" className="block text-sm font-medium text-slate-900 mb-2">
+                      <label htmlFor="meetingLink" className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Video Meeting Link
-                        <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">Auto-generated</span>
+                        <span className="ml-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">Auto-generated</span>
                       </label>
                       <div className="relative">
                         <Video className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
@@ -490,7 +490,7 @@ const CreateSession = () => {
                           type="text"
                           value={formData.meetingLink}
                           readOnly
-                          className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-300 bg-slate-50 text-slate-700 cursor-not-allowed"
+                          className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-not-allowed"
                           placeholder={generatingLink ? "Generating Zoom link..." : "Zoom link will be auto-generated"}
                         />
                         {generatingLink && (
@@ -499,7 +499,7 @@ const CreateSession = () => {
                           </div>
                         )}
                       </div>
-                      <p className="mt-2 text-sm text-slate-500">
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                         <span className="font-medium">Note:</span> Meeting link automatically created via Zoom API. Students will access this after enrollment.
                       </p>
                     </div>
@@ -507,105 +507,105 @@ const CreateSession = () => {
                 </section>
 
                 {/* Video Meeting Settings */}
-                <section aria-labelledby="meeting-settings-heading" className="pt-8 border-t border-slate-200">
+                <section aria-labelledby="meeting-settings-heading" className="pt-8 border-t border-slate-200 dark:border-slate-700 transition-colors">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Video className="w-5 h-5 text-blue-600" />
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
+                        <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
-                        <h2 id="meeting-settings-heading" className="text-xl font-bold text-slate-900">
+                        <h2 id="meeting-settings-heading" className="text-xl font-bold text-slate-900 dark:text-white">
                           Video Meeting Settings
                         </h2>
-                        <p className="text-sm text-slate-600 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                           Configure Zoom meeting options for accessibility and recording
                         </p>
                       </div>
                     </div>
-                    <div className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
+                    <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg text-sm font-medium">
                       Zoom Powered
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-3 gap-4">
-                    <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors ${
-                      formData.accessibilityFeatures.captions ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'
+                    <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors bg-white dark:bg-slate-700 ${
+                      formData.accessibilityFeatures.captions ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
                     }`}>
                       <input
                         type="checkbox"
                         name="accessibilityFeatures.captions"
                         checked={formData.accessibilityFeatures.captions}
                         onChange={handleChange}
-                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-slate-900">Live Captions</span>
+                          <span className="font-medium text-slate-900 dark:text-white">Live Captions</span>
                           {formData.accessibilityFeatures.captions && (
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                           Enable real-time closed captions during the session
                         </p>
                       </div>
                     </label>
 
-                    <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors ${
-                      formData.accessibilityFeatures.transcript ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'
+                    <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors bg-white dark:bg-slate-700 ${
+                      formData.accessibilityFeatures.transcript ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
                     }`}>
                       <input
                         type="checkbox"
                         name="accessibilityFeatures.transcript"
                         checked={formData.accessibilityFeatures.transcript}
                         onChange={handleChange}
-                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-slate-900">Auto Transcript</span>
+                          <span className="font-medium text-slate-900 dark:text-white">Auto Transcript</span>
                           {formData.accessibilityFeatures.transcript && (
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                           Generate text transcript after session ends
                         </p>
                       </div>
                     </label>
 
-                    <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors ${
-                      formData.accessibilityFeatures.recordSession ? 'border-blue-500 bg-blue-50' : 'border-slate-300 hover:border-slate-400'
+                    <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-colors bg-white dark:bg-slate-700 ${
+                      formData.accessibilityFeatures.recordSession ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
                     }`}>
                       <input
                         type="checkbox"
                         name="accessibilityFeatures.recordSession"
                         checked={formData.accessibilityFeatures.recordSession}
                         onChange={handleChange}
-                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-slate-900">Record Session</span>
+                          <span className="font-medium text-slate-900 dark:text-white">Record Session</span>
                           {formData.accessibilityFeatures.recordSession && (
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                           Save recording for students to review later
                         </p>
                       </div>
                     </label>
                   </div>
                   
-                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-lg">
                     <div className="flex items-start">
-                      <AlertCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 shrink-0" />
-                      <div className="text-sm text-slate-700">
-                        <p className="font-medium text-blue-900 mb-1">Zoom API Integration Required</p>
+                      <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3 mt-0.5 shrink-0" />
+                      <div className="text-sm text-slate-700 dark:text-slate-300">
+                        <p className="font-medium text-blue-900 dark:text-blue-300 mb-1">Zoom API Integration Required</p>
                         <p>
                           These settings are configured via Zoom API when the meeting is created. 
-                          Your backend should handle: <code className="bg-white px-1.5 py-0.5 rounded text-xs">POST /api/v1/tutor/zoom/create-meeting</code>
+                          Your backend should handle: <code className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded text-xs">POST /api/v1/tutor/zoom/create-meeting</code>
                         </p>
                       </div>
                     </div>
@@ -613,9 +613,9 @@ const CreateSession = () => {
                 </section>
 
                 {/* Form Actions */}
-                <div className="pt-8 border-t border-slate-200">
+                <div className="pt-8 border-t border-slate-200 dark:border-slate-700 transition-colors">
                   <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="text-sm text-slate-600">
+                    <div className="text-sm text-slate-600 dark:text-slate-400">
                       <p className="flex items-center">
                         <HelpCircle className="w-4 h-4 mr-2" />
                         Fields marked with * are required
@@ -626,7 +626,7 @@ const CreateSession = () => {
                       <button
                         type="button"
                         onClick={() => navigate('/dashboard')}
-                        className="px-6 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                        className="px-6 py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium"
                         disabled={isSubmitting}
                       >
                         Cancel

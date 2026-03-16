@@ -59,7 +59,7 @@ const MySessionsTutor = () => {
     }
   };
 
-  const containerClass = highContrast ? 'bg-white text-black' : 'bg-slate-50';
+  const containerClass = highContrast ? 'bg-white text-black' : 'bg-slate-50 dark:bg-slate-900';
   const baseFontSize = textSize === 'large' ? 'text-lg' : 'text-base';
 
   const formatDateTime = (dateString) => {
@@ -79,12 +79,12 @@ const MySessionsTutor = () => {
 
   const getStatusBadgeColor = (status) => {
     const colors = {
-      scheduled: 'bg-blue-100 text-blue-800',
-      ongoing: 'bg-green-100 text-green-800',
-      completed: 'bg-slate-100 text-slate-800',
-      cancelled: 'bg-red-100 text-red-800',
+      scheduled: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
+      ongoing: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+      completed: 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300',
+      cancelled: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
     };
-    return colors[status] || 'bg-slate-100 text-slate-800';
+    return colors[status] || 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300';
   };
 
   return (
@@ -104,17 +104,17 @@ const MySessionsTutor = () => {
         <header className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <button
-              onClick={() => navigate('/dashboard-tutor')}
-              className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+               onClick={() => navigate('/dashboard-tutor')}
+               className="inline-flex items-center text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
             >
               <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
               Back to Dashboard
             </button>
 
-            <h1 className={`font-bold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
+            <h1 className={`font-bold text-slate-900 dark:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
               My Sessions
             </h1>
-            <p className={`mt-2 text-slate-600 ${baseFontSize}`}>
+            <p className={`mt-2 text-slate-600 dark:text-slate-300 ${baseFontSize}`}>
               Create and manage your tutoring sessions
             </p>
           </div>
@@ -154,17 +154,17 @@ const MySessionsTutor = () => {
 
         {/* Sessions List */}
         {isLoading ? (
-          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center" role="status" aria-live="polite">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg dark:shadow-slate-900/50 border border-transparent dark:border-slate-700 p-8 sm:p-12 text-center transition-colors" role="status" aria-live="polite">
             <div className="inline-flex items-center gap-3">
-              <div className="w-4 h-4 bg-blue-600 rounded-full animate-bounce"></div>
-              <p className="text-slate-600">Loading your sessions...</p>
+              <div className="w-4 h-4 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"></div>
+              <p className="text-slate-600 dark:text-slate-300">Loading your sessions...</p>
             </div>
           </div>
         ) : sessions.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center">
-            <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" aria-hidden="true" />
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">No Sessions Yet</h2>
-            <p className="text-slate-600 mb-6">Create your first tutoring session to get started!</p>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg dark:shadow-slate-900/50 border border-transparent dark:border-slate-700 p-8 sm:p-12 text-center transition-colors">
+            <Calendar className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" aria-hidden="true" />
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">No Sessions Yet</h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">Create your first tutoring session to get started!</p>
             <button
               onClick={() => navigate('/create-session')}
               className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -179,26 +179,26 @@ const MySessionsTutor = () => {
               <div
                 key={session._id}
                 role="listitem"
-                className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-slate-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+                className="bg-white dark:bg-slate-800 rounded-2xl shadow-md hover:shadow-lg dark:shadow-slate-900/50 transition-shadow p-4 sm:p-6 border border-slate-100 dark:border-slate-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
                 >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   {/* Session Info */}
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                      <h3 className="text-lg sm:text-xl font-semibold text-slate-900">{session.title || 'Untitled Session'}</h3>
+                      <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white">{session.title || 'Untitled Session'}</h3>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeColor(session.status)}`}>
                         {session.status}
                       </span>
                     </div>
 
-                    <p className="text-slate-600 mb-3">{session.subject || 'No subject'}</p>
+                    <p className="text-slate-600 dark:text-slate-400 mb-3">{session.subject || 'No subject'}</p>
 
                     <div className="space-y-2 text-sm">
-                      <p className="flex items-center gap-2 text-slate-600">
+                      <p className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                         <Calendar className="w-4 h-4" aria-hidden="true" />
                         {formatDateTime(session.startTime)} - {formatDateTime(session.endTime)}
                       </p>
-                      <p className="flex items-center gap-2 text-slate-600">
+                      <p className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                         <Users className="w-4 h-4" aria-hidden="true" />
                         <span>
                           {session.studentIds?.length || 0} / {session.maxParticipants} Participants
@@ -211,7 +211,7 @@ const MySessionsTutor = () => {
                   <div className="flex gap-2">
                     <button
                       onClick={() => navigate(`/dashboard-tutor/create-session?edit=${session._id}`, { state: { sessionData: session } })}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                       aria-label={`Edit session: ${session.title}`}
                     >
                       <Edit2 className="w-4 h-4" aria-hidden="true" />
@@ -220,7 +220,7 @@ const MySessionsTutor = () => {
 
                     <button
                       onClick={() => setDeleteConfirm(session._id)}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-300 dark:border-red-800/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                       aria-label={`Delete session: ${session.title}`}
                     >
                       <Trash2 className="w-4 h-4" aria-hidden="true" />
@@ -231,8 +231,8 @@ const MySessionsTutor = () => {
 
                 {/* Delete Confirmation */}
                 {deleteConfirm === session._id && (
-                  <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                    <p className="text-sm text-red-800 mb-3">
+                  <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800/50">
+                    <p className="text-sm text-red-800 dark:text-red-300 mb-3">
                       Are you sure you want to delete this session? This action cannot be undone.
                     </p>
                     <div className="flex gap-2">
@@ -244,7 +244,7 @@ const MySessionsTutor = () => {
                       </button>
                       <button
                         onClick={() => setDeleteConfirm(null)}
-                        className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
+                        className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
                       >
                         Cancel
                       </button>

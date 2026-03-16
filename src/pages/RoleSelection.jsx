@@ -11,19 +11,19 @@ const RoleCard = ({ title, description, icon: Icon, isSelected, onClick, id }) =
     type="button"
     onClick={onClick}
     className={`w-full p-4 sm:p-6 rounded-2xl border-2 text-left transition-all duration-300 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${isSelected
-      ? 'border-blue-600 bg-blue-50 shadow-md shadow-blue-100'
-      : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-lg hover:shadow-slate-100'
+      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-md shadow-blue-100 dark:shadow-none'
+      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg hover:shadow-slate-100 dark:hover:shadow-none'
       }`}
     aria-pressed={isSelected}
   >
     <div className="flex items-center gap-4 sm:gap-5">
-      <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition-colors duration-300 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600'
+      <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition-colors duration-300 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 group-hover:text-blue-600 dark:group-hover:text-blue-400'
         }`} aria-hidden="true">
         {Icon && <Icon className="w-6 h-6 sm:w-7 sm:h-7" />}
       </div>
       <div className="flex-1">
-        <h3 className={`font-bold text-base sm:text-lg ${isSelected ? 'text-blue-900' : 'text-slate-900'}`}>{title}</h3>
-        <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${isSelected ? 'text-blue-700' : 'text-slate-500'}`}>{description}</p>
+        <h3 className={`font-bold text-base sm:text-lg ${isSelected ? 'text-blue-900 dark:text-blue-100' : 'text-slate-900 dark:text-slate-100'}`}>{title}</h3>
+        <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400'}`}>{description}</p>
       </div>
       <div className={`transition-transform duration-300 ${isSelected ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'}`} aria-hidden="true">
         <ArrowRight className={`w-5 h-5 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`} />
@@ -44,7 +44,7 @@ const RoleSelection = () => {
   };
 
   const baseFontSize = textSize === 'large' ? 'text-lg' : 'text-base';
-  const containerClass = highContrast ? 'bg-white text-black contrast-more' : 'bg-slate-50';
+  const containerClass = highContrast ? 'bg-white dark:bg-black text-black dark:text-white contrast-more' : 'bg-slate-50 dark:bg-slate-950';
 
   return (
     <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300`}>
@@ -103,12 +103,12 @@ const RoleSelection = () => {
               className="inline-flex items-center gap-3 mb-4 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
             >
                 <img src={peerlearnLogo} alt="PeerLearn" className="w-10 h-10" />
-              <span className="text-2xl font-bold text-slate-900 tracking-tight">PeerLearn</span>
+              <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">PeerLearn</span>
             </Link>
-            <h1 className={`font-extrabold text-slate-900 tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
+            <h1 className={`font-extrabold text-slate-900 dark:text-slate-100 tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
               Choose your journey
             </h1>
-            <p className={`text-slate-600 max-w-sm mx-auto ${baseFontSize}`}>
+            <p className={`text-slate-600 dark:text-slate-400 max-w-sm mx-auto ${baseFontSize}`}>
               Select the role that best fits your goals on PeerLearn. You can always explore both sides later.
             </p>
           </header>

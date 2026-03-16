@@ -134,7 +134,7 @@ const SignUp = () => {
 
   // Dynamic Styles based on Accessibility Context
   const baseFontSize = textSize === 'large' ? 'text-lg' : 'text-base';
-  const containerClass = highContrast ? 'bg-white text-black contrast-more' : 'bg-slate-50';
+  const containerClass = highContrast ? 'bg-white dark:bg-black text-black dark:text-white contrast-more' : 'bg-slate-50 dark:bg-slate-950';
 
   return (
     <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300 signup-page`}>
@@ -194,7 +194,7 @@ const SignUp = () => {
         </div>
 
         {/* RIGHT SIDE: Form Container */}
-        <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white z-10 min-h-screen">
+        <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white dark:bg-slate-900 z-10 min-h-screen transition-colors duration-300">
           <div className="w-full max-w-md space-y-6 sm:space-y-8">
             {/* Header Section */}
             <header>
@@ -212,13 +212,13 @@ const SignUp = () => {
                   alt="PeerLearn"
                   className="w-10 h-10 object-contain"
                 />
-                <span className="text-2xl font-bold text-slate-900 tracking-tight">PeerLearn</span>
+                <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">PeerLearn</span>
               </div>
 
-              <h1 className={`font-bold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
+              <h1 className={`font-bold text-slate-900 dark:text-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
                 Account Details
               </h1>
-              <p className={`mt-2 text-slate-600 ${baseFontSize}`}>
+              <p className={`mt-2 text-slate-600 dark:text-slate-400 ${baseFontSize}`}>
                 Tell us a bit more about yourself.
               </p>
               {/* Step Indicator - ARIA for screen readers */}
@@ -245,7 +245,7 @@ const SignUp = () => {
 
               {/* Full Name Input */}
               <div>
-                <label htmlFor="fullName" className={`block font-medium text-slate-900 mb-2 ${baseFontSize}`}>
+                <label htmlFor="fullName" className={`block font-medium text-slate-900 dark:text-slate-100 mb-2 ${baseFontSize}`}>
                   Full Name
                 </label>
                 <div className="relative group">
@@ -258,9 +258,9 @@ const SignUp = () => {
                     id="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-3 rounded-xl border text-slate-900 ${errors.fullName
+                    className={`block w-full pl-10 pr-3 py-3 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${errors.fullName
                       ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
+                      : 'border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-100 dark:focus:ring-blue-900'
                       } focus:outline-none focus:ring-4 transition-all duration-200 sm:text-sm`}
                     placeholder="John Doe"
                     disabled={isLoading}
@@ -279,7 +279,7 @@ const SignUp = () => {
 
               {/* Email Input */}
               <div>
-                <label htmlFor="email" className={`block font-medium text-slate-900 mb-2 ${baseFontSize}`}>
+                <label htmlFor="email" className={`block font-medium text-slate-900 dark:text-slate-100 mb-2 ${baseFontSize}`}>
                   Email Address
                 </label>
                 <div className="relative group">
@@ -292,9 +292,9 @@ const SignUp = () => {
                     id="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-3 rounded-xl border text-slate-900 ${errors.email
+                    className={`block w-full pl-10 pr-3 py-3 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${errors.email
                       ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
+                      : 'border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-100 dark:focus:ring-blue-900'
                       } focus:outline-none focus:ring-4 transition-all duration-200 sm:text-sm`}
                     placeholder="you@example.com"
                     disabled={isLoading}
@@ -313,7 +313,7 @@ const SignUp = () => {
 
               {/* Password Input */}
               <div>
-                <label htmlFor="password" className={`block font-medium text-slate-900 mb-2 ${baseFontSize}`}>
+                <label htmlFor="password" className={`block font-medium text-slate-900 dark:text-slate-100 mb-2 ${baseFontSize}`}>
                   Password
                 </label>
                 <div className="relative group">
@@ -326,9 +326,9 @@ const SignUp = () => {
                     id="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-10 py-3 rounded-xl border text-slate-900 ${errors.password
+                    className={`block w-full pl-10 pr-10 py-3 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${errors.password
                       ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
+                      : 'border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-100 dark:focus:ring-blue-900'
                       } focus:outline-none focus:ring-4 transition-all duration-200 sm:text-sm`}
                     placeholder="••••••••"
                     disabled={isLoading}
@@ -359,7 +359,7 @@ const SignUp = () => {
 
               {/* Confirm Password Input */}
               <div>
-                <label htmlFor="confirmPassword" className={`block font-medium text-slate-900 mb-2 ${baseFontSize}`}>
+                <label htmlFor="confirmPassword" className={`block font-medium text-slate-900 dark:text-slate-100 mb-2 ${baseFontSize}`}>
                   Confirm Password
                 </label>
                 <div className="relative group">
@@ -372,9 +372,9 @@ const SignUp = () => {
                     id="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-10 py-3 rounded-xl border text-slate-900 ${errors.confirmPassword
+                    className={`block w-full pl-10 pr-10 py-3 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${errors.confirmPassword
                       ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
+                      : 'border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-100 dark:focus:ring-blue-900'
                       } focus:outline-none focus:ring-4 transition-all duration-200 sm:text-sm`}
                     placeholder="••••••••"
                     disabled={isLoading}
@@ -430,7 +430,7 @@ const SignUp = () => {
               </button>
 
               {/* Sign In Link */}
-              <p className="text-center text-sm text-slate-600 pt-2">
+              <p className="text-center text-sm text-slate-600 dark:text-slate-400 pt-2">
                 Already have an account?{' '}
                 <Link
                   to="/login"

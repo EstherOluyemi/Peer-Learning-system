@@ -146,9 +146,14 @@ html.text-size-large, .text-size-large {
 
 *:focus-visible {
   outline: 3px solid #2563eb !important;
-  outline-offset: 3px;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px #ffffff !important;
+  border-radius: 0.25rem;
+}
+
+.dark *:focus-visible {
+  outline: 3px solid #60a5fa !important;
+  box-shadow: 0 0 0 2px #0f172a !important;
 }
 
 button:focus-visible,
@@ -158,9 +163,19 @@ textarea:focus-visible,
 select:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible {
   outline: 3px solid #2563eb !important;
-  outline-offset: 3px;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px #ffffff !important;
+  border-radius: 0.25rem;
+}
+
+.dark button:focus-visible,
+.dark a:focus-visible,
+.dark input:focus-visible,
+.dark textarea:focus-visible,
+.dark select:focus-visible,
+.dark [tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 3px solid #60a5fa !important;
+  box-shadow: 0 0 0 2px #0f172a !important;
 }
 
 .high-contrast *:focus-visible {

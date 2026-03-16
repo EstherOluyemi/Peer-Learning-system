@@ -382,7 +382,7 @@ const SessionRoom = () => {
       </div>
 
       {!online && (
-        <div className="bg-amber-50 border-b border-amber-200 text-amber-700">
+        <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800/50 text-amber-700 dark:text-amber-400">
           <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-sm">
             <WifiOff className="w-4 h-4" />
             You are offline. Reconnect to use video and chat features.
@@ -496,7 +496,7 @@ const SessionRoom = () => {
               </div>
             </div>
             {chatError && (
-              <div className="px-4 py-3 text-sm text-red-600 bg-red-50 border-b border-red-200 flex items-center gap-2">
+              <div className="px-4 py-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800/50 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
                 {chatError}
               </div>
