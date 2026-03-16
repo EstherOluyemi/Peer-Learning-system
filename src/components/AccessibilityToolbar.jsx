@@ -5,6 +5,7 @@ import { X, Eye, EyeOff, Plus, Minus, RotateCcw, Sun, Moon } from 'lucide-react'
 import AccessibilityIcon from './icons/AccessibilityIcon';
 import KeyboardShortcuts from './accessibility/KeyboardShortcuts';
 import HighContrastToggle from './accessibility/HIghContrastToggle';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 const AccessibilityToolbar = () => {
   const {
@@ -17,6 +18,7 @@ const AccessibilityToolbar = () => {
 
   const { darkMode, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const modalRef = useFocusTrap(isOpen, () => setIsOpen(false));
 
   return (
     <>
@@ -44,7 +46,9 @@ const AccessibilityToolbar = () => {
 
       {/* Accessibility Panel */}
       <div
-        className={`fixed bottom-24 right-6 bg-white rounded-lg shadow-2xl border border-gray-200 p-6 w-80 z-50 transform transition-all duration-200 ${
+        ref={modalRef}
+        tabIndex={-1}
+        className={`fixed bottom-24 right-6 bg-white dark:bg-slate-900 rounded-lg shadow-2xl border border-gray-200 dark:border-slate-700 p-6 w-80 z-50 transform transition-all duration-200 ${
           isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
         }`}
         role="dialog"

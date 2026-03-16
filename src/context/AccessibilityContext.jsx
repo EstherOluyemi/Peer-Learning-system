@@ -25,6 +25,24 @@ export const AccessibilityProvider = ({ children }) => {
         element.setAttribute('tabindex', '-1');
         element.setAttribute('data-a11y-auto-focusable', 'true');
       });
+
+      if (keyboardShortcutsEnabled) {
+        const textElements = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while ((node = textElements.nextNode())) {
+          if (node.nodeValue.trim().length > 0) {
+            const parent = node.parentElement;
+            if (parent && !parent.closest('a, button, [role="button"], input, select, textarea, [tabindex="-1"]')) {
+              if (parent.tagName !== 'SCRIPT' && parent.tagName !== 'STYLE' && parent.tagName !== 'NOSCRIPT') {
+                if (!parent.hasAttribute('tabindex')) {
+                  parent.setAttribute('tabindex', '0');
+                  parent.setAttribute('data-a11y-text-focusable', 'true');
+                }
+              }
+            }
+          }
+        }
+      }
     };
 
     applyRegionFocusability();
@@ -41,7 +59,22 @@ export const AccessibilityProvider = ({ children }) => {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [keyboardShortcutsEnabled]);
+
+  useEffect(() => {
+    const htmlElement = document.documentElement;
+    htmlElement.classList.remove('text-size-small', 'text-size-medium', 'text-size-large');
+    htmlElement.classList.add(`text-size-${textSize}`);
+  }, [textSize]);
+
+  useEffect(() => {
+    const htmlElement = document.documentElement;
+    if (highContrast) {
+      htmlElement.classList.add('high-contrast');
+    } else {
+      htmlElement.classList.remove('high-contrast');
+    }
+  }, [highContrast]);
 
   const toggleHighContrast = () => {
     setHighContrast(!highContrast);
@@ -80,9 +113,7 @@ export const AccessibilityProvider = ({ children }) => {
       setKeyboardShortcutsEnabled,
       accessibilityClasses
     }}>
-      <div className={accessibilityClasses}>
-        {children}
-      </div>
+      {children}
     </AccessibilityContext.Provider>
   );
 }; 

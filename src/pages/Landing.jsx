@@ -45,38 +45,38 @@ const Landing = () => {
   ];
 
   const features = [
-    { 
-      title: "Live Peer Sessions", 
+    {
+      title: "Live Peer Sessions",
       desc: "Real-time learning with peers through interactive video sessions",
       icon: Video,
       color: "bg-blue-50 text-blue-600"
     },
-    { 
-      title: "Smart Matching", 
+    {
+      title: "Smart Matching",
       desc: "AI-powered matching with tutors based on your learning goals",
       icon: MessageSquare,
       color: "bg-emerald-50 text-emerald-600"
     },
-    { 
-      title: "Flexible Scheduling", 
+    {
+      title: "Flexible Scheduling",
       desc: "Learn at your own pace with flexible session timings",
       icon: Calendar,
       color: "bg-purple-50 text-purple-600"
     },
-    { 
-      title: "Progress Tracking", 
+    {
+      title: "Progress Tracking",
       desc: "Monitor your learning journey with detailed analytics",
       icon: BookOpen,
       color: "bg-amber-50 text-amber-600"
     },
-    { 
-      title: "Community Support", 
+    {
+      title: "Community Support",
       desc: "Join study groups and connect with like-minded learners",
       icon: Users,
       color: "bg-pink-50 text-pink-600"
     },
-    { 
-      title: "Accessibility first", 
+    {
+      title: "Accessibility first",
       desc: "Suitable and easy to use for all range of users",
       icon: Zap,
       color: "bg-indigo-50 text-indigo-600"
@@ -85,66 +85,66 @@ const Landing = () => {
 
   // Testimonials with real Unsplash images
   const testimonials = [
-    { 
+    {
       id: 1,
-      name: "Sarah Chen", 
-      role: "Computer Science Student", 
+      name: "Sarah Chen",
+      role: "Computer Science Student",
       text: "PeerLearn helped me master React in just 6 weeks! The community support and interactive sessions made complex topics much easier to understand.",
       rating: 5,
       image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
     },
-    { 
+    {
       id: 2,
-      name: "Michael Rodriguez", 
-      role: "Mathematics Tutor", 
+      name: "Michael Rodriguez",
+      role: "Mathematics Tutor",
       text: "As a tutor, I've helped over 50 students through this platform. The scheduling system is seamless and the video quality is excellent.",
       rating: 5,
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
     },
-    { 
+    {
       id: 3,
-      name: "Emma Wilson", 
-      role: "Language Learner", 
+      name: "Emma Wilson",
+      role: "Language Learner",
       text: "The peer matching system connected me with the perfect study partners. My Spanish improved more in 2 months than in a year of self-study!",
       rating: 5,
       image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
     },
-    { 
+    {
       id: 4,
-      name: "David Kim", 
-      role: "Data Science Student", 
+      name: "David Kim",
+      role: "Data Science Student",
       text: "The project-based learning approach with real peers gave me practical skills that landed me my first data science job. Highly recommend!",
       rating: 5,
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
     },
-    { 
+    {
       id: 5,
-      name: "Priya Sharma", 
-      role: "Physics Tutor", 
+      name: "Priya Sharma",
+      role: "Physics Tutor",
       text: "I love how I can create custom sessions for different learning levels. The progress tracking helps me tailor my teaching approach to each student.",
       rating: 5,
       image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
     },
-    { 
+    {
       id: 6,
-      name: "James Anderson", 
-      role: "Business Student", 
+      name: "James Anderson",
+      role: "Business Student",
       text: "The collaborative learning environment is incredible. I've built a network of peers who continue to support each other even after sessions end.",
       rating: 5,
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
     },
-    { 
+    {
       id: 7,
-      name: "Maria Garcia", 
-      role: "Chemistry Student", 
+      name: "Maria Garcia",
+      role: "Chemistry Student",
       text: "As an introvert, I was hesitant about peer learning, but the platform made it so comfortable. Now I lead study groups myself!",
       rating: 5,
       image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
     },
-    { 
+    {
       id: 8,
-      name: "Alex Turner", 
-      role: "Web Development Tutor", 
+      name: "Alex Turner",
+      role: "Web Development Tutor",
       text: "The real-time code collaboration feature is a game-changer. My students can see exactly what I'm doing and ask questions instantly.",
       rating: 5,
       image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
@@ -164,20 +164,20 @@ const Landing = () => {
 
   return (
     <div className={`min-h-screen bg-linear-to-b from-slate-50 to-white text-slate-900 dark:from-slate-950 dark:to-slate-900 dark:text-slate-100 transition-colors duration-300 ${highContrast ? 'high-contrast' : ''} ${sidebarOpen ? 'overflow-hidden' : ''} ${darkMode ? 'dark-theme-active' : ''}`} style={{ fontSize: textSize === 'large' ? '18px' : '16px' }}>
-      
+
       {/* Sidebar / Mobile Navigation Drawer */}
-      <div 
-        className={`fixed inset-0 z-50 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      <div
+        className={`fixed inset-0 z-50 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
         aria-hidden={!sidebarOpen}
       >
         {/* Backdrop */}
-        <div 
+        <div
           className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           onClick={closeSidebar}
         />
-        
+
         {/* Sidebar Content */}
-        <div 
+        <div
           id="mobile-nav-drawer"
           ref={sidebarRef}
           className={`absolute right-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 shadow-2xl transition-transform duration-300 transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
@@ -196,7 +196,7 @@ const Landing = () => {
                 )}
                 <span className="font-bold text-slate-900 dark:text-slate-100">PeerLearn</span>
               </div>
-              <button 
+              <button
                 onClick={closeSidebar}
                 className="p-2 text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-blue-600 rounded"
                 aria-label="Close menu"
@@ -204,25 +204,25 @@ const Landing = () => {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            
+
             <nav className="flex-1 p-6 space-y-4">
-              <a 
-                href="#features" 
+              <a
+                href="#features"
                 className="flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600"
                 onClick={closeSidebar}
               >
                 <Zap className="w-5 h-5 text-blue-600" />
                 <span>Features</span>
               </a>
-              <button 
+              <button
                 onClick={scrollToTestimonials}
                 className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium transition-colors text-left focus-visible:outline-2 focus-visible:outline-blue-600"
               >
                 <Star className="w-5 h-5 text-amber-500" />
                 <span>Testimonials</span>
               </button>
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600"
                 onClick={closeSidebar}
               >
@@ -230,10 +230,10 @@ const Landing = () => {
                 <span>Login</span>
               </Link>
             </nav>
-            
+
             <div className="p-6 border-t border-slate-100 dark:border-slate-700">
-              <Link 
-                to="/role-selection" 
+              <Link
+                to="/role-selection"
                 className="block w-full text-center bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all focus-visible:outline-2 focus-visible:outline-blue-600"
                 onClick={closeSidebar}
               >
@@ -243,13 +243,13 @@ const Landing = () => {
           </div>
         </div>
       </div>
-      <a 
-        href="#main-content" 
+      <a
+        href="#main-content"
         className="sr-only focus-not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
       >
         Skip to main content
       </a>
-      
+
       <style jsx global>{`
         /* Accessibility utilities */
         .sr-only {
@@ -361,10 +361,10 @@ const Landing = () => {
       {/* Hero Section with Background Image */}
       <header className="relative min-h-[85vh] sm:min-h-[90vh] overflow-hidden">
         {/* Background Image with Overlay */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-             backgroundImage: `url(${heroBackground})`,
+            backgroundImage: `url(${heroBackground})`,
           }}
         >
           <div className="absolute inset-0 bg-linear-to-r from-slate-900/70 via-slate-900/50 to-slate-900/30"></div>
@@ -378,9 +378,9 @@ const Landing = () => {
               {/* Updated Logo - Bigger size */}
               {peerlearnLogo ? (
                 <>
-                  <img 
-                    src={peerlearnLogo} 
-                    alt="PeerLearn" 
+                  <img
+                    src={peerlearnLogo}
+                    alt="PeerLearn"
                     className="h-10 sm:h-12 w-auto"  // Increased from h-10 to h-12
                   />
                   <Link to="/" onClick={() => window.location.reload()} className="text-xl sm:text-2xl font-bold text-white ml-2 hover:text-blue-300 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded">PeerLearn</Link>
@@ -396,7 +396,7 @@ const Landing = () => {
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-white/90 hover:text-white font-medium transition hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded">Features</a>
-              <button 
+              <button
                 onClick={scrollToTestimonials}
                 className="text-white/90 hover:text-white font-medium transition hover:scale-105 bg-transparent border-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded"
                 aria-label="Scroll to testimonials section"
@@ -404,16 +404,16 @@ const Landing = () => {
                 Testimonials
               </button>
               <Link to="/login" className="text-white/90 hover:bg-blue-100 hover:text-blue-500 font-medium transition hover:scale-105 rounded-lg px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Login</Link>
-              <Link 
-                to="/role-selection" 
+              <Link
+                to="/role-selection"
                 className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-lg hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Get Started For Free
               </Link>
             </div>
-            
+
             {/* Mobile Menu Toggle */}
-            <button 
+            <button
               onClick={() => setSidebarOpen(true)}
               className="md:hidden p-2 text-white hover:bg-white/10 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-white"
               aria-label="Open navigation menu"
@@ -425,7 +425,7 @@ const Landing = () => {
           </div>
         </nav>
         {/* Hero Content */}
-        <main id="main-content" className="relative z-10 container mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-12 sm:pb-16 flex flex-col items-start" aria-label="Main content">
+        <main id="main-content" tabIndex={-1} className="relative z-10 container mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-12 sm:pb-16 flex flex-col items-start focus:outline-none" aria-label="Main content">
           <span className="block text-white text-base sm:text-lg mb-4" role="doc-subtitle">🎓 Transform Your Learning Journey</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
             Learn <span className="text-blue-300">Together,</span>
@@ -435,8 +435,8 @@ const Landing = () => {
             Connect with peers, share knowledge, and accelerate your learning journey through collaborative sessions and expert guidance in an interactive environment.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-            <Link 
-              to="/role-selection" 
+            <Link
+              to="/role-selection"
               className="inline-flex w-full sm:w-auto items-center justify-center bg-white text-slate-900 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Start Learning For Free
@@ -449,7 +449,7 @@ const Landing = () => {
       {/* Stats Section - ACCESSIBLE */}
       <section className="py-12 sm:py-16 bg-white dark:bg-slate-900" aria-label="Platform statistics">
         <div className="container mx-auto px-4 sm:px-6">
-          <div 
+          <div
             className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8"
             ref={el => sectionRefs.current[2] = el}
             role="list"
@@ -457,7 +457,7 @@ const Landing = () => {
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
-                <div 
+                <div
                   key={index}
                   role="listitem"
                   className="text-center p-4 sm:p-6 rounded-2xl bg-linear-to-b from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -478,7 +478,7 @@ const Landing = () => {
       {/* Features Section - ACCESSIBLE */}
       <section id="features" className="py-14 sm:py-20 bg-linear-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950">
         <div className="container mx-auto px-4 sm:px-6">
-          <div 
+          <div
             className="text-center max-w-3xl mx-auto mb-10 sm:mb-16"
             ref={el => sectionRefs.current[3] = el}
           >
@@ -490,8 +490,8 @@ const Landing = () => {
               Our platform combines cutting-edge technology with proven learning methodologies to create the perfect peer learning environment.
             </p>
           </div>
-          
-          <div 
+
+          <div
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8"
             ref={el => sectionRefs.current[4] = el}
             aria-labelledby="features-heading"
@@ -500,8 +500,8 @@ const Landing = () => {
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <article 
-                  key={index} 
+                <article
+                  key={index}
                   className="group bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-400 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-within:shadow-xl"
                   style={{ animationDelay: `${index * 100}ms` }}
                   role="listitem"
@@ -521,7 +521,7 @@ const Landing = () => {
       {/* Testimonials Marquee Section - UPDATED & ACCESSIBLE */}
       <section id="testimonials" className="py-14 sm:py-20 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6">
-          <div 
+          <div
             className="text-center max-w-3xl mx-auto mb-10 sm:mb-16"
             ref={el => sectionRefs.current[5] = el}
           >
@@ -532,9 +532,9 @@ const Landing = () => {
               Hear from learners and tutors who transformed their educational journey with PeerLearn
             </p>
           </div>
-          
+
           {/* Testimonials - Now Keyboard Accessible */}
-          <div 
+          <div
             className="relative py-4"
             role="region"
             aria-labelledby="testimonials-heading"
@@ -543,11 +543,11 @@ const Landing = () => {
             {/* linear overlay on edges */}
             <div className="absolute left-0 top-0 bottom-0 w-10 sm:w-32 bg-linear-to-r from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 z-10 pointer-events-none" aria-hidden="true"></div>
             <div className="absolute right-0 top-0 bottom-0 w-10 sm:w-32 bg-linear-to-l from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 z-10 pointer-events-none" aria-hidden="true"></div>
-            
+
             {/* Marquee Row 1 - Moves LEFT (faster: 30s) */}
             <div className="flex animate-marquee-left mb-10" role="list">
               {duplicatedTestimonials.map((testimonial, index) => (
-                <article 
+                <article
                   key={`first-${testimonial.id}-${index}`}
                   role="listitem"
                   className="shrink-0 w-[18rem] sm:w-80 mx-2 sm:mx-4 testimonial-card bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -556,8 +556,8 @@ const Landing = () => {
                   <p className="text-slate-700 dark:text-slate-200 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
                   <div className="flex items-center">
                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-100 shadow-sm mr-4 profile-img transition-transform duration-300">
-                      <img 
-                        src={testimonial.image} 
+                      <img
+                        src={testimonial.image}
                         alt={`${testimonial.name}, ${testimonial.role}`}
                         className="w-full h-full object-cover"
                         loading="lazy"
@@ -568,8 +568,8 @@ const Landing = () => {
                       <p className="text-sm text-slate-600 dark:text-slate-300">{testimonial.role}</p>
                       <div className="flex mt-1" aria-label={`Rating: ${testimonial.rating} out of 5 stars`} role="img">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
+                          <Star
+                            key={i}
                             className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-300'}`}
                             aria-hidden="true"
                           />
@@ -580,11 +580,11 @@ const Landing = () => {
                 </article>
               ))}
             </div>
-            
+
             {/* Marquee Row 2 - Moves RIGHT (faster: 30s) */}
             <div className="flex animate-marquee-right" role="list">
               {[...duplicatedTestimonials].reverse().map((testimonial, index) => (
-                <article 
+                <article
                   key={`second-${testimonial.id}-${index}`}
                   role="listitem"
                   className="shrink-0 w-[18rem] sm:w-80 mx-2 sm:mx-4 testimonial-card bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -593,8 +593,8 @@ const Landing = () => {
                   <p className="text-slate-700 dark:text-slate-200 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
                   <div className="flex items-center">
                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-100 shadow-sm mr-4 profile-img transition-transform duration-300">
-                      <img 
-                        src={testimonial.image} 
+                      <img
+                        src={testimonial.image}
                         alt={`${testimonial.name}, ${testimonial.role}`}
                         className="w-full h-full object-cover"
                         loading="lazy"
@@ -605,8 +605,8 @@ const Landing = () => {
                       <p className="text-sm text-slate-600 dark:text-slate-300">{testimonial.role}</p>
                       <div className="flex mt-1" aria-label={`Rating: ${testimonial.rating} out of 5 stars`} role="img">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
+                          <Star
+                            key={i}
                             className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-300'}`}
                             aria-hidden="true"
                           />
@@ -618,11 +618,11 @@ const Landing = () => {
               ))}
             </div>
           </div>
-          
+
           {/* CTA below testimonials */}
           <div className="text-center mt-10 sm:mt-16">
-            <Link 
-              to="/role-selection" 
+            <Link
+              to="/role-selection"
               className="inline-flex items-center justify-center bg-linear-to-r from-blue-600 to-blue-700 text-white px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-blue-100 hover:text-blue-700 hover:shadow-xl hover:scale-105 transition-all shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               aria-label="Get started with PeerLearn - Journey to your learning destination starts here"
             >
@@ -641,9 +641,9 @@ const Landing = () => {
         <div className="max-w-2xl mx-auto text-center px-4 sm:px-6">
           <div className="flex items-center justify-center gap-3 mb-4">
             {peerlearnLogo ? (
-              <img 
-                src={peerlearnLogo} 
-                alt="PeerLearn" 
+              <img
+                src={peerlearnLogo}
+                alt="PeerLearn"
                 className="h-10 w-auto"  // Increased footer logo size
               />
             ) : (
@@ -666,7 +666,7 @@ const Landing = () => {
       {videoPlaying && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-fade-in-up" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
           <div ref={videoModalRef} tabIndex={-1} className="relative w-full max-w-4xl">
-            <button 
+            <button
               onClick={() => setVideoPlaying(false)}
               className="absolute -top-12 right-0 text-white hover:text-blue-300 text-lg transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-white rounded"
               aria-label="Close video modal"
