@@ -435,7 +435,7 @@ const Landing = () => {
               className="inline-flex w-full sm:w-auto items-center justify-center bg-white text-slate-900 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Start Learning For Free
-              <ArrowRight className="ml-3 w-5 h-5" />
+              <ArrowRight className="ml-3 w-5 h-5" aria-hidden="true" />
             </Link>
           </div>
         </main>
@@ -514,7 +514,7 @@ const Landing = () => {
       </section>
 
       {/* Testimonials Marquee Section - UPDATED & ACCESSIBLE */}
-      <section id="testimonials" className="py-14 sm:py-20 bg-white dark:bg-slate-900 overflow-hidden">
+      <section id="testimonials" className="py-14 sm:py-20 bg-white dark:bg-slate-900 overflow-hidden" aria-labelledby="testimonials-heading">
         <div className="container mx-auto px-4 sm:px-6">
           <div
             className="text-center max-w-3xl mx-auto mb-10 sm:mb-16"
@@ -622,7 +622,7 @@ const Landing = () => {
               aria-label="Get started with PeerLearn - Journey to your learning destination starts here"
             >
               Join Our Community
-              <ArrowRight className="ml-3 w-5 h-5" />
+              <ArrowRight className="ml-3 w-5 h-5" aria-hidden="true" />
             </Link>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-4">
               Join {stats[0].number} learners and {stats[1].number} tutors already transforming education

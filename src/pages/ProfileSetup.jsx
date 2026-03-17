@@ -189,7 +189,8 @@ const ProfileSetup = () => {
                             <div className="flex items-center gap-3 mb-6">
                                 <img
                                     src={peerlearnLogo}
-                                    alt="PeerLearn"
+                                    alt=""
+                                    aria-hidden="true"
                                     className="w-10 h-10 object-contain"
                                 />
                                 <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">PeerLearn</span>
@@ -257,13 +258,16 @@ const ProfileSetup = () => {
                                         onKeyDown={handleAddSubject}
                                         className={`block w-full pl-10 pr-12 py-3 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${errors.subjects ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 dark:border-slate-700 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-500'} focus:outline-none focus:ring-4 transition-all text-sm`}
                                         placeholder="Type a subject and press Enter"
+                                        aria-invalid={!!errors.subjects}
+                                        aria-describedby={errors.subjects ? "subjects-error" : undefined}
                                     />
                                     <button
                                         type="button"
                                         onClick={handleAddSubject}
-                                        className="absolute right-2 top-1.5 p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                                        className="absolute right-2 top-1.5 p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                                        aria-label="Add subject"
                                     >
-                                        <Plus className="w-5 h-5" />
+                                        <Plus className="w-5 h-5" aria-hidden="true" />
                                     </button>
                                 </div>
 
@@ -278,15 +282,16 @@ const ProfileSetup = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => removeSubject(subject)}
-                                                className="p-0.5 hover:bg-blue-200 rounded-full transition-colors"
+                                                className="p-0.5 hover:bg-blue-200 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                                                aria-label={`Remove subject ${subject}`}
                                             >
-                                                <X className="w-3 h-3" />
+                                                <X className="w-3 h-3" aria-hidden="true" />
                                             </button>
                                         </span>
                                     ))}
                                 </div>
                                 {errors.subjects && (
-                                    <p className="text-xs text-red-600 mt-1">{errors.subjects}</p>
+                                    <p id="subjects-error" className="text-xs text-red-600 mt-1">{errors.subjects}</p>
                                 )}
                             </div>
 
@@ -307,7 +312,7 @@ const ProfileSetup = () => {
                                     ) : (
                                         <>
                                             <span>Complete Setup</span>
-                                            <ArrowRight className="w-5 h-5 ml-2" />
+                                            <ArrowRight className="w-5 h-5 ml-2" aria-hidden="true" />
                                         </>
                                     )}
                                 </div>

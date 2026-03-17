@@ -537,8 +537,9 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                     onClick={handleSend}
                                     disabled={!text.trim() || sending}
                                     className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                                    aria-label="Send message"
                                 >
-                                    {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                                    {sending ? <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /> : <Send className="w-5 h-5" aria-hidden="true" />}
                                 </button>
                             </div>
                         </>
@@ -576,8 +577,9 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                             style={{ borderColor: 'var(--border-color)' }}>
                             <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Edit Message</h2>
                             <button onClick={cancelEdit}
-                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                aria-label="Close">
+                                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
                             </button>
                         </div>
 
@@ -625,8 +627,9 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                             style={{ borderColor: 'var(--border-color)' }}>
                             <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>New Message</h2>
                             <button onClick={() => setShowModal(false)}
-                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                aria-label="Close">
+                                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
                             </button>
                         </div>
 

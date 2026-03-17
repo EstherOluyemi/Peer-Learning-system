@@ -157,7 +157,7 @@ const Login = () => {
               </Link>
 
               <div className="flex items-center gap-3 mb-6">
-                <img src={peerlearnLogo} alt="PeerLearn" className="w-10 h-10 object-contain" />
+                <img src={peerlearnLogo} alt="" aria-hidden="true" className="w-10 h-10 object-contain" />
                 <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">PeerLearn</span>
               </div>
 

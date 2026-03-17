@@ -49,15 +49,15 @@ const RoleSelection = () => {
   return (
     <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300`}>
       <AccessibilityToolbar />
-      
+
       {/* Skip Link */}
-      <a 
-        href="#role-selection-form" 
+      <a
+        href="#role-selection-form"
         className="sr-only focus-not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
       >
         Skip to role selection
       </a>
-      
+
       <style>{`
         .sr-only {
           position: absolute;
@@ -102,7 +102,7 @@ const RoleSelection = () => {
               to="/"
               className="inline-flex items-center gap-3 mb-4 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
             >
-                <img src={peerlearnLogo} alt="PeerLearn" className="w-10 h-10" />
+              <img src={peerlearnLogo} alt="" className="w-10 h-10" aria-hidden="true" />
               <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">PeerLearn</span>
             </Link>
             <h1 className={`font-extrabold text-slate-900 dark:text-slate-100 tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
@@ -143,7 +143,6 @@ const RoleSelection = () => {
                 ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-500/25 transform hover:-translate-y-0.5'
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
                 }`}
-              aria-busy={!role}
               aria-label={role ? `Continue to registration as ${role}` : 'Select a role to continue'}
             >
               Continue to Registration

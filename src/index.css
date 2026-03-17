@@ -28,6 +28,11 @@
 }
 
 /* Light Mode (default) */
+html {
+  /* WCAG 2.2 Focus Not Obscured: prevent focus from being hidden under sticky headers */
+  scroll-padding-top: 5rem;
+}
+
 :root {
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
@@ -128,20 +133,33 @@ html.high-contrast [data-a11y-text-focusable="true"]:focus {
 }
 
 html.text-size-small, .text-size-small {
-  font-size: 14px;
+  font-size: 87.5%; /* 14px equivalent */
 }
 
 html.text-size-medium, .text-size-medium {
-  font-size: 16px;
+  font-size: 100%; /* 16px equivalent */
 }
 
 html.text-size-large, .text-size-large {
-  font-size: 20px;
+  font-size: 125%; /* 20px equivalent */
 }
 
 /* Focus styles for keyboard navigation - Sharper and clearer */
 *:focus {
   outline: none !important;
+}
+
+/* WCAG 2.2 Target Size (Minimum) */
+button,
+input,
+select,
+textarea,
+[role="button"],
+[role="checkbox"],
+[role="radio"],
+[role="switch"] {
+  min-height: 24px;
+  min-width: 24px;
 }
 
 *:focus-visible {
