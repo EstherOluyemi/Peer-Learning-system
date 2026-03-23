@@ -352,7 +352,7 @@ const Landing = () => {
         }
       `}</style>
       {/* Hero Section with Background Image */}
-      <header className="relative min-h-[85vh] sm:min-h-[90vh] overflow-hidden">
+      <header className="relative min-h-[85vh] sm:min-h-[90vh] overflow-hidden bg-slate-900 pb-4">
         {/* Background Image with Overlay */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -388,15 +388,15 @@ const Landing = () => {
               )}
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-white/90 hover:text-white font-medium transition hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded">Features</a>
+              <a href="#features" className="text-white/90 hover:text-white font-medium transition hover:scale-105 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded">Features</a>
               <button
                 onClick={scrollToTestimonials}
-                className="text-white/90 hover:text-white font-medium transition hover:scale-105 bg-transparent border-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded"
+                className="text-white/90 hover:text-white font-medium transition hover:scale-105 hover:underline bg-transparent border-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded"
                 aria-label="Scroll to testimonials section"
               >
                 Testimonials
               </button>
-              <Link to="/login" className="text-white/90 hover:bg-blue-100 hover:text-blue-500 font-medium transition hover:scale-105 rounded-lg px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Login</Link>
+              <Link to="/login" className="text-white/90 hover:bg-white/10 hover:text-white hover:underline font-medium transition hover:scale-105 rounded-lg px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Login</Link>
               <Link
                 to="/role-selection"
                 className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-lg hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -458,7 +458,7 @@ const Landing = () => {
                   className="text-center p-4 sm:p-6 rounded-2xl bg-linear-to-b from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-linear-to-br from-blue-50 to-white dark:from-slate-700 dark:to-slate-800 rounded-2xl mb-3 sm:mb-4 border border-slate-100 dark:border-slate-600" aria-hidden="true">
+                  <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-linear-to-br from-blue-50 to-white dark:from-slate-700 dark:to-slate-800 rounded-2xl mb-3 sm:mb-4 border border-slate-300 dark:border-slate-600" aria-hidden="true">
                     <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" aria-hidden="true" />
                   </div>
                   <div className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-1 sm:mb-2">{stat.number}</div>
@@ -497,7 +497,7 @@ const Landing = () => {
               return (
                 <article
                   key={index}
-                  className="group bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-400 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-within:shadow-xl"
+                  className="group bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-300 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-400 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-within:shadow-xl"
                   style={{ animationDelay: `${index * 100}ms` }}
                   role="listitem"
                 >
