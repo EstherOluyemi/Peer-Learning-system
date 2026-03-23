@@ -41,7 +41,7 @@ html {
   
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-tertiary: #64748b;
+  --text-tertiary: #4b5563;
   
   --border-color: #e2e8f0;
   --card-bg: #ffffff;
@@ -61,7 +61,7 @@ html {
   
   --text-primary: #f1f5f9;
   --text-secondary: #cbd5e1;
-  --text-tertiary: #94a3b8;
+  --text-tertiary: #aab8c3;
   
   --border-color: #334155;
   --card-bg: #1e293b;
@@ -110,10 +110,31 @@ body {
 }
 
 /* Accessibility Classes */
-/* Accessibility Classes */
 :root.high-contrast {
+  --bg-primary: #000000;
+  --bg-secondary: #000000;
+  --bg-tertiary: #1a1a1a;
+  --bg-hover: #333333;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #ffff00;
+  --text-tertiary: #00ffff;
+  
+  --border-color: #ffffff;
+  --card-bg: #000000;
+  --card-border: #ffffff;
+  
+  --input-bg: #000000;
+  --input-border: #ffffff;
+  --input-text: #ffffff;
+
   --color-primary: #ffff00 !important;
   --color-primary-hover: #ccaa00 !important;
+}
+
+html.high-contrast {
+  background-color: #000000 !important;
+  color: #ffffff !important;
 }
 
 html.high-contrast *:focus-visible,
@@ -137,16 +158,17 @@ html.text-size-small, .text-size-small {
 }
 
 html.text-size-medium, .text-size-medium {
-  font-size: 100%; /* 16px equivalent */
+  font-size: 100% !important; /* Force browser default base */
 }
 
 html.text-size-large, .text-size-large {
-  font-size: 125%; /* 20px equivalent */
+  font-size: 125% !important;
 }
 
 /* Focus styles for keyboard navigation - Sharper and clearer */
 *:focus {
-  outline: none !important;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 
 /* WCAG 2.2 Target Size (Minimum) */

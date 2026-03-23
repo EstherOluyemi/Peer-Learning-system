@@ -4,6 +4,7 @@ import {
     MessageSquare, Search, Send, X, Plus, Check, CheckCheck,
     ChevronLeft, AlertCircle, Loader2, Edit2, Smile,
 } from 'lucide-react';
+import { linkify } from '../../utils/textUtils';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
@@ -249,9 +250,10 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                 </div>
                 <button
                     onClick={openNewModal}
+                    aria-label="Start a new message"
                     className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95"
                 >
-                    <Plus className="w-5 h-5" /> New Message
+                    <Plus className="w-5 h-5" aria-hidden="true" /> New Message
                 </button>
             </div>
 
@@ -266,14 +268,15 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                     {/* Search */}
                     <div className="p-3 border-b" style={{ borderColor: 'var(--border-color)' }}>
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
                             <input
                                 type="text"
-                                placeholder="Search…"
+                                placeholder="Search conversations…"
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                                 className="w-full pl-9 pr-3 py-2 rounded-full text-sm border-none focus:ring-2 focus:ring-blue-500"
                                 style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)' }}
+                                aria-label="Search conversations"
                             />
                         </div>
                     </div>
@@ -293,13 +296,15 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                     <button
                                         key={conv._id || conv.id}
                                         onClick={() => selectConv(conv)}
+                                        aria-label={`Chat with ${other?.name || 'Unknown'}${conv.unread > 0 ? `, ${conv.unread} unread messages` : ''}`}
+                                        aria-current={isActive ? 'true' : 'false'}
                                         className={`w-full flex items-center gap-3 px-3 py-3 text-left transition-colors border-b ${isActive
                                             ? 'bg-blue-50 dark:bg-blue-900/25'
                                             : 'hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                                         style={{ borderColor: 'var(--border-color)' }}
                                     >
                                         <div className="relative shrink-0">
-                                            <img src={avatar(other?.name, other?.avatar)} alt={other?.name}
+                                            <img src={avatar(other?.name, other?.avatar)} alt=""
                                                 className="w-10 h-10 rounded-full object-cover border-2"
                                                 style={{ borderColor: 'var(--border-color)' }} />
                                             <OnlineDot online={isOnline} />
@@ -318,7 +323,7 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                                     {conv.lastMessage || 'No messages yet'}
                                                 </p>
                                                 {conv.unread > 0 && (
-                                                    <span className="bg-blue-600 text-white text-xs min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 font-bold shrink-0">
+                                                    <span className="bg-blue-600 text-white text-xs min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 font-bold shrink-0" aria-label={`${conv.unread} unread messages`}>
                                                         {conv.unread > 9 ? '9+' : conv.unread}
                                                     </span>
                                                 )}
@@ -352,7 +357,7 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                     <div className="flex items-center gap-3 px-5 py-4 border-b shrink-0"
                                         style={{ borderColor: 'var(--border-color)' }}>
                                         <div className="relative">
-                                            <img src={avatar(other?.name, other?.avatar)} alt={other?.name}
+                                            <img src={avatar(other?.name, other?.avatar)} alt=""
                                                 className="w-10 h-10 rounded-full object-cover border-2"
                                                 style={{ borderColor: 'var(--border-color)' }} />
                                             <OnlineDot online={isOnline} />
@@ -401,16 +406,16 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                                             <button
                                                                 onClick={() => startEdit(msg)}
                                                                 className="opacity-0 group-hover/message:opacity-100 p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
-                                                                title="Edit message"
+                                                                aria-label="Edit message"
                                                             >
-                                                                <Edit2 className="w-3.5 h-3.5 text-slate-500" />
+                                                                <Edit2 className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
                                                             </button>
                                                         )}
                                                         <div className={`relative px-4 py-2.5 rounded-2xl text-sm break-words ${isMine
                                                             ? 'bg-blue-600 text-white rounded-br-sm'
                                                             : 'bg-slate-100 dark:bg-slate-800 rounded-bl-sm'}`}
                                                             style={isMine ? {} : { color: 'var(--text-primary)' }}>
-                                                            {msg.text}
+                                                            {linkify(msg.text, isMine ? "text-white font-bold hover:underline" : "text-blue-600 dark:text-blue-400 font-bold hover:underline")}
                                                             {msg.isEdited && (
                                                                 <span className="text-xs ml-2 opacity-75">(edited)</span>
                                                             )}
@@ -419,16 +424,19 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                                             <button
                                                                 onClick={() => setReactionMenuMessageId(reactionMenuMessageId === (msg._id || msg.id) ? null : (msg._id || msg.id))}
                                                                 className="opacity-0 group-hover/message:opacity-100 p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
-                                                                title="Add reaction"
+                                                                aria-label="Add reaction"
+                                                                aria-expanded={reactionMenuMessageId === (msg._id || msg.id)}
                                                             >
-                                                                <Smile className="w-3.5 h-3.5 text-slate-500" />
+                                                                <Smile className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
                                                             </button>
                                                             {/* Reaction emoji picker */}
                                                             {reactionMenuMessageId === (msg._id || msg.id) && (
-                                                                <div className={`absolute ${isMine ? 'right-0' : 'left-0'} top-full mt-1 bg-white dark:bg-slate-700 rounded-lg shadow-lg p-2 flex gap-1 z-10`}>
+                                                                <div className={`absolute ${isMine ? 'right-0' : 'left-0'} top-full mt-1 bg-white dark:bg-slate-700 rounded-lg shadow-lg p-2 flex gap-1 z-10`} role="menu">
                                                                     {reactionEmojis.map(emoji => (
                                                                         <button
                                                                             key={emoji}
+                                                                            role="menuitem"
+                                                                            aria-label={`React with ${emoji}`}
                                                                             onClick={() => {
                                                                                 const myIdStr = String(myId?._id || myId?.id || myId || '');
                                                                                 const alreadyReacted = (msg.reactions || []).some(r => {
@@ -461,11 +469,12 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                                                     <button
                                                                         key={emoji}
                                                                         onClick={() => handleReaction(msg._id || msg.id, emoji, userReacted)}
+                                                                        aria-label={`${userReacted ? 'Remove' : 'Add'} reaction ${emoji}`}
                                                                         className={`text-sm px-2 py-1 rounded-full transition-colors ${userReacted
                                                                             ? 'bg-blue-200 dark:bg-blue-900/40'
                                                                             : 'bg-slate-100 dark:bg-slate-700 opacity-60 hover:opacity-100'}`}
                                                                     >
-                                                                        {emoji} {count}
+                                                                        <span aria-hidden="true">{emoji}</span> {count}
                                                                     </button>
                                                                 );
                                                             })}
@@ -477,10 +486,10 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                                         style={{ color: 'var(--text-tertiary)' }}>
                                                         <span>{formatTime(msg.createdAt)}</span>
                                                         {isMine && (
-                                                            msg.pending ? <Loader2 className="w-3 h-3 animate-spin" />
-                                                                : msg.failed ? <AlertCircle className="w-3 h-3 text-red-500" />
-                                                                    : msg.read ? <CheckCheck className="w-3 h-3 text-blue-400" />
-                                                                        : <Check className="w-3 h-3" />
+                                                            msg.pending ? <Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" />
+                                                                : msg.failed ? <AlertCircle className="w-3 h-3 text-red-500" aria-label="Failed to send" />
+                                                                    : msg.read ? <CheckCheck className="w-3 h-3 text-blue-400" aria-label="Read" />
+                                                                        : <Check className="w-3 h-3" aria-label="Delivered" />
                                                         )}
                                                     </div>
                                                 </div>
@@ -489,23 +498,23 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                     })
                                 ) : (
                                     <div className="flex flex-col items-center justify-center h-full gap-2 py-16">
-                                        <MessageSquare className="w-12 h-12 text-slate-300" />
+                                        <MessageSquare className="w-12 h-12 text-slate-300" aria-hidden="true" />
                                         <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>No messages yet</p>
                                         <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Say hello!</p>
                                     </div>
                                 )}
 
-                                {/* Typing indicator */}
+                                 {/* Typing indicator */}
                                 {typing && (
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2" aria-live="polite">
                                         {(() => {
                                             const other = getOtherParticipant(activeConv, myId);
                                             return <img src={avatar(other?.name, other?.avatar)} alt="" className="w-6 h-6 rounded-full shrink-0" />;
                                         })()}
-                                        <div className="flex items-center gap-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl rounded-bl-sm">
+                                        <div className="flex items-center gap-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl rounded-bl-sm" aria-label={`${getOtherParticipant(activeConv, myId)?.name || 'Someone'} is typing`}>
                                             {[0, 1, 2].map(i => (
                                                 <span key={i} className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
-                                                    style={{ animationDelay: `${i * 150}ms` }} />
+                                                    style={{ animationDelay: `${i * 150}ms` }} aria-hidden="true" />
                                             ))}
                                         </div>
                                     </div>
@@ -544,20 +553,12 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                             </div>
                         </>
                     ) : (
-                        /* Empty state */
-                        <div className="flex flex-col items-center justify-center h-full gap-4">
-                            <div className="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
-                                <MessageSquare className="w-10 h-10 text-blue-500" />
-                            </div>
-                            <div className="text-center">
-                                <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Your messages</h3>
-                                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Select a conversation or start a new one.</p>
-                            </div>
-                            <button
-                                onClick={openNewModal}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all"
-                            >
-                                <Plus className="w-4 h-4" /> New Message
+                        <div className="flex flex-col items-center justify-center h-full gap-2">
+                            <MessageSquare className="w-16 h-16 text-slate-300" aria-hidden="true" />
+                            <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Select a conversation</p>
+                            <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Or start a new one</p>
+                            <button onClick={openNewModal} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                Start New Chat
                             </button>
                         </div>
                     )}
@@ -568,17 +569,17 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
             {editingMessageId && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
                     onClick={cancelEdit}>
-                    <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden"
+                    <div role="dialog" aria-modal="true" aria-labelledby="edit-message-title" className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden"
                         style={{ backgroundColor: 'var(--card-bg)' }}
                         onClick={e => e.stopPropagation()}>
 
                         {/* Modal header */}
                         <div className="px-6 py-5 border-b flex items-center justify-between"
                             style={{ borderColor: 'var(--border-color)' }}>
-                            <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Edit Message</h2>
+                            <h2 id="edit-message-title" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Edit Message</h2>
                             <button onClick={cancelEdit}
                                 className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                aria-label="Close">
+                                aria-label="Close edit modal">
                                 <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
                             </button>
                         </div>
@@ -591,9 +592,10 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                 className="w-full px-4 py-3 rounded-lg text-sm border-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
                                 style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', minHeight: '100px' }}
                                 autoFocus
+                                aria-label="Edit message text"
                             />
                             {editingError && (
-                                <p className="text-xs text-red-500">{editingError}</p>
+                                <p className="text-xs text-red-500" aria-live="assertive">{editingError}</p>
                             )}
                         </div>
 
@@ -618,17 +620,17 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
             {showModal && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
                     onClick={() => setShowModal(false)}>
-                    <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
+                    <div role="dialog" aria-modal="true" aria-labelledby="new-message-title" className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
                         style={{ backgroundColor: 'var(--card-bg)' }}
                         onClick={e => e.stopPropagation()}>
 
                         {/* Modal header */}
                         <div className="px-6 py-5 border-b flex items-center justify-between"
                             style={{ borderColor: 'var(--border-color)' }}>
-                            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>New Message</h2>
+                            <h2 id="new-message-title" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>New Message</h2>
                             <button onClick={() => setShowModal(false)}
                                 className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                aria-label="Close">
+                                aria-label="Close new message modal">
                                 <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
                             </button>
                         </div>
@@ -636,7 +638,7 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                         {/* Search contacts */}
                         <div className="px-6 pt-4">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
                                 <input
                                     type="text"
                                     placeholder="Search by name or email…"
@@ -645,9 +647,12 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                     className="w-full pl-9 pr-3 py-2 rounded-full text-sm border-none focus:ring-2 focus:ring-blue-500"
                                     style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)' }}
                                     autoFocus
+                                    aria-label="Search contacts"
                                 />
                             </div>
                         </div>
+
+
 
                         {/* Contact list */}
                         <div className="px-3 pb-4 max-h-72 overflow-y-auto mt-3 space-y-1">

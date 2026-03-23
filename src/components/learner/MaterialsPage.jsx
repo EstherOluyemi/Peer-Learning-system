@@ -93,14 +93,14 @@ const LearnerMaterialsPage = () => {
           </p>
         </div>
         <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-slate-100 dark:bg-slate-800 text-sm" style={{ color: 'var(--text-secondary)' }}>
-          <Search className="w-4 h-4" />
+          <Search className="w-4 h-4" aria-hidden="true" />
           Search uses the header bar
         </div>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive">
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{error}</p>
         </div>
       )}
@@ -124,7 +124,7 @@ const LearnerMaterialsPage = () => {
                 >
                   <div className="flex items-start gap-4 flex-1">
                     <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
-                      <BookOpen className="w-6 h-6" />
+                      <BookOpen className="w-6 h-6" aria-hidden="true" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -134,7 +134,7 @@ const LearnerMaterialsPage = () => {
                         <span>{session.subject || 'General'}</span>
                         <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5" />
+                          <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
                           {formatDate(session.startTime)}
                         </span>
                       </div>
@@ -163,7 +163,7 @@ const LearnerMaterialsPage = () => {
                       >
                         <div className="flex-1 flex items-start gap-3">
                           <div className="p-2 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
-                            {material.type === 'file' ? <FileText className="w-5 h-5" /> : <LinkIcon className="w-5 h-5" />}
+                            {material.type === 'file' ? <FileText className="w-5 h-5" aria-hidden="true" /> : <LinkIcon className="w-5 h-5" aria-hidden="true" />}
                           </div>
                           <div className="flex-1">
                             <h4 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
@@ -187,13 +187,13 @@ const LearnerMaterialsPage = () => {
                             </div>
                           </div>
                         </div>
-                        <button
-                          onClick={() => handleDownload(material)}
-                          className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-blue-600 dark:text-blue-400 transition shrink-0"
-                          title={material.type === 'link' ? 'Open link' : 'Download file'}
-                        >
-                          <Download className="w-4 h-4" />
-                        </button>
+                         <button
+                           onClick={() => handleDownload(material)}
+                           className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-blue-600 dark:text-blue-400 transition shrink-0"
+                           aria-label={material.type === 'link' ? 'Open link' : 'Download file'}
+                         >
+                           <Download className="w-4 h-4" aria-hidden="true" />
+                         </button>
                       </div>
                     ))}
                   </div>

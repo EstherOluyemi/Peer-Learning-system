@@ -296,3 +296,29 @@ export const sendSessionChatMessage = async (sessionId, messageText) => {
     throw error;
   }
 };
+
+// --- Progress Tracking ---
+
+// Get learner's progress for all enrolled sessions
+export const getLearnerProgress = async () => {
+  try {
+    const response = await api.get('/v1/learner/me/progress');
+    const payload = response?.data || response;
+    return Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [];
+  } catch (error) {
+    console.error('Error fetching learner progress:', error);
+    throw error.message || error;
+  }
+};
+
+// Update learner's progress for a specific course/session
+export const updateLearnerProgress = async (courseId, moduleId) => {
+  try {
+    const response = await api.patch(`/v1/learner/me/progress/${courseId}`, { moduleId });
+    return response?.data || response;
+  } catch (error) {
+    console.error('Error updating learner progress:', error);
+    throw error.message || error;
+  }
+};
+

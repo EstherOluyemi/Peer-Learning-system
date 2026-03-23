@@ -88,7 +88,7 @@ const Login = () => {
 
   return (
     <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300 login-page`}>
-      <AccessibilityToolbar />
+      {/* AccessibilityToolbar removed from here as it is global in App.jsx */}
       
       {/* Skip Link */}
       <a 
@@ -124,7 +124,7 @@ const Login = () => {
         }
       `}</style>
 
-      <div className="flex-1 flex flex-col lg:flex-row relative">
+      <main className="flex-1 flex flex-col lg:flex-row relative">
 
         {/* LEFT SIDE: Image (Hidden on Mobile/Tablet, Visible on Large Screens) */}
         <div className="hidden lg:block lg:w-1/2" aria-hidden="true">
@@ -142,22 +142,22 @@ const Login = () => {
         </div>
 
         {/* RIGHT SIDE: Form Container */}
-        <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white dark:bg-slate-900 z-10 min-h-screen transition-colors duration-300">
+        <section className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white dark:bg-slate-900 z-10 min-h-screen transition-colors duration-300">
 
           <div className="w-full max-w-md space-y-6 sm:space-y-8">
 
             {/* Header Section */}
             <header>
-              <Link
-                to="/"
-                className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-8 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+              <button
+                onClick={() => navigate('/')}
+                className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-8 group rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
                 <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
                 Back to Home
-              </Link>
+              </button>
 
               <div className="flex items-center gap-3 mb-6">
-                <img src={peerlearnLogo} alt="" aria-hidden="true" className="w-10 h-10 object-contain" />
+                <img src={peerlearnLogo} alt="PeerLearn Logo" className="w-10 h-10 object-contain" />
                 <span className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">PeerLearn</span>
               </div>
 
@@ -192,7 +192,7 @@ const Login = () => {
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
-                    <Mail className={`h-5 w-5 ${errors.email ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'} transition-colors`} />
+                    <Mail className={`h-5 w-5 ${errors.email ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'} transition-colors`} aria-hidden="true" />
                   </div>
                   <input
                     type="email"
@@ -226,7 +226,7 @@ const Login = () => {
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
-                    <Lock className={`h-5 w-5 ${errors.password ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'} transition-colors`} />
+                    <Lock className={`h-5 w-5 ${errors.password ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'} transition-colors`} aria-hidden="true" />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -303,7 +303,7 @@ const Login = () => {
                     </>
                   ) : (
                     <>
-                      <LogIn className="w-5 h-5 mr-2" />
+                      <LogIn className="w-5 h-5 mr-2" aria-hidden="true" />
                       Sign In
                     </>
                   )}
@@ -321,9 +321,14 @@ const Login = () => {
                 </Link>
               </p>
             </form>
+            <footer className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-600">Privacy Policy</Link>
+              </p>
+            </footer>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 };

@@ -1,9 +1,7 @@
 // src/components/learner/ReviewsPage.jsx
 import React, { useState, useEffect } from 'react';
-import {
-  Star, Send, AlertCircle, Calendar,
-  MessageSquare, Trash2, X
-} from 'lucide-react';
+import { Star, Send, AlertCircle, Calendar, MessageSquare, Trash2, X } from 'lucide-react';
+import useFocusTrap from '../../hooks/useFocusTrap';
 import api from '../../services/api';
 import { normalizeSessionList } from '../../services/sessionService';
 
@@ -16,15 +14,19 @@ const formatDate = (d) => {
 };
 
 const StarPicker = ({ value, onChange }) => (
-  <div className="flex gap-2">
+  <div className="flex gap-2" role="radiogroup" aria-label="Session rating">
     {[1, 2, 3, 4, 5].map(star => (
       <button
         key={star}
         type="button"
         onClick={() => onChange(star)}
-        className="p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition"
+        role="radio"
+        aria-checked={star === value}
+        aria-label={`${star} star${star > 1 ? 's' : ''}`}
+        className="p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition focus:outline-none focus:ring-2 focus:ring-yellow-500"
       >
         <Star
+          aria-hidden="true"
           className={`w-8 h-8 ${star <= value ? 'fill-yellow-500 text-yellow-500' : 'text-slate-300 dark:text-slate-600'}`}
         />
       </button>
@@ -53,6 +55,13 @@ const LearnerReviewsPage = () => {
   const [deletingId, setDeletingId] = useState(null);
 
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+
+  const closeReviewForm = () => {
+    setShowReviewForm(false);
+    setSelectedSession(null);
+    setReviewForm({ rating: 5, comment: '' });
+  };
+  const modalRef = useFocusTrap(showReviewForm, closeReviewForm);
 
   // ── fetch sessions + existing ratings ──────────────────────────────
   useEffect(() => { fetchData(); }, []);
@@ -151,8 +160,8 @@ const LearnerReviewsPage = () => {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive">
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{error}</p>
         </div>
       )}
@@ -181,12 +190,12 @@ const LearnerReviewsPage = () => {
                       with <span className="font-medium">{getTutorName(session)}</span>
                     </p>
                     <p className="text-xs mt-1 flex items-center gap-1" style={{ color: 'var(--text-tertiary)' }}>
-                      <Calendar className="w-3 h-3" /> {formatDate(session.startTime)}
+                      <Calendar className="w-3 h-3" aria-hidden="true" /> {formatDate(session.startTime)}
                     </p>
                     {alreadyRated && rating && (
-                      <div className="flex items-center gap-1 mt-1">
+                      <div className="flex items-center gap-1 mt-1" role="img" aria-label={`Rated ${rating.rating} out of 5 stars`}>
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-3.5 h-3.5 ${i < rating.rating ? 'fill-yellow-500 text-yellow-500' : 'text-slate-300 dark:text-slate-600'}`} />
+                          <Star key={i} aria-hidden="true" className={`w-3.5 h-3.5 ${i < rating.rating ? 'fill-yellow-500 text-yellow-500' : 'text-slate-300 dark:text-slate-600'}`} />
                         ))}
                       </div>
                     )}
@@ -194,6 +203,7 @@ const LearnerReviewsPage = () => {
                   <button
                     onClick={() => { setSelectedSession(session); setShowReviewForm(true); }}
                     disabled={alreadyRated}
+                    aria-label={alreadyRated ? `Already reviewed ${session.title || 'this session'}` : `Review ${session.title || 'this session'}`}
                     className={`px-4 py-2 rounded-lg font-medium text-sm shrink-0 transition-colors ${alreadyRated
                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-500'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
@@ -206,8 +216,8 @@ const LearnerReviewsPage = () => {
             })}
           </div>
         ) : (
-          <div className="p-8 text-center">
-            <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+          <div className="p-8 text-center" aria-live="polite">
+            <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-3" aria-hidden="true" />
             <p style={{ color: 'var(--text-secondary)' }}>No completed sessions to review yet</p>
             <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>Complete a tutoring session to leave a review</p>
           </div>
@@ -237,9 +247,9 @@ const LearnerReviewsPage = () => {
                   </div>
 
                   {/* Stars */}
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2" role="img" aria-label={`Rated ${rating.rating} out of 5 stars`}>
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-4 h-4 ${i < rating.rating ? 'fill-yellow-500 text-yellow-500' : 'text-slate-300 dark:text-slate-600'}`} />
+                      <Star key={i} aria-hidden="true" className={`w-4 h-4 ${i < rating.rating ? 'fill-yellow-500 text-yellow-500' : 'text-slate-300 dark:text-slate-600'}`} />
                     ))}
                     <span className="text-sm font-bold ml-1" style={{ color: 'var(--text-primary)' }}>
                       {rating.rating}.0
@@ -253,8 +263,8 @@ const LearnerReviewsPage = () => {
               );
             })
           ) : (
-            <div className="p-12 text-center">
-              <Star className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+            <div className="p-12 text-center" aria-live="polite">
+              <Star className="w-12 h-12 text-slate-400 mx-auto mb-3" aria-hidden="true" />
               <p style={{ color: 'var(--text-secondary)' }}>No reviews submitted yet</p>
               <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>
                 Complete a session and share your feedback
@@ -266,21 +276,22 @@ const LearnerReviewsPage = () => {
 
       {/* ── Review Form Modal ── */}
       {showReviewForm && selectedSession && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={closeReviewForm}>
+          <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="review-modal-title" tabIndex={-1} className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }} onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div className="p-4 sm:p-6 border-b flex items-start justify-between" style={{ borderColor: 'var(--border-color)' }}>
               <div>
-                <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                <h3 id="review-modal-title" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
                   Review for {getTutorName(selectedSession)}
                 </h3>
                 <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{selectedSession.title}</p>
               </div>
               <button
-                onClick={() => { setShowReviewForm(false); setSelectedSession(null); setReviewForm({ rating: 5, comment: '' }); }}
+                onClick={closeReviewForm}
+                aria-label="Close review form"
                 className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -292,8 +303,9 @@ const LearnerReviewsPage = () => {
                 <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>{ratingLabel[reviewForm.rating]}</p>
               </div>
               <div>
-                <label className="block text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Your Comment (Required)</label>
+                <label htmlFor="review-comment" className="block text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Your Comment (Required)</label>
                 <textarea
+                  id="review-comment"
                   value={reviewForm.comment}
                   onChange={e => setReviewForm(p => ({ ...p, comment: e.target.value }))}
                   placeholder="Share your experience..."
@@ -308,7 +320,7 @@ const LearnerReviewsPage = () => {
             {/* Footer */}
             <div className="p-6 border-t flex gap-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
               <button
-                onClick={() => { setShowReviewForm(false); setSelectedSession(null); setReviewForm({ rating: 5, comment: '' }); }}
+                onClick={closeReviewForm}
                 disabled={submitting}
                 className="flex-1 px-4 py-2 rounded-lg border font-medium transition-colors"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
@@ -323,7 +335,7 @@ const LearnerReviewsPage = () => {
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
                   }`}
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-4 h-4" aria-hidden="true" />
                 {submitting ? 'Submitting...' : 'Submit Review'}
               </button>
             </div>

@@ -520,8 +520,8 @@ const StudentsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" aria-live="polite">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
         <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading students...</p>
       </div>
     );
@@ -530,16 +530,16 @@ const StudentsPage = () => {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive">
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{error}</p>
           <button onClick={() => window.location.reload()} className="ml-auto text-xs font-bold underline hover:no-underline">Retry</button>
         </div>
       )}
 
       {addStudentSuccess && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center gap-3 text-emerald-700 dark:text-emerald-400">
-          <CheckCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center gap-3 text-emerald-700 dark:text-emerald-400" aria-live="polite">
+          <CheckCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{addStudentSuccess}</p>
         </div>
       )}
@@ -562,7 +562,7 @@ const StudentsPage = () => {
             }}
             className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95"
           >
-            <UserPlus className="w-5 h-5" /> Add Student to Session
+            <UserPlus className="w-5 h-5" aria-hidden="true" /> Add Student to Session
           </button>
         </div>
       </div>
@@ -571,10 +571,11 @@ const StudentsPage = () => {
       <div className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
           <input
             type="text"
             placeholder="Search by name or email..."
+            aria-label="Search students by name or email"
             value={searchTerm}
             onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all"
@@ -587,6 +588,7 @@ const StudentsPage = () => {
             value={sessionFilter}
             onChange={e => { setSessionFilter(e.target.value); setCurrentPage(1); }}
             className="px-4 py-2 rounded-lg text-sm border"
+            aria-label="Filter by session"
             style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)' }}
           >
             <option value="all">All Sessions</option>
@@ -619,26 +621,26 @@ const StudentsPage = () => {
                       {/* Session stats row */}
                       <div className="flex flex-wrap gap-3 text-xs font-medium mb-3">
                         <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                          <Calendar className="w-3 h-3" /> {student.upcomingSessions || 0} upcoming
+                          <Calendar className="w-3 h-3" aria-hidden="true" /> {student.upcomingSessions || 0} upcoming
                         </span>
                         <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                          <CheckCircle className="w-3 h-3" /> {student.completedSessions || 0} completed
+                          <CheckCircle className="w-3 h-3" aria-hidden="true" /> {student.completedSessions || 0} completed
                         </span>
                         <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
-                          <BookOpen className="w-3 h-3" /> {student.totalSessions || 0} total
+                          <BookOpen className="w-3 h-3" aria-hidden="true" /> {student.totalSessions || 0} total
                         </span>
                       </div>
 
                       {/* Most recent session preview */}
                       {latest && (
                         <div className="text-xs flex items-center gap-2 flex-wrap" style={{ color: 'var(--text-tertiary)' }}>
-                          <Clock className="w-3.5 h-3.5 shrink-0" />
-                          <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{latest.title}</span>
-                          <span>·</span>
-                          <span>{latest.subject}</span>
-                          <span>·</span>
-                          <span>{formatDate(latest.startTime)}</span>
-                          <span className={`px-1.5 py-0.5 rounded-full font-semibold ${statusColor(latest.status)}`}>
+                          <Clock className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                          <span className="font-medium" style={{ color: 'var(--text-secondary)' }} aria-label={`Latest session: ${latest.title}`}>{latest.title}</span>
+                          <span aria-hidden="true">·</span>
+                          <span aria-label={`Subject: ${latest.subject}`}>{latest.subject}</span>
+                          <span aria-hidden="true">·</span>
+                          <span aria-label={`Date: ${formatDate(latest.startTime)}`}>{formatDate(latest.startTime)}</span>
+                          <span className={`px-1.5 py-0.5 rounded-full font-semibold ${statusColor(latest.status)}`} aria-label={`Status: ${latest.status}`}>
                             {latest.status}
                           </span>
                         </div>
@@ -652,15 +654,15 @@ const StudentsPage = () => {
                       onClick={() => navigate('/dashboard-tutor/messages', { state: { openWithUserId: student._id } })}
                       className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors"
                     >
-                      <MessageSquare className="w-4 h-4" /> Message
+                      <MessageSquare className="w-4 h-4" aria-hidden="true" /> Message
                     </button>
                     <button
                       onClick={() => setDetailStudent(student)}
-                      title="View student sessions"
+                      aria-label={`View sessions for ${student.name}`}
                       className="p-2 border rounded-lg text-slate-400 hover:text-blue-600 hover:border-blue-400 dark:hover:text-blue-400 transition-colors"
                       style={{ borderColor: 'var(--border-color)' }}
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-4 h-4" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -668,7 +670,7 @@ const StudentsPage = () => {
             );
           }) : (
             <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
-              <Users className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <Users className="w-12 h-12 text-slate-400 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No students found</h3>
               <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or session filter.</p>
             </div>
@@ -682,8 +684,9 @@ const StudentsPage = () => {
                 disabled={currentPage === 1}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-primary)' }}
+                aria-label="Previous page"
               >
-                <ChevronLeft className="w-4 h-4" /> Previous
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" /> Previous
               </button>
               <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Page {currentPage} of {totalPages}</span>
               <button
@@ -691,8 +694,9 @@ const StudentsPage = () => {
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-primary)' }}
+                aria-label="Next page"
               >
-                Next <ChevronRight className="w-4 h-4" />
+                Next <ChevronRight className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           )}
@@ -768,16 +772,17 @@ const StudentsPage = () => {
                 className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 aria-label="Close add student dialog"
               >
-                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                <label htmlFor="assign-session-select" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                   Select Session
                 </label>
                 <select
+                  id="assign-session-select"
                   value={selectedSessionId}
                   onChange={(e) => {
                     setSelectedSessionId(e.target.value);
@@ -797,7 +802,7 @@ const StudentsPage = () => {
               </div>
 
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
                 <input
                   type="text"
                   value={addStudentQuery}
@@ -810,7 +815,8 @@ const StudentsPage = () => {
               </div>
 
               {addStudentError && (
-                <div className="p-3 rounded-lg border text-sm bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
+                <div className="p-3 rounded-lg border text-sm bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400" role="alert" aria-live="assertive">
+                  <AlertCircle className="w-4 h-4" aria-hidden="true" />
                   {addStudentError}
                 </div>
               )}
@@ -821,8 +827,8 @@ const StudentsPage = () => {
                     Select a session to search learners.
                   </p>
                 ) : searchingCandidates ? (
-                  <div className="p-6 flex items-center justify-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Searching...
+                  <div className="p-6 flex items-center justify-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }} aria-live="polite">
+                    <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> Searching...
                   </div>
                 ) : candidateStudents.length > 0 ? (
                   <div className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
@@ -889,7 +895,7 @@ const StudentsPage = () => {
                 </div>
               </div>
               <button onClick={closeDetailStudentModal} className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" aria-label="Close student details">
-                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+                <X className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
               </button>
             </div>
 
@@ -930,10 +936,10 @@ const StudentsPage = () => {
                         <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>{s.subject}</p>
                         <div className="flex flex-wrap gap-3 text-xs" style={{ color: 'var(--text-tertiary)' }}>
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" /> {formatDate(s.startTime)}
+                            <Calendar className="w-3 h-3" aria-hidden="true" /> {formatDate(s.startTime)}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> {formatTime(s.startTime)} – {formatTime(s.endTime)}
+                            <Clock className="w-3 h-3" aria-hidden="true" /> {formatTime(s.startTime)} – {formatTime(s.endTime)}
                           </span>
                         </div>
                       </div>
@@ -941,10 +947,10 @@ const StudentsPage = () => {
                         {s.meetingLink && (
                           s.status === 'completed' ? (
                             <span
-                              title="Session has ended"
                               className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none"
+                              aria-label="Session has ended"
                             >
-                              <Video className="w-3.5 h-3.5" /> Join
+                              <Video className="w-3.5 h-3.5" aria-hidden="true" /> Join
                             </span>
                           ) : (
                             <a
@@ -952,8 +958,9 @@ const StudentsPage = () => {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                              aria-label={`Join video call for ${s.title}`}
                             >
-                              <Video className="w-3.5 h-3.5" /> Join
+                              <Video className="w-3.5 h-3.5" aria-hidden="true" /> Join
                             </a>
                           )
                         )}
@@ -963,20 +970,20 @@ const StudentsPage = () => {
                             <button
                               onClick={() => handleCompleteSession(s.sessionId)}
                               disabled={completingSession === s.sessionId}
-                              title="Mark session as completed"
+                              aria-label={`Mark ${s.title} as completed`}
                               className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white transition-colors"
                             >
-                              <CheckCircle className="w-3.5 h-3.5" />
+                              <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
                               {completingSession === s.sessionId ? 'Saving…' : 'Mark Complete'}
                             </button>
                           )}
                         <button
                           onClick={() => handleRemoveStudentFromSession(detailStudent._id, s.sessionId)}
                           disabled={removingStudentSession === `${detailStudent._id}-${s.sessionId}`}
-                          title="Remove student from this session"
+                          aria-label={`Remove ${detailStudent.name} from ${s.title}`}
                           className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white transition-colors"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                           {removingStudentSession === `${detailStudent._id}-${s.sessionId}` ? 'Removing…' : 'Remove'}
                         </button>
                       </div>

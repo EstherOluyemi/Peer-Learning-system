@@ -155,23 +155,26 @@ const SettingsPage = () => {
                 <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Profile Information</h3>
 
                 {error && (
-                    <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm">
-                        <AlertCircle className="w-4 h-4" />
+                    <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm"
+                        role="alert" aria-live="assertive">
+                        <AlertCircle className="w-4 h-4" aria-hidden="true" />
                         {error}
                     </div>
                 )}
 
                 {successMessage && (
-                    <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
-                        <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
+                    <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm"
+                        role="status" aria-live="polite">
+                        <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white" aria-hidden="true">✓</div>
                         {successMessage}
                     </div>
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Full Name</label>
+                        <label htmlFor="full-name" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Full Name</label>
                         <input
+                            id="full-name"
                             type="text"
                             value={profile.name}
                             onChange={(e) => handleProfileChange('name', e.target.value)}
@@ -184,8 +187,9 @@ const SettingsPage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Email Address</label>
+                        <label htmlFor="email-address" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Email Address</label>
                         <input
+                            id="email-address"
                             type="email"
                             value={profile.email}
                             disabled
@@ -198,8 +202,9 @@ const SettingsPage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>University</label>
+                        <label htmlFor="university" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>University</label>
                         <input
+                            id="university"
                             type="text"
                             value={profile.university}
                             onChange={(e) => handleProfileChange('university', e.target.value)}
@@ -212,8 +217,9 @@ const SettingsPage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Major</label>
+                        <label htmlFor="major" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Major</label>
                         <input
+                            id="major"
                             type="text"
                             value={profile.major}
                             onChange={(e) => handleProfileChange('major', e.target.value)}
@@ -226,8 +232,9 @@ const SettingsPage = () => {
                         />
                     </div>
                     <div className="md:col-span-2">
-                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Bio</label>
+                        <label htmlFor="bio" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Bio</label>
                         <textarea
+                            id="bio"
                             value={profile.bio}
                             onChange={(e) => handleProfileChange('bio', e.target.value)}
                             rows={4}
@@ -242,7 +249,7 @@ const SettingsPage = () => {
                 </div>
                 <div className="mt-4 flex gap-3">
                     <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
-                        <Upload className="w-4 h-4" />
+                        <Upload className="w-4 h-4" aria-hidden="true" />
                         Upload Photo
                     </button>
                 </div>
@@ -257,8 +264,9 @@ const SettingsPage = () => {
                 <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Account Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Academic Year</label>
+                        <label htmlFor="academic-year" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Academic Year</label>
                         <select
+                            id="academic-year"
                             value={profile.year}
                             onChange={(e) => handleProfileChange('year', e.target.value)}
                             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
@@ -295,11 +303,12 @@ const SettingsPage = () => {
                         onClick={handleSaveProfile}
                         disabled={saving}
                         className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
+                        aria-busy={saving}
                     >
                         {saving ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
                         ) : (
-                            <Save className="w-5 h-5" />
+                            <Save className="w-5 h-5" aria-hidden="true" />
                         )}
                         Save All Changes
                     </button>
@@ -325,6 +334,9 @@ const SettingsPage = () => {
                         </div>
                         <button
                             onClick={() => handleNotificationToggle('sessionReminders')}
+                            role="switch"
+                            aria-checked={profile.sessionReminders}
+                            aria-label="Session Reminders"
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${profile.sessionReminders ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'
                                 }`}
                         >
@@ -341,6 +353,9 @@ const SettingsPage = () => {
                         </div>
                         <button
                             onClick={() => handleNotificationToggle('newSessionAlerts')}
+                            role="switch"
+                            aria-checked={profile.newSessionAlerts}
+                            aria-label="New Session Alerts"
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${profile.newSessionAlerts ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'
                                 }`}
                         >
@@ -357,6 +372,9 @@ const SettingsPage = () => {
                         </div>
                         <button
                             onClick={() => handleNotificationToggle('progressUpdates')}
+                            role="switch"
+                            aria-checked={profile.progressUpdates}
+                            aria-label="Progress Updates"
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${profile.progressUpdates ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'
                                 }`}
                         >
@@ -373,6 +391,9 @@ const SettingsPage = () => {
                         </div>
                         <button
                             onClick={() => handleNotificationToggle('pushNotifications')}
+                            role="switch"
+                            aria-checked={profile.pushNotifications}
+                            aria-label="Push Notifications"
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${profile.pushNotifications ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'
                                 }`}
                         >
@@ -820,56 +841,55 @@ const SettingsPage = () => {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
-                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your account preferences and privacy.</p>
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+            <div className="mb-6 flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-500/20">
+                    <Settings className="w-6 h-6" aria-hidden="true" />
                 </div>
-                <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
-                        <Globe className="w-5 h-5" />
-                        Privacy Policy
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95">
-                        <Save className="w-5 h-5" />
-                        Save Changes
-                    </button>
+                <div>
+                    <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your account settings and preferences</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-1">
-                    <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
-                        style={{
-                            backgroundColor: 'var(--card-bg)',
-                            borderColor: 'var(--card-border)'
-                        }}
-                    >
-                        <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Account Settings</h3>
-                        <div className="space-y-2">
-                            {tabs.map(tab => {
-                                const Icon = tab.icon;
-                                return (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${activeTab === tab.id
-                                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
-                                            : 'hover:bg-slate-50 dark:hover:bg-slate-800'
-                                            }`}
-                                    >
-                                        <Icon className="w-5 h-5" />
-                                        <span className="font-medium">{tab.label}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
+            <div className="flex flex-col lg:flex-row gap-8">
+                {/* ── Sidebar Tabs ── */}
+                <div className="w-full lg:w-64 shrink-0">
+                    <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 gap-1" role="tablist">
+                        {tabs.map(tab => (
+                            <button
+                                key={tab.id}
+                                role="tab"
+                                aria-selected={activeTab === tab.id}
+                                aria-controls={`${tab.id}-panel`}
+                                id={`${tab.id}-tab`}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id
+                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    }`}
+                            >
+                                <tab.icon className="w-4 h-4" aria-hidden="true" />
+                                {tab.label}
+                                {activeTab === tab.id && (
+                                    <ChevronRight className="w-4 h-4 ml-auto hidden lg:block" aria-hidden="true" />
+                                )}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                <div className="lg:col-span-3">
-                    {renderTabContent()}
+                {/* ── Tab Content ── */}
+                <div className="flex-1 min-w-0">
+                    <div 
+                        role="tabpanel" 
+                        id={`${activeTab}-panel`} 
+                        aria-labelledby={`${activeTab}-tab`}
+                        tabIndex="0"
+                        className="focus:outline-none"
+                    >
+                        {renderTabContent()}
+                    </div>
                 </div>
             </div>
         </div>

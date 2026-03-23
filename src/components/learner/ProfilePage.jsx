@@ -6,6 +6,7 @@ import {
     ChevronRight, ChevronLeft, Plus, Users, Award, AlertCircle,
     Loader2
 } from 'lucide-react';
+import useFocusTrap from '../../hooks/useFocusTrap';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import { getAllSessions, getSessionRating } from '../../services/sessionService';
@@ -200,6 +201,9 @@ const ProfilePage = () => {
     const [newSkill, setNewSkill] = useState('');
     const [newInterest, setNewInterest] = useState('');
 
+    const modalRef = React.useRef(null);
+    useFocusTrap(modalRef, isEditing);
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -216,6 +220,17 @@ const ProfilePage = () => {
         { id: 'badges', label: 'Achievements', icon: Award },
         { id: 'settings', label: 'Settings', icon: Settings }
     ];
+
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'overview': return renderOverviewTab();
+            case 'education': return renderEducationTab();
+            case 'progress': return renderProgressTab();
+            case 'badges': return renderBadgesTab();
+            case 'settings': return renderSettingsTab();
+            default: return renderOverviewTab();
+        }
+    };
 
     const renderOverviewTab = () => (
         <div className="space-y-6">
@@ -244,15 +259,15 @@ const ProfilePage = () => {
                         </div>
 
                         {error && (
-                            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm">
-                                <AlertCircle className="w-4 h-4" />
+                            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm" aria-live="assertive">
+                                <AlertCircle className="w-4 h-4" aria-hidden="true" />
                                 {error}
                             </div>
                         )}
 
                         {successMessage && (
-                            <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
-                                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
+                            <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm" aria-live="polite">
+                                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white" aria-hidden="true">✓</div>
                                 {successMessage}
                             </div>
                         )}
@@ -262,6 +277,7 @@ const ProfilePage = () => {
                                 {isEditing ? (
                                     <input
                                         type="text"
+                                        id="full-name"
                                         value={profile.name || ''}
                                         onChange={(e) => handleProfileChange('name', e.target.value)}
                                         className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
@@ -270,6 +286,7 @@ const ProfilePage = () => {
                                             color: 'var(--input-text)',
                                             borderColor: 'var(--input-border)'
                                         }}
+                                        aria-label="Full Name"
                                     />
                                 ) : (
                                     <p className="p-3 rounded-lg min-h-[46px] flex items-center" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}>
@@ -282,6 +299,7 @@ const ProfilePage = () => {
                                 {isEditing ? (
                                     <input
                                         type="email"
+                                        id="email-address"
                                         value={profile.email || ''}
                                         onChange={(e) => handleProfileChange('email', e.target.value)}
                                         className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
@@ -290,6 +308,7 @@ const ProfilePage = () => {
                                             color: 'var(--input-text)',
                                             borderColor: 'var(--input-border)'
                                         }}
+                                        aria-label="Email Address"
                                     />
                                 ) : (
                                     <p className="p-3 rounded-lg min-h-[46px] flex items-center" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}>
@@ -301,6 +320,7 @@ const ProfilePage = () => {
                                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Bio</label>
                                 {isEditing ? (
                                     <textarea
+                                        id="bio"
                                         value={profile.bio || ''}
                                         onChange={(e) => handleProfileChange('bio', e.target.value)}
                                         rows={4}
@@ -310,6 +330,7 @@ const ProfilePage = () => {
                                             color: 'var(--input-text)',
                                             borderColor: 'var(--input-border)'
                                         }}
+                                        aria-label="Bio"
                                     />
                                 ) : (
                                     <p className="p-3 rounded-lg min-h-[46px] flex items-center" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}>
@@ -345,16 +366,17 @@ const ProfilePage = () => {
                                     onClick={addSkill}
                                     disabled={!newSkill.trim()}
                                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    aria-label="Add skill"
                                 >
-                                    <Plus className="w-4 h-4" />
+                                    <Plus className="w-4 h-4" aria-hidden="true" />
                                 </button>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {profile.skills.map(skill => (
                                     <span key={skill} className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                                         {skill}
-                                        <button onClick={() => removeSkill(skill)} className="ml-1">
-                                            <Edit className="w-3 h-3" />
+                                        <button onClick={() => removeSkill(skill)} className="ml-1" aria-label={`Remove ${skill}`}>
+                                            <X className="w-3 h-3" aria-hidden="true" />
                                         </button>
                                     </span>
                                 ))}
@@ -443,7 +465,7 @@ const ProfilePage = () => {
                         <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                                    <BookOpen className="w-5 h-5 text-blue-600" />
+                                    <BookOpen className="w-5 h-5 text-blue-600" aria-hidden="true" />
                                 </div>
                                 <div>
                                     <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{profile.university}</div>
@@ -496,7 +518,7 @@ const ProfilePage = () => {
                             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Sessions</div>
                         </div>
                         <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                            <BookOpen className="w-6 h-6 text-blue-600" />
+                            <BookOpen className="w-6 h-6 text-blue-600" aria-hidden="true" />
                         </div>
                     </div>
                 </div>
@@ -512,7 +534,7 @@ const ProfilePage = () => {
                             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Hours Completed</div>
                         </div>
                         <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                            <Clock className="w-6 h-6 text-green-600" />
+                            <Clock className="w-6 h-6 text-green-600" aria-hidden="true" />
                         </div>
                     </div>
                 </div>
@@ -540,7 +562,7 @@ const ProfilePage = () => {
                                             <span style={{ color: 'var(--text-primary)' }}>{courseName}</span>
                                             <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{progressValue}%</span>
                                         </div>
-                                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2" role="progressbar" aria-valuenow={progressValue} aria-valuemin="0" aria-valuemax="100">
                                             <div className={`h-2 rounded-full ${colorClass}`} style={{ width: `${progressValue}%` }}></div>
                                         </div>
                                     </div>
@@ -611,7 +633,7 @@ const ProfilePage = () => {
                             }}
                         >
                             <div className="w-12 h-12 bg-linear-to-br from-yellow-400 to-orange-500 rounded-full mx-auto mb-3 flex items-center justify-center">
-                                <Award className="w-6 h-6 text-white" />
+                                <Award className="w-6 h-6 text-white" aria-hidden="true" />
                             </div>
                             <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{badge}</div>
                             <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Achieved</div>
@@ -703,9 +725,15 @@ const ProfilePage = () => {
                                 <div className="font-medium" style={{ color: 'var(--text-primary)' }}>Email Notifications</div>
                                 <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Receive updates about your sessions</div>
                             </div>
-                            <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-200 dark:bg-slate-700 transition-colors">
-                                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1" />
-                            </button>
+                             <button 
+                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${profile.emailNotifications ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+                                 role="switch"
+                                 aria-checked={profile.emailNotifications}
+                                 onClick={() => handleProfileChange('emailNotifications', !profile.emailNotifications)}
+                                 aria-label="Email Notifications"
+                             >
+                                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${profile.emailNotifications ? 'translate-x-6' : 'translate-x-1'}`} />
+                             </button>
                         </div>
                         <div className="flex items-center justify-between">
                             <div>
@@ -769,69 +797,38 @@ const ProfilePage = () => {
         </div>
     );
 
-    const renderTabContent = () => {
-        switch (activeTab) {
-            case 'overview': return renderOverviewTab();
-            case 'education': return renderEducationTab();
-            case 'progress': return renderProgressTab();
-            case 'badges': return renderBadgesTab();
-            case 'settings': return renderSettingsTab();
-            default: return renderOverviewTab();
-        }
-    };
-
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Profile</h1>
-                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage your learner profile and settings.</p>
-                </div>
-                <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
-                        <Shield className="w-5 h-5" />
-                        Privacy Settings
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95">
-                        <Save className="w-5 h-5" />
-                        Save Changes
-                    </button>
+            <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+                <div role="tablist" aria-label="Profile Sections" className="flex flex-wrap gap-2 sm:gap-4">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            role="tab"
+                            aria-selected={activeTab === tab.id}
+                            aria-controls={`${tab.id}-panel`}
+                            id={`${tab.id}-tab`}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === tab.id
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                }`}
+                        >
+                            <tab.icon className="w-4 h-4" aria-hidden="true" />
+                            {tab.label}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-1">
-                    <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
-                        style={{
-                            backgroundColor: 'var(--card-bg)',
-                            borderColor: 'var(--card-border)'
-                        }}
-                    >
-                        <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Profile Sections</h3>
-                        <div className="space-y-2">
-                            {tabs.map(tab => {
-                                const Icon = tab.icon;
-                                return (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${activeTab === tab.id
-                                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
-                                            : 'hover:bg-slate-50 dark:hover:bg-slate-800'
-                                            }`}
-                                    >
-                                        <Icon className="w-5 h-5" />
-                                        <span className="font-medium">{tab.label}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="lg:col-span-3">
-                    {renderTabContent()}
-                </div>
+            <div
+                role="tabpanel"
+                id={`${activeTab}-panel`}
+                aria-labelledby={`${activeTab}-tab`}
+                className="focus:outline-none"
+                tabIndex={0}
+            >
+                {renderTabContent()}
             </div>
         </div>
     );

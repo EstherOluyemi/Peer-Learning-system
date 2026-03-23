@@ -9,7 +9,7 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-  
+
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -42,17 +42,17 @@ const Profile = () => {
     try {
       setSaving(true);
       setError(null);
-      
+
       const endpoint = user.role === 'tutor' ? '/v1/tutor/me' : '/v1/learner/me';
       const response = await api.patch(endpoint, {
         name: formData.name,
         bio: formData.bio
       });
-      
+
       updateUser(response.data.user);
       setSuccessMessage('Profile updated successfully!');
       setIsEditing(false);
-      
+
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update profile');
@@ -70,10 +70,10 @@ const Profile = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8" id="main-content">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6">My Profile</h1>
-        
+
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Personal Information</h2>
@@ -102,7 +102,7 @@ const Profile = () => {
               {error}
             </div>
           )}
-          
+
           {successMessage && (
             <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 flex items-center gap-2 text-green-700 text-sm">
               <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white text-[10px]">✓</div>
@@ -206,7 +206,14 @@ const Profile = () => {
           )}
         </div>
       </div>
-    </div>
+      <footer className="mt-12 text-center text-slate-500 text-xs border-t border-slate-200 dark:border-slate-800 pt-8" role="contentinfo">
+        <p>© 2026 PeerLearn. All rights reserved.</p>
+        <div className="mt-2 flex justify-center gap-4">
+          <a href="/privacy" className="hover:text-blue-600">Privacy Policy</a>
+          <a href="/terms" className="hover:text-blue-600">Terms of Service</a>
+        </div>
+      </footer>
+    </main>
   );
 };
 

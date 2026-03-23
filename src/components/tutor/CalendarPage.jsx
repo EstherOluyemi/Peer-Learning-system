@@ -6,6 +6,7 @@ import {
   Plus, Eye, Edit, Trash2, AlertCircle, Video, Filter, X
 } from 'lucide-react';
 import api from '../../services/api';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 const CalendarPage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ const CalendarPage = () => {
   const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"];
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const modalRef = useFocusTrap(Boolean(selectedSession), () => setSelectedSession(null));
 
   useEffect(() => {
     fetchSessions();
@@ -153,8 +156,8 @@ const CalendarPage = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" aria-live="polite">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
         <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading calendar...</p>
       </div>
     );
@@ -174,14 +177,14 @@ const CalendarPage = () => {
           onClick={() => navigate('/dashboard-tutor/create-session')}
           className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5" aria-hidden="true" />
           Create Session
         </button>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive">
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{error}</p>
           <button 
             onClick={() => window.location.reload()}
@@ -200,8 +203,9 @@ const CalendarPage = () => {
           <button
             onClick={() => navigateDate('prev')}
             className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            aria-label={`Previous ${viewMode === 'week' ? 'week' : 'month'}`}
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5" aria-hidden="true" />
           </button>
           <div className="text-center min-w-50">
             <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -216,8 +220,9 @@ const CalendarPage = () => {
           <button
             onClick={() => navigateDate('next')}
             className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            aria-label={`Next ${viewMode === 'week' ? 'week' : 'month'}`}
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -238,6 +243,7 @@ const CalendarPage = () => {
                   : 'hover:bg-slate-100 dark:hover:bg-slate-700'
               }`}
               style={{ color: viewMode === 'week' ? 'white' : 'var(--text-secondary)' }}
+              aria-pressed={viewMode === 'week'}
             >
               Week
             </button>
@@ -249,6 +255,7 @@ const CalendarPage = () => {
                   : 'hover:bg-slate-100 dark:hover:bg-slate-700'
               }`}
               style={{ color: viewMode === 'month' ? 'white' : 'var(--text-secondary)' }}
+              aria-pressed={viewMode === 'month'}
             >
               Month
             </button>
@@ -295,16 +302,17 @@ const CalendarPage = () => {
                   </div>
                   <div className="space-y-1">
                     {daySessions.map(session => (
-                      <div
+                      <button
                         key={session._id || session.id}
                         onClick={() => setSelectedSession(session)}
-                        className={`p-2 rounded text-xs cursor-pointer transition-all hover:shadow-md ${
+                        className={`w-full p-2 rounded text-left text-xs cursor-pointer transition-all hover:shadow-md ${
                           getStatusColor(session.status)
                         } text-white`}
+                        aria-label={`View details for ${session.title} at ${formatTime(session.startTime)}`}
                       >
                         <div className="font-medium truncate">{session.title}</div>
                         <div className="text-xs opacity-90">{formatTime(session.startTime)}</div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -336,15 +344,16 @@ const CalendarPage = () => {
                   </div>
                   <div className="space-y-1">
                     {daySessions.slice(0, 2).map(session => (
-                      <div
+                      <button
                         key={session._id || session.id}
                         onClick={() => setSelectedSession(session)}
-                        className={`px-1.5 py-1 rounded text-xs cursor-pointer transition-all hover:shadow-md ${
+                        className={`w-full px-1.5 py-1 rounded text-left text-xs cursor-pointer transition-all hover:shadow-md ${
                           getStatusColor(session.status)
                         } text-white truncate`}
+                        aria-label={`View details for ${session.title}`}
                       >
                         {session.title}
-                      </div>
+                      </button>
                     ))}
                     {daySessions.length > 2 && (
                       <div className="text-xs px-1.5 py-1" style={{ color: 'var(--text-secondary)' }}>
@@ -361,11 +370,11 @@ const CalendarPage = () => {
 
       {/* Session Details Modal */}
       {selectedSession && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedSession(null)}>
+          <div ref={modalRef} className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-title" onClick={e => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                <h2 id="modal-title" className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                   {selectedSession.title}
                 </h2>
                 <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
@@ -380,15 +389,16 @@ const CalendarPage = () => {
               <button
                 onClick={() => setSelectedSession(null)}
                 className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+                aria-label="Close modal"
               >
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6" aria-hidden="true" />
               </button>
             </div>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                  <Clock className="w-5 h-5 text-blue-600" />
+                  <Clock className="w-5 h-5 text-blue-600" aria-hidden="true" />
                   <div>
                     <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Start Time</div>
                     <div className="font-medium" style={{ color: 'var(--text-primary)' }}>
@@ -397,7 +407,7 @@ const CalendarPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                  <Users className="w-5 h-5 text-blue-600" />
+                  <Users className="w-5 h-5 text-blue-600" aria-hidden="true" />
                   <div>
                     <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Students</div>
                     <div className="font-medium" style={{ color: 'var(--text-primary)' }}>
@@ -423,7 +433,7 @@ const CalendarPage = () => {
                   }}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
-                  <Edit className="w-4 h-4" />
+                  <Edit className="w-4 h-4" aria-hidden="true" />
                   Edit
                 </button>
                 <button
@@ -431,7 +441,7 @@ const CalendarPage = () => {
                   disabled={deletingSessionId === selectedSession._id}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                   {deletingSessionId === selectedSession._id ? 'Deleting...' : 'Delete'}
                 </button>
               </div>

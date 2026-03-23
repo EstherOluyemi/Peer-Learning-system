@@ -163,7 +163,7 @@ const BrowseSessionsLearner = () => {
         Skip to sessions list
       </a>
 
-      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-6xl">
+      <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-6xl" id="main-content">
         {/* Header */}
         <header className="mb-6 sm:mb-8">
           <button
@@ -358,7 +358,12 @@ const BrowseSessionsLearner = () => {
             })}
           </div>
         )}
-      </div>
+
+        {/* Footer */}
+        <footer className="mt-12 text-center text-slate-500 text-xs border-t border-slate-200 dark:border-slate-800 pt-8" role="contentinfo">
+          <p>© 2026 PeerLearn. All rights reserved.</p>
+        </footer>
+      </main>
 
       <style jsx>{`
         .sr-only {

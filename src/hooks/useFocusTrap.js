@@ -73,3 +73,5 @@ export const useFocusTrap = (isOpen, onEscapeKey) => {
 
   return modalRef;
 };
+
+export default useFocusTrap;

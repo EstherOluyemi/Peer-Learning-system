@@ -198,14 +198,14 @@ const SessionsPage = () => {
           onClick={() => navigate('/dashboard-tutor/create-session')}
           className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5" aria-hidden="true" />
           Create New Session
         </button>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive">
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{error}</p>
           <button 
             onClick={() => window.location.reload()}
@@ -217,8 +217,8 @@ const SessionsPage = () => {
       )}
 
       {successMessage && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center gap-3 text-emerald-700 dark:text-emerald-400">
-          <CheckCircle2 className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center gap-3 text-emerald-700 dark:text-emerald-400" aria-live="polite">
+          <CheckCircle2 className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{successMessage}</p>
           <button
             onClick={() => setSuccessMessage('')}
@@ -233,10 +233,11 @@ const SessionsPage = () => {
         <div className="lg:col-span-3 space-y-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Search sessions..."
+                aria-label="Search sessions"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:outline-none transition-all"
@@ -252,6 +253,7 @@ const SessionsPage = () => {
                 <button
                   key={status}
                   onClick={() => setFilterStatus(status)}
+                  aria-pressed={filterStatus === status}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${filterStatus === status
                       ? 'bg-blue-600 text-white'
                       : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -265,8 +267,8 @@ const SessionsPage = () => {
 
           <div className="space-y-4">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <div className="flex flex-col items-center justify-center py-20 gap-4" aria-live="polite">
+                <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
                 <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Loading sessions...</p>
               </div>
             ) : currentSessions.length > 0 ? (
@@ -309,10 +311,10 @@ const SessionsPage = () => {
                             <p className="text-sm mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{session.description}</p>
                           )}
                           <div className="flex flex-wrap items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                            <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {participantCount}/{session.maxParticipants || 0} students</span>
-                            <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {startDate.timeLabel} - {endTime}</span>
+                            <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" aria-hidden="true" /> {participantCount}/{session.maxParticipants || 0} students</span>
+                            <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" aria-hidden="true" /> {startDate.timeLabel} - {endTime}</span>
                             {session.meetingLink && (
-                              <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400"><Video className="w-3.5 h-3.5" /> Video call</span>
+                              <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400"><Video className="w-3.5 h-3.5" aria-hidden="true" /> Video call</span>
                             )}
                           </div>
                         </div>
@@ -324,7 +326,7 @@ const SessionsPage = () => {
             ) : (
               <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)' }}>
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                  <Calendar className="w-8 h-8 text-slate-400" />
+                  <Calendar className="w-8 h-8 text-slate-400" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No sessions found</h3>
                 <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
@@ -339,14 +341,15 @@ const SessionsPage = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{
                   borderColor: 'var(--border-color)',
                   color: 'var(--text-secondary)',
                   backgroundColor: 'var(--bg-primary)'
                 }}
+                aria-label="Previous page"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                 Previous
               </button>
               <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -355,15 +358,16 @@ const SessionsPage = () => {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{
                   borderColor: 'var(--border-color)',
                   color: 'var(--text-secondary)',
                   backgroundColor: 'var(--bg-primary)'
                 }}
+                aria-label="Next page"
               >
                 Next
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           )}
@@ -452,7 +456,7 @@ const SessionsPage = () => {
                 style={{ color: 'var(--text-secondary)' }}
                 aria-label="Close modal"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -473,14 +477,14 @@ const SessionsPage = () => {
                 <div>
                   <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Start Time</h4>
                   <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-4 h-4" aria-hidden="true" />
                     {formatDateTime(selectedSession.startTime).date} at {formatDateTime(selectedSession.startTime).timeLabel}
                   </div>
                 </div>
                 <div>
                   <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>End Time</h4>
                   <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    <Clock className="w-4 h-4" />
+                    <Clock className="w-4 h-4" aria-hidden="true" />
                     {formatDateTime(selectedSession.endTime).date} at {formatDateTime(selectedSession.endTime).timeLabel}
                   </div>
                 </div>
@@ -490,7 +494,7 @@ const SessionsPage = () => {
               <div>
                 <h4 className="text-sm font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Participants</h4>
                 <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  <Users className="w-4 h-4" />
+                  <Users className="w-4 h-4" aria-hidden="true" />
                   <span>
                     {selectedSession.studentIds?.length || 0} / {selectedSession.maxParticipants || 0} enrolled
                     {(selectedSession.maxParticipants - (selectedSession.studentIds?.length || 0)) > 0 && (
@@ -514,7 +518,7 @@ const SessionsPage = () => {
                         : 'bg-blue-600 hover:bg-blue-700 shadow-sm'
                     }`}
                   >
-                    <Video className="w-4 h-4" />
+                    <Video className="w-4 h-4" aria-hidden="true" />
                     {selectedSession.status === 'completed' ? 'Session Completed' : 'Open Session Room'}
                   </button>
                 </div>
@@ -542,7 +546,7 @@ const SessionsPage = () => {
                 disabled={deletingSessionId === selectedSession._id}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4" aria-hidden="true" />
                 {deletingSessionId === selectedSession._id ? 'Deleting...' : 'Delete Session'}
               </button>
               <button

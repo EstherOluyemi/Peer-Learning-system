@@ -33,10 +33,11 @@ const normalizeReview = (r) => ({
 });
 
 const StarRow = ({ rating, size = 'w-4 h-4' }) => (
-  <div className="flex items-center gap-0.5">
+  <div className="flex items-center gap-0.5" aria-label={`Rating: ${rating} out of 5 stars`}>
     {[...Array(5)].map((_, i) => (
       <Star
         key={i}
+        aria-hidden="true"
         className={`${size} ${i < rating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300 dark:text-slate-600'}`}
       />
     ))}
@@ -169,8 +170,8 @@ const ReviewsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" aria-live="polite">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
         <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading reviews...</p>
       </div>
     );
@@ -179,8 +180,8 @@ const ReviewsPage = () => {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive">
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{error}</p>
           <button onClick={() => window.location.reload()} className="ml-auto text-xs font-bold underline underline-offset-2 hover:no-underline">Retry</button>
         </div>
@@ -193,7 +194,7 @@ const ReviewsPage = () => {
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>View and respond to student feedback.</p>
         </div>
         <div className="flex items-center gap-2 p-3 rounded-xl" style={{ backgroundColor: 'var(--card-bg)' }}>
-          <Star className="w-6 h-6 text-yellow-500" />
+          <Star className="w-6 h-6 text-yellow-500" aria-hidden="true" />
           <div>
             <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{stats.average}</div>
             <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Average Rating</div>
@@ -205,10 +206,11 @@ const ReviewsPage = () => {
         {/* ── Sidebar ── */}
         <div className="lg:col-span-1">
           <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
             <input
               type="text"
               placeholder="Search reviews..."
+              aria-label="Search reviews"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all"
@@ -224,13 +226,14 @@ const ReviewsPage = () => {
                   <button
                     key={r}
                     onClick={() => { setFilterRating(r); setCurrentPage(1); }}
+                    aria-pressed={filterRating === r}
                     className={`flex items-center justify-between w-full px-3 py-2 rounded-lg transition-colors ${filterRating === r
                       ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                       : 'hover:bg-slate-100 dark:hover:bg-slate-800'
                       }`}
                   >
                     <span className="flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
-                      {r !== 'all' && <Star className="w-4 h-4" />}
+                      {r !== 'all' && <Star className="w-4 h-4" aria-hidden="true" />}
                       {r === 'all' ? 'All Reviews' : `${r} Star`}
                     </span>
                     {r !== 'all' && (
@@ -282,7 +285,7 @@ const ReviewsPage = () => {
                     <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{value}</div>
                     <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{label}</div>
                   </div>
-                  {icon}
+                  {React.cloneElement(icon, { 'aria-hidden': 'true' })}
                 </div>
               </div>
             ))}
@@ -310,7 +313,7 @@ const ReviewsPage = () => {
                       </div>
                       {review.sessionTitle && (
                         <p className="text-xs mb-1 flex items-center gap-1" style={{ color: 'var(--text-tertiary)' }}>
-                          <Calendar className="w-3 h-3" /> {review.sessionTitle}
+                          <Calendar className="w-3 h-3" aria-hidden="true" /> {review.sessionTitle}
                         </p>
                       )}
                       <p className="text-sm my-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
@@ -326,14 +329,14 @@ const ReviewsPage = () => {
                   <div className="flex flex-col gap-2 shrink-0">
                     <div className="flex gap-2">
                       <button className="flex items-center gap-1 px-3 py-1.5 text-green-600 border border-green-200 dark:border-green-800 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors text-sm">
-                        <ThumbsUp className="w-4 h-4" /> Helpful ({review.helpful})
+                        <ThumbsUp className="w-4 h-4" aria-hidden="true" /> Helpful ({review.helpful})
                       </button>
                       <button
                         onClick={() => setDetailReview(review)}
-                        title="View full review"
                         className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 border rounded-lg border-slate-200 dark:border-slate-700 hover:border-blue-400 transition-colors"
+                        aria-label={`View full review by ${review.studentName}`}
                       >
-                        <Eye className="w-4 h-4" />
+                        <Eye className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
                     <div className="text-xs text-right" style={{ color: 'var(--text-secondary)' }}>
@@ -346,7 +349,7 @@ const ReviewsPage = () => {
                 {review.responses.length > 0 && (
                   <div className="mt-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
                     <div className="flex items-center gap-2 mb-2">
-                      <MessageCircle className="w-4 h-4 text-blue-500" />
+                      <MessageCircle className="w-4 h-4 text-blue-500" aria-hidden="true" />
                       <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Your Response</span>
                     </div>
                     {review.responses.map(resp => (
@@ -365,7 +368,7 @@ const ReviewsPage = () => {
                       onClick={() => { setRespondTarget(review); setResponseText(''); }}
                       className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors text-sm"
                     >
-                      <MessageCircle className="w-4 h-4" /> Respond to this review
+                      <MessageCircle className="w-4 h-4" aria-hidden="true" /> Respond to this review
                     </button>
                   </div>
                 )}
@@ -387,8 +390,9 @@ const ReviewsPage = () => {
                 disabled={currentPage === 1}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-primary)' }}
+                aria-label="Previous page"
               >
-                <ChevronLeft className="w-4 h-4" /> Previous
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" /> Previous
               </button>
               <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Page {currentPage} of {totalPages}</div>
               <button
@@ -396,8 +400,9 @@ const ReviewsPage = () => {
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors disabled:opacity-50"
                 style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-primary)' }}
+                aria-label="Next page"
               >
-                Next <ChevronRight className="w-4 h-4" />
+                Next <ChevronRight className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           )}
@@ -442,7 +447,7 @@ const ReviewsPage = () => {
               {detailReview.responses.length > 0 && (
                 <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
                   <p className="text-xs font-bold mb-2 flex items-center gap-1" style={{ color: 'var(--text-primary)' }}>
-                    <MessageCircle className="w-3.5 h-3.5 text-blue-500" /> Your Response
+                    <MessageCircle className="w-3.5 h-3.5 text-blue-500" aria-hidden="true" /> Your Response
                   </p>
                   {detailReview.responses.map(resp => (
                     <div key={resp.id} className="text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -463,7 +468,7 @@ const ReviewsPage = () => {
                   onClick={() => { setRespondTarget(detailReview); setDetailReview(null); setResponseText(''); }}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4" /> Respond
+                  <MessageCircle className="w-4 h-4" aria-hidden="true" /> Respond
                 </button>
               )}
             </div>
@@ -478,7 +483,7 @@ const ReviewsPage = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 id="review-respond-modal-title" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Respond to Review</h2>
               <button onClick={closeRespondModal} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg" aria-label="Close respond modal">
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -495,14 +500,15 @@ const ReviewsPage = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Your Response</label>
+              <label htmlFor="response-text" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Your Response</label>
               <textarea
+                id="response-text"
                 value={responseText}
                 onChange={e => setResponseText(e.target.value)}
                 placeholder="Write a thoughtful response to this review..."
-                className="w-full p-3 rounded-lg border-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
+                className="w-full p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 transition-all resize-none"
                 rows="5"
-                style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)' }}
+                style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--border-color)' }}
               />
               <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{responseText.length}/500 characters</div>
             </div>
@@ -522,8 +528,8 @@ const ReviewsPage = () => {
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {submittingResponse
-                  ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Submitting...</>
-                  : <><Send className="w-4 h-4" /> Send Response</>
+                  ? <div className="flex items-center gap-2" aria-live="polite"><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" /> Submitting...</div>
+                  : <><Send className="w-4 h-4" aria-hidden="true" /> Send Response</>
                 }
               </button>
             </div>

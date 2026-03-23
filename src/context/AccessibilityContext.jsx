@@ -20,8 +20,6 @@ export const AccessibilityProvider = ({ children }) => {
         if (!(element instanceof HTMLElement)) return;
         if (element.hasAttribute('tabindex')) return;
         if (element.getAttribute('aria-hidden') === 'true') return;
-        // Only add tabindex=-1 so region is focusable programmatically
-        // but not in natural tab order (user must use skip links or deliberate focus)
         element.setAttribute('tabindex', '-1');
         element.setAttribute('data-a11y-auto-focusable', 'true');
       });
@@ -34,7 +32,8 @@ export const AccessibilityProvider = ({ children }) => {
             const parent = node.parentElement;
             if (parent && !parent.closest('a, button, [role="button"], input, select, textarea, [tabindex="-1"]')) {
               if (parent.tagName !== 'SCRIPT' && parent.tagName !== 'STYLE' && parent.tagName !== 'NOSCRIPT') {
-                if (!parent.hasAttribute('tabindex')) {
+                // IMPORTANT: Check if attribute already exists to avoid infinite mutation loop
+                if (!parent.hasAttribute('data-a11y-text-focusable')) {
                   parent.setAttribute('tabindex', '0');
                   parent.setAttribute('data-a11y-text-focusable', 'true');
                 }
@@ -47,8 +46,17 @@ export const AccessibilityProvider = ({ children }) => {
 
     applyRegionFocusability();
 
-    const observer = new MutationObserver(() => {
-      applyRegionFocusability();
+    let timeoutId;
+    const observer = new MutationObserver((mutations) => {
+      // Throttle/Debounce the scan to prevent performance issues
+      // and only re-scan if actual nodes were added/removed
+      const hasStructureChanges = mutations.some(m => m.type === 'childList');
+      if (hasStructureChanges) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          applyRegionFocusability();
+        }, 500); // 500ms debounce
+      }
     });
 
     observer.observe(document.body, {
@@ -58,6 +66,7 @@ export const AccessibilityProvider = ({ children }) => {
 
     return () => {
       observer.disconnect();
+      clearTimeout(timeoutId);
     };
   }, [keyboardShortcutsEnabled]);
 

@@ -161,23 +161,24 @@ const SettingsPage = () => {
         <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Profile Information</h3>
         
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm">
-            <AlertCircle className="w-4 h-4" />
+          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-2 text-red-700 dark:text-red-400 text-sm" aria-live="assertive">
+            <AlertCircle className="w-4 h-4" aria-hidden="true" />
             {error}
           </div>
         )}
         
         {successMessage && (
-          <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm">
-            <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
+          <div className="mb-4 p-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2 text-green-700 dark:text-green-400 text-sm" aria-live="polite">
+            <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white" aria-hidden="true">✓</div>
             {successMessage}
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Full Name</label>
+            <label htmlFor="settings-name" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Full Name</label>
             <input
+              id="settings-name"
               type="text"
               value={profile.name}
               onChange={(e) => handleProfileChange('name', e.target.value)}
@@ -190,8 +191,9 @@ const SettingsPage = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Email Address</label>
+            <label htmlFor="settings-email" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Email Address</label>
             <input
+              id="settings-email"
               type="email"
               value={profile.email}
               disabled
@@ -204,8 +206,9 @@ const SettingsPage = () => {
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Bio</label>
+            <label htmlFor="settings-bio" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Bio</label>
             <textarea
+              id="settings-bio"
               value={profile.bio}
               onChange={(e) => handleProfileChange('bio', e.target.value)}
               rows={4}
@@ -218,8 +221,9 @@ const SettingsPage = () => {
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Availability</label>
+            <label htmlFor="settings-availability" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Availability</label>
             <input
+              id="settings-availability"
               type="text"
               value={profile.availability}
               onChange={(e) => handleProfileChange('availability', e.target.value)}
@@ -239,14 +243,19 @@ const SettingsPage = () => {
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
           >
             {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="flex items-center gap-2" aria-live="polite">
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                Saving...
+              </div>
             ) : (
-              <Save className="w-4 h-4" />
+              <>
+                <Save className="w-4 h-4" aria-hidden="true" />
+                Save Changes
+              </>
             )}
-            Save Changes
           </button>
           <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
-            <Upload className="w-4 h-4" />
+            <Upload className="w-4 h-4" aria-hidden="true" />
             Upload Photo
           </button>
         </div>
@@ -265,8 +274,8 @@ const SettingsPage = () => {
               style={{ backgroundColor: 'var(--bg-hover)' }}
             >
               <span style={{ color: 'var(--text-primary)' }}>{skill}</span>
-              <button className="p-1 text-slate-400 hover:text-red-500 transition-colors">
-                <Edit className="w-4 h-4" />
+              <button className="p-1 text-slate-400 hover:text-red-500 transition-colors" aria-label={`Edit ${skill}`}>
+                <Edit className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           ))}
@@ -314,7 +323,11 @@ const SettingsPage = () => {
                 </div>
               </div>
               <button
+                id={`switch-${key}`}
                 onClick={() => handleNotificationToggle(key)}
+                role="switch"
+                aria-checked={value}
+                aria-label={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                   value ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'
                 }`}
@@ -323,6 +336,7 @@ const SettingsPage = () => {
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                     value ? 'translate-x-6' : 'translate-x-1'
                   }`}
+                  aria-hidden="true"
                 />
               </button>
             </div>
@@ -343,8 +357,9 @@ const SettingsPage = () => {
         <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Working Schedule</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Timezone</label>
+            <label htmlFor="schedule-timezone" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Timezone</label>
             <select
+              id="schedule-timezone"
               value={schedule.timezone}
               onChange={(e) => handleScheduleChange('timezone', e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"
@@ -361,8 +376,9 @@ const SettingsPage = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Working Hours</label>
+            <label htmlFor="schedule-hours" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Working Hours</label>
             <input
+              id="schedule-hours"
               type="text"
               value={schedule.workingHours}
               onChange={(e) => handleScheduleChange('workingHours', e.target.value)}
@@ -375,8 +391,9 @@ const SettingsPage = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Break Time</label>
+            <label htmlFor="schedule-break" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Break Time</label>
             <input
+              id="schedule-break"
               type="text"
               value={schedule.breakTime}
               onChange={(e) => handleScheduleChange('breakTime', e.target.value)}
@@ -389,8 +406,9 @@ const SettingsPage = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Max Sessions Per Day</label>
+            <label htmlFor="schedule-max-sessions" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Max Sessions Per Day</label>
             <input
+              id="schedule-max-sessions"
               type="number"
               value={schedule.maxSessionsPerDay}
               onChange={(e) => handleScheduleChange('maxSessionsPerDay', e.target.value)}
@@ -403,8 +421,9 @@ const SettingsPage = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Default Session Duration</label>
+            <label htmlFor="schedule-duration" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Default Session Duration</label>
             <input
+              id="schedule-duration"
               type="text"
               value={schedule.sessionDuration}
               onChange={(e) => handleScheduleChange('sessionDuration', e.target.value)}
@@ -419,7 +438,7 @@ const SettingsPage = () => {
         </div>
         <div className="mt-4 flex gap-3">
           <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-            <Save className="w-4 h-4" />
+            <Save className="w-4 h-4" aria-hidden="true" />
             Save Schedule
           </button>
         </div>
@@ -444,6 +463,9 @@ const SettingsPage = () => {
             </div>
             <button
               onClick={() => setSecurity(prev => ({ ...prev, twoFactorAuth: !prev.twoFactorAuth }))}
+              role="switch"
+              aria-checked={security.twoFactorAuth}
+              aria-label="Two-Factor Authentication"
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 security.twoFactorAuth ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'
               }`}
@@ -452,6 +474,7 @@ const SettingsPage = () => {
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   security.twoFactorAuth ? 'translate-x-6' : 'translate-x-1'
                 }`}
+                aria-hidden="true"
               />
             </button>
           </div>
@@ -477,9 +500,10 @@ const SettingsPage = () => {
         <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Password Management</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Current Password</label>
+            <label htmlFor="current-password" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Current Password</label>
             <div className="relative">
               <input
+                id="current-password"
                 type={showPasswords.current ? "text" : "password"}
                 value={passwordData.currentPassword}
                 onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
@@ -489,22 +513,22 @@ const SettingsPage = () => {
                   color: 'var(--input-text)',
                   borderColor: 'var(--input-border)'
                 }}
-                aria-label="Current password"
               />
-              <button 
+              <button
                 type="button"
                 onClick={() => togglePasswordVisibility('current')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
                 aria-label={showPasswords.current ? "Hide current password" : "Show current password"}
               >
-                {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPasswords.current ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
               </button>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>New Password</label>
+            <label htmlFor="new-password" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>New Password</label>
             <div className="relative">
               <input
+                id="new-password"
                 type={showPasswords.new ? "text" : "password"}
                 value={passwordData.newPassword}
                 onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
@@ -514,22 +538,22 @@ const SettingsPage = () => {
                   color: 'var(--input-text)',
                   borderColor: 'var(--input-border)'
                 }}
-                aria-label="New password"
               />
-              <button 
+              <button
                 type="button"
                 onClick={() => togglePasswordVisibility('new')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
                 aria-label={showPasswords.new ? "Hide new password" : "Show new password"}
               >
-                {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPasswords.new ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
               </button>
             </div>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Confirm New Password</label>
+            <label htmlFor="confirm-password" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Confirm New Password</label>
             <div className="relative">
               <input
+                id="confirm-password"
                 type={showPasswords.confirm ? "text" : "password"}
                 value={passwordData.confirmPassword}
                 onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
@@ -539,15 +563,14 @@ const SettingsPage = () => {
                   color: 'var(--input-text)',
                   borderColor: 'var(--input-border)'
                 }}
-                aria-label="Confirm new password"
               />
-              <button 
+              <button
                 type="button"
                 onClick={() => togglePasswordVisibility('confirm')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
                 aria-label={showPasswords.confirm ? "Hide confirmation password" : "Show confirmation password"}
               >
-                {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPasswords.confirm ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
               </button>
             </div>
           </div>
@@ -559,11 +582,16 @@ const SettingsPage = () => {
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="flex items-center gap-2" aria-live="polite">
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                Updating...
+              </div>
             ) : (
-              <Save className="w-4 h-4" />
+              <>
+                <Save className="w-4 h-4" aria-hidden="true" />
+                Update Password
+              </>
             )}
-            Update Password
           </button>
         </div>
       </div>
@@ -572,11 +600,11 @@ const SettingsPage = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'profile': return renderProfileTab();
-      case 'notifications': return renderNotificationsTab();
-      case 'schedule': return renderScheduleTab();
-      case 'security': return renderSecurityTab();
-      default: return renderProfileTab();
+      case 'profile': return <div id="profile-panel" role="tabpanel" aria-labelledby="profile-tab">{renderProfileTab()}</div>;
+      case 'notifications': return <div id="notifications-panel" role="tabpanel" aria-labelledby="notifications-tab">{renderNotificationsTab()}</div>;
+      case 'schedule': return <div id="schedule-panel" role="tabpanel" aria-labelledby="schedule-tab">{renderScheduleTab()}</div>;
+      case 'security': return <div id="security-panel" role="tabpanel" aria-labelledby="security-tab">{renderSecurityTab()}</div>;
+      default: return <div id="profile-panel" role="tabpanel" aria-labelledby="profile-tab">{renderProfileTab()}</div>;
     }
   };
 
@@ -598,12 +626,16 @@ const SettingsPage = () => {
             }}
           >
             <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Account Settings</h3>
-            <div className="space-y-2">
+            <div className="space-y-2" role="tablist">
               {tabs.map(tab => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
+                    id={`${tab.id}-tab`}
+                    role="tab"
+                    aria-selected={activeTab === tab.id}
+                    aria-controls={`${tab.id}-panel`}
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === tab.id
@@ -611,7 +643,7 @@ const SettingsPage = () => {
                         : 'hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-5 h-5" aria-hidden="true" />
                     <span className="font-medium">{tab.label}</span>
                   </button>
                 );

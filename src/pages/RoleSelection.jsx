@@ -94,7 +94,7 @@ const RoleSelection = () => {
         </Link>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-12">
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-12">
         <div className="w-full max-w-xl space-y-6 sm:space-y-8">
           {/* Header */}
           <header className="text-center space-y-4">
@@ -154,9 +154,14 @@ const RoleSelection = () => {
               <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
               Already have an account? Sign In
             </Link>
+            <footer className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-600">Privacy Policy</Link>
+              </p>
+            </footer>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

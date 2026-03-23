@@ -32,6 +32,7 @@ const Navbar = ({
                         style={{
                             color: isActive ? '#ffffff' : 'var(--text-tertiary)'
                         }}
+                        aria-hidden="true"
                     />
                 )}
                 <span>{item.label}</span>
@@ -78,7 +79,7 @@ const Navbar = ({
                         }}
                     >
                         {peerlearnLogo ? (
-                            <img src={peerlearnLogo} alt="PeerLearn" className="h-8 w-8 mr-3" />
+                            <img src={peerlearnLogo} alt="PeerLearn Logo" className="h-8 w-8 mr-3" />
                         ) : (
                             <div className="h-8 w-8 bg-blue-600 rounded-lg mr-3"></div>
                         )}
@@ -95,7 +96,7 @@ const Navbar = ({
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             aria-label="Close sidebar"
                         >
-                            <X className="w-6 h-6" />
+                            <X className="w-6 h-6" aria-hidden="true" />
                         </button>
                     </div>
 

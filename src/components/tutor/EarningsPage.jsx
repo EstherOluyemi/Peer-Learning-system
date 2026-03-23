@@ -92,8 +92,8 @@ const EarningsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" aria-live="polite">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
         <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading earnings...</p>
       </div>
     );
@@ -102,8 +102,8 @@ const EarningsPage = () => {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive" role="alert">
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{error}</p>
           <button 
             onClick={() => window.location.reload()}
@@ -123,11 +123,11 @@ const EarningsPage = () => {
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2.5 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white rounded-xl font-medium transition-all"
           >
-            <Download className="w-5 h-5" />
+            <Download className="w-5 h-5" aria-hidden="true" />
             Export Data
           </button>
           <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transition-all active:scale-95">
-            <CreditCard className="w-5 h-5" />
+            <CreditCard className="w-5 h-5" aria-hidden="true" />
             Withdraw Funds
           </button>
         </div>
@@ -145,7 +145,7 @@ const EarningsPage = () => {
               <div className="text-2xl font-bold text-green-600 dark:text-green-400">${earningsData.total}</div>
               <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Earnings</div>
             </div>
-            <DollarSign className="w-8 h-8 text-green-500" />
+            <DollarSign className="w-8 h-8 text-green-500" aria-hidden="true" />
           </div>
         </div>
         <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
@@ -159,7 +159,7 @@ const EarningsPage = () => {
               <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>${earningsData.thisMonth}</div>
               <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>This Month</div>
             </div>
-            <TrendingUp className="w-8 h-8 text-blue-500" />
+            <TrendingUp className="w-8 h-8 text-blue-500" aria-hidden="true" />
           </div>
         </div>
         <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
@@ -173,7 +173,7 @@ const EarningsPage = () => {
               <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>${earningsData.thisWeek}</div>
               <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>This Week</div>
             </div>
-            <Clock className="w-8 h-8 text-purple-500" />
+            <Clock className="w-8 h-8 text-purple-500" aria-hidden="true" />
           </div>
         </div>
         <div className="p-4 sm:p-6 rounded-2xl shadow-sm border"
@@ -187,7 +187,7 @@ const EarningsPage = () => {
               <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">${earningsData.pending}</div>
               <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Pending</div>
             </div>
-            <Users className="w-8 h-8 text-amber-500" />
+            <Users className="w-8 h-8 text-amber-500" aria-hidden="true" />
           </div>
         </div>
       </div>
@@ -226,10 +226,11 @@ const EarningsPage = () => {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
                 <input
                   type="text"
                   placeholder="Search transactions..."
+                  aria-label="Search transactions"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all"
@@ -245,10 +246,12 @@ const EarningsPage = () => {
                   <button
                     key={status}
                     onClick={() => setFilterStatus(status)}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${filterStatus === status
+                    aria-pressed={filterStatus === status}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                      filterStatus === status
                         ? 'bg-blue-600 text-white'
                         : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                      }`}
+                    }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </button>
@@ -279,7 +282,7 @@ const EarningsPage = () => {
                           <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{transaction.student}</h4>
                           <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>{transaction.session}</p>
                           <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                            <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {transaction.date}</span>
+                            <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" aria-hidden="true" /> {transaction.date}</span>
                           </div>
                         </div>
                       </div>
@@ -288,8 +291,11 @@ const EarningsPage = () => {
                           <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(transaction.status)}`}>
                             {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
                           </span>
-                          <button className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                            <Eye className="w-5 h-5" />
+                           <button 
+                            className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            aria-label={`View details for transaction with ${transaction.student}`}
+                           >
+                            <Eye className="w-5 h-5" aria-hidden="true" />
                           </button>
                         </div>
                         <div className="text-right">
@@ -303,7 +309,7 @@ const EarningsPage = () => {
                 ))
               ) : (
                 <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
-                  <DollarSign className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                  <DollarSign className="w-12 h-12 text-slate-400 mx-auto mb-4" aria-hidden="true" />
                   <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No transactions found</h3>
                   <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or filters.</p>
                 </div>
@@ -321,8 +327,9 @@ const EarningsPage = () => {
                     color: 'var(--text-secondary)',
                     backgroundColor: 'var(--bg-primary)'
                   }}
+                  aria-label="Previous page"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                   Previous
                 </button>
                 <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -337,9 +344,10 @@ const EarningsPage = () => {
                     color: 'var(--text-secondary)',
                     backgroundColor: 'var(--bg-primary)'
                   }}
+                  aria-label="Next page"
                 >
                   Next
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             )}

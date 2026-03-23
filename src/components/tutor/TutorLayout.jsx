@@ -276,10 +276,10 @@ const TutorLayout = () => {
               style={{ color: 'var(--text-secondary)' }}
               aria-label="Open sidebar"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-6 h-6" aria-hidden="true" />
             </button>
             <div className="hidden sm:flex relative w-64 md:w-96">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Search students, sessions..."
@@ -305,7 +305,7 @@ const TutorLayout = () => {
                 aria-expanded={showNotifications}
                 aria-controls="tutor-notifications-panel"
               >
-                <Bell className="w-6 h-6" />
+                <Bell className="w-6 h-6" aria-hidden="true" />
                 {unreadCount > 0 && (
                   <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
                 )}

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { normalizeSessionList } from '../services/sessionService';
+import { normalizeSessionList, getLearnerProgress } from '../services/sessionService';
 import socketService from '../services/socketService';
 import {
   BookOpen, Clock, TrendingUp, Star, Calendar,
@@ -27,6 +27,7 @@ const DashboardLearner = () => {
   const [recommendedSessions, setRecommendedSessions] = useState([]);
   const [topTutors, setTopTutors] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [learnerProgress, setLearnerProgress] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
@@ -210,6 +211,15 @@ const DashboardLearner = () => {
         } catch (recommendationError) {
           console.error('Could not fetch recommendations:', recommendationError);
           setRecommendedSessions([]);
+        }
+
+        // Fetch learner progress
+        try {
+          const progressData = await getLearnerProgress();
+          setLearnerProgress(progressData);
+        } catch (progressErr) {
+          console.error('Could not fetch learner progress:', progressErr);
+          setLearnerProgress([]);
         }
         
         // Mock activity for now as there's no dedicated endpoint yet
@@ -540,7 +550,7 @@ const DashboardLearner = () => {
               ) : (
                 <div className="p-12 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                    <Calendar className="w-8 h-8 text-slate-400" />
+                    <Calendar className="w-8 h-8 text-slate-400" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No upcoming sessions</h3>
                   <p className="text-sm max-w-xs mx-auto mb-6" style={{ color: 'var(--text-secondary)' }}>
@@ -571,7 +581,7 @@ const DashboardLearner = () => {
                 className="w-full flex items-center gap-3 p-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
               >
                 <div className="p-2 bg-white/20 rounded-lg">
-                  <Search className="w-5 h-5" />
+                  <Search className="w-5 h-5" aria-hidden="true" />
                 </div>
                 Find a Tutor
               </button>
@@ -581,7 +591,7 @@ const DashboardLearner = () => {
                 style={{ color: 'var(--text-primary)' }}
               >
                 <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                  <User className="w-5 h-5" />
+                  <User className="w-5 h-5" aria-hidden="true" />
                 </div>
                 Edit Profile
               </button>
@@ -595,24 +605,33 @@ const DashboardLearner = () => {
             }}>
             <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Learning Progress</h2>
             <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>This Month</p>
-                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{Math.floor(Math.random() * 80 + 20)}%</p>
+              {learnerProgress.length > 0 ? (
+                learnerProgress.slice(0, 3).map((progress, index) => (
+                  <div key={progress._id || index}>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium truncate max-w-[70%]" style={{ color: 'var(--text-primary)' }}>
+                        {progress.courseId?.title || 'Session'}
+                      </p>
+                      <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        {progress.completionPercentage}%
+                      </p>
+                    </div>
+                    <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-blue-500 rounded-full transition-all duration-500" 
+                        style={{ width: `${progress.completionPercentage}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-[10px] mt-1" style={{ color: 'var(--text-tertiary)' }}>
+                      {progress.completedModules?.length || 0} of {progress.courseId?.modules?.length || 0} modules
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>No active progress tracked yet. Join a session with modules to see progress here.</p>
                 </div>
-                <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.floor(Math.random() * 80 + 20)}%` }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Engagement</p>
-                  <p className="text-sm font-bold text-blue-600 dark:text-blue-400">8/10</p>
-                </div>
-                <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 rounded-full" style={{ width: '80%' }}></div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 

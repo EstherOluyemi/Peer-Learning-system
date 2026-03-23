@@ -28,6 +28,7 @@ const CreateSessionPage = () => {
     duration: 60,
     maxParticipants: 10,
     meetingLink: '',
+    modules: [],
     // REMOVED: studentId — not needed here. Sessions are created by the tutor.
     // Students enroll separately. The backend uses req.tutor._id as owner.
   });
@@ -55,7 +56,8 @@ const CreateSessionPage = () => {
         time: startDate.toTimeString().slice(0, 5),
         duration: durationMinutes,
         maxParticipants: session.maxParticipants || 10,
-        meetingLink: session.meetingLink || ''
+        meetingLink: session.meetingLink || '',
+        modules: session.modules || []
       }));
       setIsLoading(false);
     } else if (editId) {
@@ -75,7 +77,8 @@ const CreateSessionPage = () => {
             time: startDate.toTimeString().slice(0, 5),
             duration: durationMinutes,
             maxParticipants: session.maxParticipants || 10,
-            meetingLink: session.meetingLink || ''
+            meetingLink: session.meetingLink || '',
+            modules: session.modules || []
           }));
         } catch (err) {
           setApiError('Failed to load session. Please navigate back and try again.');
@@ -135,6 +138,7 @@ const CreateSessionPage = () => {
         meetingLink: meetingLink || undefined,
         meetingProvider: meetingLink ? 'google_meet' : undefined,
         meetingId: meetingId || undefined,
+        modules: formData.modules,
       };
 
       if (editId) {
@@ -214,7 +218,7 @@ const CreateSessionPage = () => {
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/dashboard-tutor" className="flex items-center space-x-2 transition" style={{ color: 'var(--text-secondary)' }}>
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
               <span className="font-medium">Back to Dashboard</span>
             </Link>
             <div className="hidden md:block">
@@ -229,8 +233,8 @@ const CreateSessionPage = () => {
 
       {isLoading ? (
         <main id="main-content" className="container mx-auto px-4 sm:px-6 py-8">
-          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" aria-live="polite">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
             <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading session...</p>
           </div>
         </main>
@@ -247,8 +251,8 @@ const CreateSessionPage = () => {
             </div>
 
             {apiError && (
-              <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-                <AlertCircle className="w-5 h-5 shrink-0" />
+              <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" role="alert" aria-live="assertive">
+                <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
                 <p className="text-sm font-medium">{apiError}</p>
               </div>
             )}
@@ -274,8 +278,9 @@ const CreateSessionPage = () => {
                           style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
                           placeholder="e.g., Introduction to React Hooks"
                           aria-required="true" aria-invalid={!!errors.title}
+                          aria-describedby={errors.title ? "title-error" : undefined}
                         />
-                        {errors.title && <p className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.title}</p>}
+                        {errors.title && <p id="title-error" className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" aria-hidden="true" />{errors.title}</p>}
                       </div>
 
                       <div className="md:col-span-2">
@@ -286,8 +291,9 @@ const CreateSessionPage = () => {
                           style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
                           placeholder="Describe what students will learn in this session..."
                           aria-required="true" aria-invalid={!!errors.description}
+                          aria-describedby={errors.description ? "description-error" : undefined}
                         />
-                        {errors.description && <p className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.description}</p>}
+                        {errors.description && <p id="description-error" className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" aria-hidden="true" />{errors.description}</p>}
                       </div>
 
                       <div>
@@ -298,17 +304,106 @@ const CreateSessionPage = () => {
                           style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
                           placeholder="e.g., Mathematics"
                           aria-required="true" aria-invalid={!!errors.subject}
+                          aria-describedby={errors.subject ? "subject-error" : undefined}
                         />
-                        {errors.subject && <p className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.subject}</p>}
+                        {errors.subject && <p id="subject-error" className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" aria-hidden="true" />{errors.subject}</p>}
                       </div>
                     </div>
                   </section>
+
+                  {/* Course Modules Section */}
+                  <section aria-labelledby="modules-heading" className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                        <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <h2 id="modules-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Course Modules</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                      <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                        Define the curriculum by adding modules. Learners can track their progress by marking these as complete.
+                      </p>
+
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="new-module" className="sr-only">Add New Module</label>
+                        <div className="flex gap-2">
+                          <input
+                            id="new-module"
+                            type="text"
+                            className="flex-1 px-4 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                            style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
+                            placeholder="e.g., Introduction to Algebra"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const value = e.target.value.trim();
+                                if (value && !formData.modules.includes(value)) {
+                                  setFormData(prev => ({ ...prev, modules: [...prev.modules, value] }));
+                                  e.target.value = '';
+                                }
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const input = document.getElementById('new-module');
+                              const value = input.value.trim();
+                              if (value && !formData.modules.includes(value)) {
+                                setFormData(prev => ({ ...prev, modules: [...prev.modules, value] }));
+                                input.value = '';
+                              }
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {formData.modules.length > 0 ? (
+                          formData.modules.map((module, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between p-3 rounded-lg border"
+                              style={{ backgroundColor: 'var(--bg-hover)', borderColor: 'var(--card-border)' }}
+                            >
+                              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {index + 1}. {module}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    modules: prev.modules.filter((_, i) => i !== index)
+                                  }));
+                                }}
+                                className="text-red-500 hover:text-red-700 p-1"
+                                aria-label={`Remove module ${module}`}
+                              >
+                                <AlertCircle className="w-4 h-4" aria-hidden="true" />
+                              </button>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-6 border-2 border-dashed rounded-xl" style={{ borderColor: 'var(--card-border)' }}>
+                            <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>No modules added yet. Add your first module above.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+
 
                   {/* Scheduling */}
                   <section aria-labelledby="scheduling-heading" className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
                     <div className="flex items-center space-x-3 mb-6">
                       <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                         <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                       </div>
                       <h2 id="scheduling-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Scheduling</h2>
                     </div>
@@ -316,45 +411,48 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="date" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Date *</label>
                         <div className="relative">
-                          <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                          <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" aria-hidden="true" />
                           <input
                             id="date" name="date" type="date" value={formData.date} onChange={handleChange}
                             min={new Date().toISOString().split('T')[0]}
                             className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.date ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500' : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-500'} focus:outline-none transition-all`}
                             style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
                             aria-required="true"
+                            aria-describedby={errors.date ? "date-error" : undefined}
                           />
                         </div>
-                        {errors.date && <p className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.date}</p>}
+                        {errors.date && <p id="date-error" className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" aria-hidden="true" />{errors.date}</p>}
                       </div>
 
                       <div>
                         <label htmlFor="time" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Time *</label>
                         <div className="relative">
-                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" aria-hidden="true" />
                           <input
                             id="time" name="time" type="time" value={formData.time} onChange={handleChange}
                             className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.time ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500' : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-500'} focus:outline-none transition-all`}
                             style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
                             aria-required="true"
+                            aria-describedby={errors.time ? "time-error" : undefined}
                           />
                         </div>
-                        {errors.time && <p className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.time}</p>}
+                        {errors.time && <p id="time-error" className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" aria-hidden="true" />{errors.time}</p>}
                       </div>
 
                       <div>
                         <label htmlFor="duration" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Duration (minutes) *</label>
                         <div className="relative">
-                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" aria-hidden="true" />
                           <input
                             id="duration" name="duration" type="number" min="15" max="240" step="15"
                             value={formData.duration} onChange={handleChange}
                             className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.duration ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500' : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-500'} focus:outline-none transition-all`}
                             style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
                             aria-required="true"
+                            aria-describedby={errors.duration ? "duration-error" : undefined}
                           />
                         </div>
-                        {errors.duration && <p className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.duration}</p>}
+                        {errors.duration && <p id="duration-error" className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" aria-hidden="true" />{errors.duration}</p>}
                       </div>
                     </div>
                   </section>
@@ -364,12 +462,12 @@ const CreateSessionPage = () => {
                     <section aria-labelledby="google-meet-heading" className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
                       <div className="flex items-center space-x-3 mb-6">
                         <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                          <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                          <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                         </div>
                         <div>
                           <h2 id="google-meet-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Google Meet</h2>
                           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                              Optionally generate a Meet link now. No redirect happens during session creation.
+                            Optionally generate a Meet link now. No redirect happens during session creation.
                           </p>
                         </div>
                       </div>
@@ -393,12 +491,12 @@ const CreateSessionPage = () => {
                           >
                             {meetLinkLoading ? (
                               <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                                 Generating...
                               </>
                             ) : (
                               <>
-                                <Video className="w-4 h-4" />
+                                <Video className="w-4 h-4" aria-hidden="true" />
                                 Generate Link
                               </>
                             )}
@@ -407,8 +505,8 @@ const CreateSessionPage = () => {
 
                         {/* Display Generated Link */}
                         {generatedMeetLink && (
-                          <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
-                            <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800" aria-live="polite">
+                            <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300 mb-1">
                                 Meeting link generated
@@ -421,16 +519,16 @@ const CreateSessionPage = () => {
                               type="button"
                               onClick={handleCopyMeetLink}
                               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-colors shrink-0"
-                              title="Copy to clipboard"
+                              aria-label={meetLinkCopied ? "Meeting link copied" : "Copy meeting link to clipboard"}
                             >
                               {meetLinkCopied ? (
                                 <>
-                                  <CheckCircle className="w-3.5 h-3.5" />
+                                  <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
                                   Copied!
                                 </>
                               ) : (
                                 <>
-                                  <Copy className="w-3.5 h-3.5" />
+                                  <Copy className="w-3.5 h-3.5" aria-hidden="true" />
                                   Copy
                                 </>
                               )}
@@ -457,7 +555,7 @@ const CreateSessionPage = () => {
                   <section aria-labelledby="details-heading" className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
                     <div className="flex items-center space-x-3 mb-6">
                       <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                        <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                       </div>
                       <h2 id="details-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Session Details</h2>
                     </div>
@@ -465,16 +563,17 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="maxParticipants" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Maximum Participants *</label>
                         <div className="relative">
-                          <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                          <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" aria-hidden="true" />
                           <input
                             id="maxParticipants" name="maxParticipants" type="number" min="1" max="50"
                             value={formData.maxParticipants} onChange={handleChange}
                             className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.maxParticipants ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500' : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-500'} focus:outline-none transition-all`}
                             style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
                             aria-required="true"
+                            aria-describedby={errors.maxParticipants ? "maxParticipants-error" : undefined}
                           />
                         </div>
-                        {errors.maxParticipants && <p className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.maxParticipants}</p>}
+                        {errors.maxParticipants && <p id="maxParticipants-error" className="mt-2 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" aria-hidden="true" />{errors.maxParticipants}</p>}
                       </div>
 
                       <div className="rounded-lg border p-4" style={{ borderColor: 'var(--card-border)' }}>
@@ -490,7 +589,7 @@ const CreateSessionPage = () => {
                   <div className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
                     <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-4">
                       <p className="text-sm flex items-center" style={{ color: 'var(--text-tertiary)' }}>
-                        <HelpCircle className="w-4 h-4 mr-2" />
+                        <HelpCircle className="w-4 h-4 mr-2" aria-hidden="true" />
                         Fields marked with * are required
                       </p>
                       <div className="flex space-x-4">
@@ -507,9 +606,9 @@ const CreateSessionPage = () => {
                           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex items-center"
                         >
                           {isSubmitting ? (
-                            <><Loader2 className="w-5 h-5 animate-spin mr-2" />{editId ? 'Saving Changes...' : 'Creating Session...'}</>
+                            <><Loader2 className="w-5 h-5 animate-spin mr-2" aria-hidden="true" />{editId ? 'Saving Changes...' : 'Creating Session...'}</>
                           ) : (
-                            <><Save className="w-5 h-5 mr-2" />{editId ? 'Save Changes' : 'Create Session'}</>
+                            <><Save className="w-5 h-5 mr-2" aria-hidden="true" />{editId ? 'Save Changes' : 'Create Session'}</>
                           )}
                         </button>
                       </div>

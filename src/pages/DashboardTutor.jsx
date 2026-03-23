@@ -302,7 +302,7 @@ const DashboardTutor = () => {
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div className={`p-3 rounded-xl ${stat.bg}`} aria-hidden="true">
-                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    <stat.icon className={`w-6 h-6 ${stat.color}`} aria-hidden="true" />
                   </div>
                   {stat.link && (
                     <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
@@ -395,7 +395,7 @@ const DashboardTutor = () => {
                 </div>
               </div>
               <Link to="/dashboard-tutor/sessions" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center">
-                View All <ChevronRight className="w-4 h-4" />
+                View All <ChevronRight className="w-4 h-4" aria-hidden="true" />
               </Link>
             </div>
             <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
@@ -430,11 +430,11 @@ const DashboardTutor = () => {
                               </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                              <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" /> {session.subject || 'General'}</span>
-                              <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
-                              <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {participantCount}/{maxParticipants} students</span>
-                              <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></span>
-                              <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {startDate.time} - {endTime}</span>
+                              <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" aria-hidden="true" /> {session.subject || 'General'}</span>
+                              <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full" aria-hidden="true"></span>
+                              <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" aria-hidden="true" /> {participantCount}/{maxParticipants} students</span>
+                              <span className="w-1 h-1 bg-slate-300 dark:bg-slate-600 rounded-full" aria-hidden="true"></span>
+                              <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" aria-hidden="true" /> {startDate.time} - {endTime}</span>
                             </div>
                             {session.meetingLink && (
                               <button
@@ -450,7 +450,7 @@ const DashboardTutor = () => {
                                     : 'text-blue-600 dark:text-blue-400 hover:underline'
                                 }`}
                               >
-                                <Video className="w-3 h-3" /> Open Session Room
+                                <Video className="w-3 h-3" aria-hidden="true" /> Open Session Room
                               </button>
                             )}
                           </div>
@@ -460,7 +460,7 @@ const DashboardTutor = () => {
                           className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                           aria-label="View session details"
                         >
-                          <ArrowUpRight className="w-5 h-5" />
+                          <ArrowUpRight className="w-5 h-5" aria-hidden="true" />
                         </button>
                       </div>
                     </article>
@@ -468,8 +468,8 @@ const DashboardTutor = () => {
                 })
               ) : (
                 <div className="p-12 text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                    <Calendar className="w-8 h-8 text-slate-400" />
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4" aria-hidden="true">
+                    <Calendar className="w-8 h-8 text-slate-400" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                     {searchQuery ? 'No sessions found' : 'No upcoming sessions'}
@@ -546,8 +546,8 @@ const DashboardTutor = () => {
                       onClick={() => setSelectedSession(session)}
                       className="w-full text-left flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                     >
-                      <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-                        <Calendar className="w-4 h-4 text-slate-500" />
+                      <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800" aria-hidden="true">
+                        <Calendar className="w-4 h-4 text-slate-500" aria-hidden="true" />
                       </div>
                       <div>
                         <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>

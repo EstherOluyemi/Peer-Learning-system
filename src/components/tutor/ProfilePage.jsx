@@ -100,8 +100,8 @@ const TutorProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4" aria-live="polite">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
         <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading profile...</p>
       </div>
     );
@@ -120,7 +120,7 @@ const TutorProfilePage = () => {
             onClick={() => setIsEditing(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
           >
-            <Edit className="w-4 h-4" />
+            <Edit className="w-4 h-4" aria-hidden="true" />
             Edit Profile
           </button>
         )}
@@ -128,25 +128,29 @@ const TutorProfilePage = () => {
 
       {/* Messages */}
       {successMessage && (
-        <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3 text-green-700 dark:text-green-400">
-          <CheckCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3 text-green-700 dark:text-green-400" role="status" aria-live="polite">
+          <CheckCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{successMessage}</p>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" role="alert" aria-live="assertive">
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{error}</p>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+      <div className="flex gap-4 border-b" style={{ borderColor: 'var(--border-color)' }} role="tablist">
         {['overview', 'expertise', 'settings'].map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
+            role="tab"
+            aria-selected={activeTab === tab}
+            aria-controls={`${tab}-panel`}
+            id={`${tab}-tab`}
             className={`px-4 py-3 font-medium border-b-2 transition-colors capitalize ${
               activeTab === tab
                 ? 'border-blue-600 text-blue-600'
@@ -160,7 +164,7 @@ const TutorProfilePage = () => {
 
       {/* Overview Tab */}
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div id="overview-panel" role="tabpanel" aria-labelledby="overview-tab" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Profile Card */}
           <div className="lg:col-span-1">
             <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
@@ -172,8 +176,11 @@ const TutorProfilePage = () => {
                     className="w-24 h-24 rounded-full border-4 object-cover"
                     style={{ borderColor: 'var(--border-color)' }}
                   />
-                  <button className="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
-                    <Camera className="w-4 h-4" />
+                  <button 
+                    className="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                    aria-label="Change profile picture"
+                  >
+                    <Camera className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
                 <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{profile.name}</h2>
@@ -205,33 +212,36 @@ const TutorProfilePage = () => {
               {isEditing ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Full Name</label>
+                    <label htmlFor="full-name" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Full Name</label>
                     <input
+                      id="full-name"
                       type="text"
                       value={editedProfile.name}
                       onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })}
-                      className="w-full px-4 py-2 rounded-lg border-none focus:ring-2 focus:ring-blue-500"
-                      style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)' }}
+                      className="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500"
+                      style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--border-color)' }}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Email</label>
+                    <label htmlFor="email-readonly" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Email</label>
                     <input
+                      id="email-readonly"
                       type="email"
                       value={editedProfile.email}
                       disabled
-                      className="w-full px-4 py-2 rounded-lg border-none opacity-50 cursor-not-allowed"
-                      style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)' }}
+                      className="w-full px-4 py-2 rounded-lg border opacity-50 cursor-not-allowed"
+                      style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--border-color)' }}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Bio</label>
+                    <label htmlFor="bio-input" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Bio</label>
                     <textarea
+                      id="bio-input"
                       value={editedProfile.bio}
                       onChange={(e) => setEditedProfile({ ...editedProfile, bio: e.target.value })}
-                      className="w-full px-4 py-2 rounded-lg border-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      className="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 resize-none"
                       rows="4"
-                      style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)' }}
+                      style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--border-color)' }}
                     />
                   </div>
                   <div className="flex gap-3 pt-4">
@@ -239,8 +249,9 @@ const TutorProfilePage = () => {
                       onClick={handleSaveProfile}
                       disabled={saving}
                       className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 transition-colors"
+                      aria-busy={saving}
                     >
-                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Save className="w-4 h-4" aria-hidden="true" />}
                       {saving ? 'Saving...' : 'Save Changes'}
                     </button>
                     <button
@@ -255,21 +266,21 @@ const TutorProfilePage = () => {
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <User className="w-5 h-5 text-blue-600" />
+                    <User className="w-5 h-5 text-blue-600" aria-hidden="true" />
                     <div>
                       <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Full Name</div>
                       <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{profile.name}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-blue-600" />
+                    <Mail className="w-5 h-5 text-blue-600" aria-hidden="true" />
                     <div>
                       <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Email</div>
                       <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{profile.email}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-blue-600" />
+                    <Calendar className="w-5 h-5 text-blue-600" aria-hidden="true" />
                     <div>
                       <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Joined</div>
                       <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{profile.joinedDate}</div>
@@ -289,14 +300,14 @@ const TutorProfilePage = () => {
 
       {/* Expertise Tab */}
       {activeTab === 'expertise' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div id="expertise-panel" role="tabpanel" aria-labelledby="expertise-tab" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Areas of Expertise</h3>
             <div className="space-y-2">
               {editedProfile.expertise && editedProfile.expertise.length > 0 ? (
                 editedProfile.expertise.map((skill, idx) => (
                   <div key={idx} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                    <BookOpen className="w-4 h-4 text-blue-600" />
+                    <BookOpen className="w-4 h-4 text-blue-600" aria-hidden="true" />
                     <span style={{ color: 'var(--text-primary)' }}>{skill}</span>
                   </div>
                 ))
@@ -315,24 +326,32 @@ const TutorProfilePage = () => {
 
       {/* Settings Tab */}
       {activeTab === 'settings' && (
-        <div className="space-y-4">
+        <div id="settings-panel" role="tabpanel" aria-labelledby="settings-tab" className="space-y-4">
           <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <Bell className="w-5 h-5 text-blue-600" />
+                <Bell className="w-5 h-5 text-blue-600" aria-hidden="true" />
                 <div>
                   <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>Notifications</h3>
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>New messages and session updates</p>
                 </div>
               </div>
-              <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
+              <button 
+                onClick={() => {}}
+                role="switch"
+                aria-checked="true"
+                aria-label="Toggle notifications"
+                className="relative inline-flex h-6 w-11 items-center rounded-full bg-blue-600 transition-colors"
+              >
+                <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6" />
+              </button>
             </div>
           </div>
 
           <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <Shield className="w-5 h-5 text-blue-600" />
+                <Shield className="w-5 h-5 text-blue-600" aria-hidden="true" />
                 <div>
                   <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>Two-Factor Authentication</h3>
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Add extra security to your account</p>

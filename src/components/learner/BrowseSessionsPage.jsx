@@ -1,10 +1,10 @@
 // src/components/learner/BrowseSessionsPage.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-    Search, Filter, Calendar, Clock, Users, Star, Plus, X,
-    ChevronLeft, ChevronRight, AlertCircle, CheckCircle, MapPin, BookOpen,
-    TrendingUp, Info, Check
+    Search, Calendar, Clock, Filter, X, ChevronRight, User, GraduationCap,
+    CheckCircle, MessageSquare, AlertCircle, Info, ChevronLeft, Loader2
 } from 'lucide-react';
+import useFocusTrap from '../../hooks/useFocusTrap';
 import api from '../../services/api';
 import { getAllSessions } from '../../services/sessionService';
 import { useAuth } from '../../context/AuthContext';
@@ -29,6 +29,15 @@ const BrowseSessionsPage = () => {
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [showEnrollModal, setShowEnrollModal] = useState(false);
     const itemsPerPage = 6;
+
+    // New state for accessibility and UI
+    const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+    const [enrollmentError, setEnrollmentError] = useState(null);
+    const [enrollmentSuccess, setEnrollmentSuccess] = useState('');
+    const [selectedSubject, setSelectedSubject] = useState('all'); // For quick filters
+
+    const modalRef = useRef(null);
+    useFocusTrap(modalRef, showDetailsModal || showEnrollModal);
 
     const fetchData = useCallback(async () => {
         try {
@@ -115,7 +124,7 @@ const BrowseSessionsPage = () => {
         }
         try {
             setJoiningId(sessionId);
-            setError(null);
+            setEnrollmentError(null);
             
             const response = await api.post(`/v1/learner/sessions/${sessionId}/join`);
             
@@ -126,27 +135,27 @@ const BrowseSessionsPage = () => {
             // Check the status from API response
             if (enrollmentStatus === 'pending') {
                 setPendingEnrollments((prev) => [...prev, sessionId]);
-                setSuccessMessage('Enrollment request submitted and is pending approval!');
+                setEnrollmentSuccess('Enrollment request submitted and is pending approval!');
                 setShowEnrollModal(false);
                 
                 // Clear success message after 3 seconds
                 setTimeout(() => {
-                    setSuccessMessage('');
+                    setEnrollmentSuccess('');
                 }, 3000);
             } else if (enrollmentStatus === 'approved' || enrollmentStatus === 'enrolled') {
                 setEnrolledSessions((prev) => (prev.includes(sessionId) ? prev : [...prev, sessionId]));
-                setSuccessMessage('Successfully enrolled in the session!');
+                setEnrollmentSuccess('Successfully enrolled in the session!');
                 setShowEnrollModal(false);
                 
                 await fetchData();
                 
                 setTimeout(() => {
-                    setSuccessMessage('');
+                    setEnrollmentSuccess('');
                 }, 3000);
             }
         } catch (err) {
             console.error('Join session error:', err);
-            setError(err.response?.data?.message || err.message || 'Failed to join session. Please try again.');
+            setEnrollmentError(err.response?.data?.message || err.message || 'Failed to join session. Please try again.');
         } finally {
             setJoiningId(null);
         }
@@ -220,20 +229,52 @@ const BrowseSessionsPage = () => {
         }
     };
 
+    const formatDate = (dateString) => {
+        try {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+        } catch {
+            return 'Date TBD';
+        }
+    };
+
+    const formatTime = (dateString) => {
+        try {
+            return new Date(dateString).toLocaleTimeString('en-US', {
+                hour: '2-digit', minute: '2-digit'
+            });
+        } catch {
+            return 'Time TBD';
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Browse Sessions</h1>
-                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                        Find and join tutoring sessions - {sortedSessions.length} available
-                    </p>
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4" aria-live="polite">
+                        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            Showing <span className="font-bold text-blue-600">{filteredSessions.length}</span> sessions
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <button
+                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                onClick={() => setViewMode('grid')}
+                                aria-label="Grid view"
+                                aria-pressed={viewMode === 'grid'}
+                            >
+                                <Filter className={`w-5 h-5 ${viewMode === 'grid' ? 'text-blue-600' : ''}`} aria-hidden="true" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {error && (
-                <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-                    <AlertCircle className="w-5 h-5 shrink-0" />
+                <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive">
+                    <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
                     <p className="text-sm font-medium">{error}</p>
                     <button
                         onClick={() => window.location.reload()}
@@ -244,17 +285,24 @@ const BrowseSessionsPage = () => {
                 </div>
             )}
 
-            {successMessage && (
-                <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3 text-green-700 dark:text-green-400">
-                    <CheckCircle className="w-5 h-5 shrink-0" />
-                    <p className="text-sm font-medium">{successMessage}</p>
+            {enrollmentError && (
+                <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive">
+                    <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
+                    <p className="text-sm font-medium">{enrollmentError}</p>
+                </div>
+            )}
+
+            {enrollmentSuccess && (
+                <div className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3 text-green-700 dark:text-green-400" aria-live="assertive">
+                    <CheckCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
+                    <p className="text-sm font-medium">{enrollmentSuccess}</p>
                 </div>
             )}
 
             {fullSessionMessage && (
                 <div className="fixed bottom-6 right-6 z-50 max-w-sm rounded-xl border border-amber-200 bg-amber-50 text-amber-800 shadow-lg dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
                     <div className="flex items-center gap-3 px-4 py-3">
-                        <AlertCircle className="w-5 h-5 shrink-0" />
+                        <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
                         <p className="text-sm font-medium">{fullSessionMessage}</p>
                     </div>
                 </div>
@@ -267,7 +315,7 @@ const BrowseSessionsPage = () => {
                         <div className="space-y-4">
                             <div>
                                 <label htmlFor="search" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                                    <Search className="inline w-4 h-4 mr-2" />
+                                    <Search className="inline w-4 h-4 mr-2" aria-hidden="true" />
                                     Search Sessions
                                 </label>
                                 <input
@@ -284,13 +332,14 @@ const BrowseSessionsPage = () => {
                                         backgroundColor: 'var(--input-bg)',
                                         color: 'var(--input-text)',
                                     }}
+                                    aria-label="Search sessions"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div>
                                     <label htmlFor="subject" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                                        <Filter className="inline w-4 h-4 mr-2" />
+                                        <Filter className="inline w-4 h-4 mr-2" aria-hidden="true" />
                                         Subject
                                     </label>
                                     <select
@@ -305,6 +354,7 @@ const BrowseSessionsPage = () => {
                                             backgroundColor: 'var(--input-bg)',
                                             color: 'var(--input-text)',
                                         }}
+                                        aria-label="Filter by subject"
                                     >
                                         <option value="all">All Subjects</option>
                                         {subjects.map(subject => (
@@ -329,6 +379,7 @@ const BrowseSessionsPage = () => {
                                             backgroundColor: 'var(--input-bg)',
                                             color: 'var(--input-text)',
                                         }}
+                                        aria-label="Filter by level"
                                     >
                                         <option value="all">All Levels</option>
                                         <option value="Beginner">Beginner</option>
@@ -339,7 +390,7 @@ const BrowseSessionsPage = () => {
 
                                 <div>
                                     <label htmlFor="sortBy" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                                        <TrendingUp className="inline w-4 h-4 mr-2" />
+                                        <Loader2 className="inline w-4 h-4 mr-2" aria-hidden="true" />
                                         Sort By
                                     </label>
                                     <select
@@ -406,7 +457,7 @@ const BrowseSessionsPage = () => {
                                                         </h4>
                                                         {enrolled && (
                                                             <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center gap-1">
-                                                                <Check className="w-3 h-3" /> Enrolled
+                                                                <CheckCircle className="w-3 h-3" aria-hidden="true" /> Enrolled
                                                             </span>
                                                         )}
                                                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${availability.color}`}>
@@ -420,16 +471,16 @@ const BrowseSessionsPage = () => {
 
                                                     <div className="flex flex-wrap gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
                                                         <span className="flex items-center gap-1">
-                                                            <BookOpen className="w-3.5 h-3.5" /> {session.subject || 'General'}
+                                                            <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" /> {session.subject || 'General'}
                                                         </span>
                                                         <span className="flex items-center gap-1">
-                                                            <Calendar className="w-3.5 h-3.5" /> {date}
+                                                            <Calendar className="w-3.5 h-3.5" aria-hidden="true" /> {date}
                                                         </span>
                                                         <span className="flex items-center gap-1">
-                                                            <Clock className="w-3.5 h-3.5" /> {time} • {session.duration || 60}min
+                                                            <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {time} • {session.duration || 60}min
                                                         </span>
                                                         <span className="flex items-center gap-1">
-                                                            <Users className="w-3.5 h-3.5" /> {session.studentIds?.length || 0}/{session.maxParticipants}
+                                                            <User className="w-3.5 h-3.5" aria-hidden="true" /> {session.studentIds?.length || 0}/{session.maxParticipants}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -443,7 +494,7 @@ const BrowseSessionsPage = () => {
                                                     </div>
                                                     {session.tutor?.rating && (
                                                         <div className="flex items-center justify-end gap-1 mb-1">
-                                                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                                                            <Info className="w-4 h-4 text-yellow-500 fill-yellow-500" aria-hidden="true" />
                                                             <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
                                                                 {session.tutor.rating.toFixed(1)}
                                                             </span>
@@ -459,14 +510,17 @@ const BrowseSessionsPage = () => {
                                                         onClick={() => openDetailsModal(session)}
                                                         className="px-4 py-2 rounded-lg border transition-all hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-medium"
                                                         style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                                        aria-label={`View details for ${session.title}`}
                                                     >
-                                                        <Info className="w-4 h-4 inline mr-1" />
+                                                        <Info className="w-4 h-4 inline mr-1" aria-hidden="true" />
                                                         Details
                                                     </button>
 
                                                     {enrolled ? (
                                                         <button
                                                             className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 text-sm font-medium cursor-default"
+                                                            aria-label={`Enrolled in ${session.title}`}
+                                                            disabled
                                                         >
                                                             Enrolled ✓
                                                         </button>
@@ -474,6 +528,7 @@ const BrowseSessionsPage = () => {
                                                         <button
                                                             className="px-4 py-2 rounded-lg bg-gray-300 text-gray-500 dark:bg-gray-700 dark:text-gray-400 text-sm font-medium cursor-not-allowed"
                                                             disabled
+                                                            aria-label={`Enrollment pending for ${session.title}`}
                                                         >
                                                             Pending Approval
                                                         </button>
@@ -486,6 +541,7 @@ const BrowseSessionsPage = () => {
                                                                     ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                                     : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 active:scale-95'
                                                                 }`}
+                                                            aria-label={isFull ? `Session ${session.title} is full` : availability.status === 'Completed' ? `Session ${session.title} completed` : availability.status === 'Cancelled' ? `Session ${session.title} cancelled` : `Enroll in ${session.title}`}
                                                         >
                                                             {joiningId === sessionId ? 'Enrolling...' : isFull ? 'Full' : availability.status === 'Completed' ? 'Completed' : availability.status === 'Cancelled' ? 'Cancelled' : 'Enroll Now'}
                                                         </button>
@@ -499,7 +555,7 @@ const BrowseSessionsPage = () => {
                         ) : (
                             <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)' }}>
                                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                                    <Search className="w-8 h-8 text-slate-400" />
+                                    <Search className="w-8 h-8 text-slate-400" aria-hidden="true" />
                                 </div>
                                 <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No sessions found</h3>
                                 <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
@@ -511,37 +567,45 @@ const BrowseSessionsPage = () => {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="flex items-center justify-between">
+                        <nav className="flex justify-center items-center gap-2" aria-label="Pagination">
                             <button
-                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
-                                style={{
-                                    borderColor: 'var(--border-color)',
-                                    color: 'var(--text-secondary)',
-                                    backgroundColor: 'var(--bg-primary)'
-                                }}
+                                className="p-2 rounded-xl border disabled:opacity-50 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                aria-label="Previous page"
                             >
-                                <ChevronLeft className="w-4 h-4" />
-                                Previous
+                                <ChevronLeft className="w-5 h-5" aria-hidden="true" />
                             </button>
-                            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                Page {currentPage} of {totalPages}
+
+                            <div className="flex gap-1" aria-label={`Page ${currentPage} of ${totalPages}`}>
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        aria-current={currentPage === i + 1 ? 'page' : undefined}
+                                        aria-label={`Go to page ${i + 1}`}
+                                        className={`w-10 h-10 rounded-xl font-bold transition-all ${currentPage === i + 1
+                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                            : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                                            }`}
+                                        style={currentPage !== i + 1 ? { color: 'var(--text-primary)' } : {}}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
                             </div>
+
                             <button
-                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
-                                style={{
-                                    borderColor: 'var(--border-color)',
-                                    color: 'var(--text-secondary)',
-                                    backgroundColor: 'var(--bg-primary)'
-                                }}
+                                className="p-2 rounded-xl border disabled:opacity-50 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                                style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                aria-label="Next page"
                             >
-                                Next
-                                <ChevronRight className="w-4 h-4" />
+                                <ChevronRight className="w-5 h-5" aria-hidden="true" />
                             </button>
-                        </div>
+                        </nav>
                     )}
                 </div>
 
@@ -560,10 +624,12 @@ const BrowseSessionsPage = () => {
                                     setFilterSubject('all');
                                     setFilterLevel('all');
                                     setSearchTerm('');
+                                    setSelectedSubject('all');
                                     setCurrentPage(1);
                                 }}
                                 className="w-full p-3 rounded-lg text-center font-medium transition-all hover:scale-105"
                                 style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}
+                                aria-label="Reset all filters"
                             >
                                 Reset Filters
                             </button>
@@ -581,21 +647,25 @@ const BrowseSessionsPage = () => {
                             }}
                         >
                             <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Popular Subjects</h3>
-                            <div className="space-y-2">
-                                {subjects.slice(0, 5).map(subject => {
+                            <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by subject">
+                                {subjects.map(subject => {
                                     const count = sessions.filter(s => s.subject === subject).length;
                                     return (
                                         <button
                                             key={subject}
                                             onClick={() => {
                                                 setFilterSubject(subject);
+                                                setSelectedSubject(subject);
                                                 setCurrentPage(1);
                                             }}
-                                            className="w-full p-3 rounded-lg text-left text-sm transition-all hover:scale-105"
-                                            style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}
+                                            aria-pressed={selectedSubject === subject}
+                                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedSubject === subject
+                                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                                }`}
+                                            aria-label={`Filter by ${subject} (${count} sessions)`}
                                         >
-                                            <div className="font-medium">{subject}</div>
-                                            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{count} sessions</div>
+                                            {subject} ({count})
                                         </button>
                                     );
                                 })}
@@ -607,114 +677,100 @@ const BrowseSessionsPage = () => {
 
             {/* Session Details Modal */}
             {showDetailsModal && selectedSession && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-start justify-between mb-4">
-                            <div>
-                                <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-                                    {selectedSession.title}
-                                </h2>
-                                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                    {selectedSession.subject} • {selectedSession.level}
-                                </p>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowDetailsModal(false)} />
+                    <div
+                        ref={modalRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="details-modal-title"
+                        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-200"
+                        style={{ backgroundColor: 'var(--card-bg)' }}
+                    >
+                        <div className="p-6 sm:p-8">
+                            <div className="flex justify-between items-start mb-6">
+                                <div>
+                                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 mb-2 inline-block">
+                                        {selectedSession.subject}
+                                    </span>
+                                    <h2 id="details-modal-title" className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                                        {selectedSession.title}
+                                    </h2>
+                                </div>
+                                <button
+                                    onClick={() => setShowDetailsModal(false)}
+                                    className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    aria-label="Close details"
+                                >
+                                    <X className="w-6 h-6" style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
+                                </button>
                             </div>
-                            <button
-                                onClick={() => setShowDetailsModal(false)}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
 
-                        <div className="space-y-6">
-                            {/* Session Info */}
-                            <div className="grid grid-cols-2 gap-4">
-                                {[
-                                    { icon: Calendar, label: 'Date', value: formatDateTime(selectedSession.startTime).date },
-                                    { icon: Clock, label: 'Time', value: formatDateTime(selectedSession.startTime).time },
-                                    { icon: Users, label: 'Capacity', value: `${selectedSession.studentIds?.length || 0}/${selectedSession.maxParticipants}` },
-                                    { icon: Clock, label: 'Duration', value: `${selectedSession.duration || 60} minutes` }
-                                ].map((item, idx) => (
-                                    <div key={idx} className="p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <item.icon className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
-                                            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
-                                                {item.label}
-                                            </span>
-                                        </div>
-                                        <div className="font-bold" style={{ color: 'var(--text-primary)' }}>{item.value}</div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border" style={{ borderColor: 'var(--border-color)' }}>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Calendar className="w-5 h-5 text-blue-500" aria-hidden="true" />
+                                        <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Schedule</span>
                                     </div>
-                                ))}
+                                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                                        {formatDate(selectedSession.startTime)} at {formatTime(selectedSession.startTime)}
+                                    </p>
+                                    <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
+                                        {selectedSession.duration || 60} minutes duration
+                                    </p>
+                                </div>
+                                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border" style={{ borderColor: 'var(--border-color)' }}>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <User className="w-5 h-5 text-blue-500" aria-hidden="true" />
+                                        <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Tutor</span>
+                                    </div>
+                                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                                        {selectedSession.tutor?.name || 'Academic Tutor'}
+                                    </p>
+                                    <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
+                                        Tutor Level: Gold Member
+                                    </p>
+                                </div>
                             </div>
 
                             {/* Description */}
-                            <div>
+                            <div className="mb-8">
                                 <h3 className="font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Description</h3>
                                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                                     {selectedSession.description || 'No description provided'}
                                 </p>
                             </div>
 
-                            {/* Tutor Info */}
-                            <div className="p-4 rounded-lg border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-                                <h3 className="font-bold mb-3" style={{ color: 'var(--text-primary)' }}>About the Tutor</h3>
-                                <div className="flex items-center gap-4">
-                                    <img
-                                        src={selectedSession.tutor?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedSession.tutor?.name || 'Tutor')}&background=random`}
-                                        alt={selectedSession.tutor?.name}
-                                        className="w-16 h-16 rounded-full"
-                                    />
-                                    <div className="flex-1">
-                                        <div className="font-bold" style={{ color: 'var(--text-primary)' }}>
-                                            {selectedSession.tutor?.name || 'Tutor'}
-                                        </div>
-                                        {selectedSession.tutor?.rating && (
-                                            <div className="flex items-center gap-1 text-sm">
-                                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                                <span>{selectedSession.tutor.rating.toFixed(1)}</span>
-                                                <span style={{ color: 'var(--text-tertiary)' }}>
-                                                    ({selectedSession.tutor.reviewCount || 0} reviews)
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
+                            <div className="space-y-4 mb-8">
+                                <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>What you'll learn</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {(selectedSession.tags || ['Study Session', 'Peer Learning', 'Knowledge Share']).map(tag => (
+                                        <span key={tag} className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                                            • {tag}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
 
-                            {/* Availability Status */}
-                            <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                                <div className="flex items-center justify-between">
-                                    <span className="font-medium" style={{ color: 'var(--text-primary)' }}>Availability</span>
-                                    <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getAvailabilityStatus(selectedSession).color}`}>
-                                        {getAvailabilityStatus(selectedSession).status}
-                                    </span>
-                                </div>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <button
+                                    onClick={() => {
+                                        setShowDetailsModal(false);
+                                        setShowEnrollModal(true);
+                                    }}
+                                    className="flex-1 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold shadow-xl shadow-blue-500/20 transition-all active:scale-95"
+                                    aria-label={`Enroll in ${selectedSession.title}`}
+                                >
+                                    Enroll in Session
+                                </button>
+                                <button
+                                    className="flex-1 px-8 py-4 rounded-2xl font-bold border transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
+                                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                    aria-label="Message tutor"
+                                >
+                                    Message Tutor
+                                </button>
                             </div>
-
-                            {/* Action Button */}
-                            <button
-                                onClick={() => {
-                                    setShowDetailsModal(false);
-                                    openEnrollModal(selectedSession);
-                                }}
-                                disabled={isEnrolled(selectedSession._id || selectedSession.id) || getAvailabilityStatus(selectedSession).status === 'Completed' || getAvailabilityStatus(selectedSession).status === 'Cancelled'}
-                                className={`w-full py-3 rounded-lg font-bold transition-all ${isEnrolled(selectedSession._id || selectedSession.id)
-                                        ? 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 cursor-default'
-                                        : getAvailabilityStatus(selectedSession).status === 'Full' || getAvailabilityStatus(selectedSession).status === 'Completed' || getAvailabilityStatus(selectedSession).status === 'Cancelled'
-                                            ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
-                                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                                    }`}
-                            >
-                                {isEnrolled(selectedSession._id || selectedSession.id)
-                                    ? 'Already Enrolled'
-                                    : getAvailabilityStatus(selectedSession).status === 'Full'
-                                        ? 'Session is Full'
-                                        : getAvailabilityStatus(selectedSession).status === 'Completed'
-                                            ? 'Session Completed'
-                                            : getAvailabilityStatus(selectedSession).status === 'Cancelled'
-                                                ? 'Session Cancelled'
-                                                : 'Enroll in This Session'}
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -722,47 +778,43 @@ const BrowseSessionsPage = () => {
 
             {/* Enrollment Confirmation Modal */}
             {showEnrollModal && selectedSession && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-md w-full">
-                        <div className="flex items-start justify-between mb-4">
-                            <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Confirm Enrollment</h2>
-                            <button
-                                onClick={() => setShowEnrollModal(false)}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowEnrollModal(false)} />
+                    <div
+                        ref={modalRef}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="enroll-modal-title"
+                        className="relative w-full max-w-md rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-200 overflow-hidden"
+                        style={{ backgroundColor: 'var(--card-bg)' }}
+                    >
+                        <div className="p-8">
+                            <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6">
+                                <GraduationCap className="w-8 h-8" aria-hidden="true" />
+                            </div>
+                            <h2 id="enroll-modal-title" className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                                Confirm Enrollment
+                            </h2>
+                            <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
+                                You are about to enroll in <span className="font-bold text-blue-600">{selectedSession.title}</span>.
+                                This will reserve your spot and add it to your schedule.
+                            </p>
 
-                        <div className="space-y-4">
-                            <div className="p-4 rounded-lg border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-                                <h3 className="font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-                                    {selectedSession.title}
-                                </h3>
-                                <div className="space-y-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="w-4 h-4" />
-                                        <span>{formatDateTime(selectedSession.startTime).date}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="w-4 h-4" />
-                                        <span>{formatDateTime(selectedSession.startTime).time} • {selectedSession.duration || 60} minutes</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Users className="w-4 h-4" />
-                                        <span>{selectedSession.studentIds?.length || 0}/{selectedSession.maxParticipants} enrolled</span>
-                                    </div>
+                            <div className="space-y-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border mb-8" style={{ borderColor: 'var(--card-border)' }}>
+                                <div className="flex items-center gap-3">
+                                    <Calendar className="w-4 h-4 text-blue-500" aria-hidden="true" />
+                                    <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{formatDate(selectedSession.startTime)}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <Clock className="w-4 h-4 text-blue-500" aria-hidden="true" />
+                                    <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{formatTime(selectedSession.startTime)}</span>
                                 </div>
                             </div>
 
-                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                You're about to enroll in this session. You'll receive a confirmation email with session details and a link to join.
-                            </p>
-
-                            <div className="flex gap-3">
+                            <div className="flex gap-4">
                                 <button
                                     onClick={() => setShowEnrollModal(false)}
-                                    className="flex-1 py-3 rounded-lg border font-medium transition-all"
+                                    className="flex-1 px-6 py-3 rounded-xl font-bold border transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
                                     style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                 >
                                     Cancel
@@ -770,9 +822,9 @@ const BrowseSessionsPage = () => {
                                 <button
                                     onClick={() => handleJoinSession(selectedSession._id || selectedSession.id)}
                                     disabled={joiningId === selectedSession._id}
-                                    className="flex-1 py-3 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all disabled:opacity-50"
+                                    className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
                                 >
-                                    {joiningId === selectedSession._id ? 'Enrolling...' : 'Confirm Enrollment'}
+                                    {joiningId === selectedSession._id ? 'Enrolling...' : 'Confirm'}
                                 </button>
                             </div>
                         </div>
@@ -784,4 +836,3 @@ const BrowseSessionsPage = () => {
 };
 
 export default BrowseSessionsPage;
-

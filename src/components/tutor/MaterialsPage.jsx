@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { BookOpen, AlertCircle, Upload, X, FileText, Trash2, Download } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 const MaterialsPage = () => {
   const [searchParams] = useSearchParams();
@@ -17,6 +18,15 @@ const MaterialsPage = () => {
   const [uploadDescription, setUploadDescription] = useState('');
   const [uploadSessionId, setUploadSessionId] = useState('');
   const [uploading, setUploading] = useState(false);
+
+  const closeUploadModal = () => {
+    setIsUploadModalOpen(false);
+    setUploadFile(null);
+    setUploadTitle('');
+    setUploadDescription('');
+    setUploadSessionId('');
+  };
+  const uploadModalRef = useFocusTrap(isUploadModalOpen, closeUploadModal);
 
   const searchQuery = (searchParams.get('q') || '').trim().toLowerCase();
 
@@ -162,14 +172,14 @@ const MaterialsPage = () => {
           onClick={() => setIsUploadModalOpen(true)}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition"
         >
-          <Upload className="w-4 h-4" />
+          <Upload className="w-4 h-4" aria-hidden="true" />
           Upload Material
         </button>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-400" aria-live="assertive">
+          <AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-medium">{error}</p>
         </div>
       )}
@@ -199,8 +209,8 @@ const MaterialsPage = () => {
         </div>
         <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
           {loading ? (
-            <div className="p-12 text-center">
-              <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="p-12 text-center" aria-live="polite">
+              <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" aria-hidden="true"></div>
               <p className="text-sm mt-3" style={{ color: 'var(--text-secondary)' }}>Loading materials...</p>
             </div>
           ) : filteredMaterials.length > 0 ? (
@@ -211,7 +221,7 @@ const MaterialsPage = () => {
                 <div key={materialId} className="p-4 sm:p-6 flex flex-col sm:flex-row items-start justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                   <div className="flex items-start gap-4 flex-1 min-w-0 w-full">
                     <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shrink-0">
-                      <FileText className="w-6 h-6" />
+                      <FileText className="w-6 h-6" aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-bold truncate" style={{ color: 'var(--text-primary)' }}>
@@ -226,16 +236,23 @@ const MaterialsPage = () => {
                         {material.session && (
                           <>
                             <span className="flex items-center gap-1">
-                              <BookOpen className="w-3 h-3" />
+                              <BookOpen className="w-3 h-3" aria-hidden="true" />
+                              <span className="sr-only">Session: </span>
                               {material.session.title}
                             </span>
-                            <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                            <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" aria-hidden="true"></span>
                           </>
                         )}
-                        {material.size && <span>{formatFileSize(material.size)}</span>}
+                        {material.size && (
+                          <>
+                            <span className="sr-only">File size: </span>
+                            <span>{formatFileSize(material.size)}</span>
+                          </>
+                        )}
                         {material.mimeType && (
                           <>
-                            <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                            <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" aria-hidden="true"></span>
+                            <span className="sr-only">File type: </span>
                             <span>{material.mimeType.split('/')[1]?.toUpperCase()}</span>
                           </>
                         )}
@@ -261,17 +278,17 @@ const MaterialsPage = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-blue-600 dark:text-blue-400 transition"
-                        title="Download/View"
+                        aria-label={`Download or view ${material.title}`}
                       >
-                        <Download className="w-5 h-5" />
+                        <Download className="w-5 h-5" aria-hidden="true" />
                       </a>
                     )}
                     <button
                       onClick={() => handleDeleteMaterial(materialId)}
                       className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-red-600 dark:text-red-400 transition"
-                      title="Delete"
+                      aria-label={`Delete ${material.title}`}
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-5 h-5" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -280,7 +297,7 @@ const MaterialsPage = () => {
           ) : (
             <div className="p-12 text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                <BookOpen className="w-8 h-8 text-slate-400" />
+                <BookOpen className="w-8 h-8 text-slate-400" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                 {searchQuery || selectedSessionFilter !== 'all' ? 'No materials found' : 'No materials yet'}
@@ -297,23 +314,18 @@ const MaterialsPage = () => {
 
       {/* Upload Modal */}
       {isUploadModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={closeUploadModal}>
+          <div ref={uploadModalRef} className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="upload-modal-title" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              <h2 id="upload-modal-title" className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 Upload Material
               </h2>
               <button
-                onClick={() => {
-                  setIsUploadModalOpen(false);
-                  setUploadFile(null);
-                  setUploadTitle('');
-                  setUploadDescription('');
-                  setUploadSessionId('');
-                }}
+                onClick={closeUploadModal}
                 className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded"
+                aria-label="Close modal"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -324,7 +336,7 @@ const MaterialsPage = () => {
                 </h3>
                 <label className="block p-4 border-2 border-dashed rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition" style={{ borderColor: 'var(--border-color)' }}>
                   <div className="text-center">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" aria-hidden="true" />
                     <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                       {uploadFile ? uploadFile.name : 'Click or drag to upload'}
                     </p>
@@ -332,15 +344,16 @@ const MaterialsPage = () => {
                       Max 25MB • PDF, Images, Word, PowerPoint, Excel, Text
                     </p>
                   </div>
-                  <input type="file" onChange={handleFileSelect} className="hidden" disabled={uploading} />
+                  <input type="file" onChange={handleFileSelect} className="hidden" disabled={uploading} aria-label="Select file to upload" />
                 </label>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                <label htmlFor="upload-title" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                   Title <span className="text-red-500">*</span>
-                </h3>
+                </label>
                 <input
+                  id="upload-title"
                   type="text"
                   placeholder="e.g., Chapter 5 Notes"
                   value={uploadTitle}
@@ -356,10 +369,11 @@ const MaterialsPage = () => {
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                <label htmlFor="upload-description" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                   Description (Optional)
-                </h3>
+                </label>
                 <textarea
+                  id="upload-description"
                   placeholder="Add context about this material..."
                   value={uploadDescription}
                   onChange={(e) => setUploadDescription(e.target.value)}
@@ -375,10 +389,11 @@ const MaterialsPage = () => {
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                <label htmlFor="upload-session" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                   Link to Session (Optional)
-                </h3>
+                </label>
                 <select
+                  id="upload-session"
                   value={uploadSessionId}
                   onChange={(e) => setUploadSessionId(e.target.value)}
                   disabled={uploading}
@@ -400,13 +415,7 @@ const MaterialsPage = () => {
 
               <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
                 <button
-                  onClick={() => {
-                    setIsUploadModalOpen(false);
-                    setUploadFile(null);
-                    setUploadTitle('');
-                    setUploadDescription('');
-                    setUploadSessionId('');
-                  }}
+                  onClick={closeUploadModal}
                   disabled={uploading}
                   className="px-4 py-2 rounded-lg text-sm font-semibold border"
                   style={{
@@ -426,13 +435,13 @@ const MaterialsPage = () => {
                   }`}
                 >
                   {uploading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="flex items-center gap-2" aria-live="polite">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
                       Uploading...
-                    </>
+                    </div>
                   ) : (
                     <>
-                      <Upload className="w-4 h-4" />
+                      <Upload className="w-4 h-4" aria-hidden="true" />
                       Upload Material
                     </>
                   )}

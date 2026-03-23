@@ -149,9 +149,41 @@ const ProfileSetup = () => {
 
     return (
         <div className={`min-h-screen w-full flex flex-col ${containerClass} transition-colors duration-300`}>
+            {/* Skip Link */}
+            <a 
+                href="#profile-setup-form" 
+                className="sr-only focus-not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
+            >
+                Skip to profile form
+            </a>
+            
+            <style jsx>{`
+                .sr-only {
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    padding: 0;
+                    margin: -1px;
+                    overflow: hidden;
+                    clip: rect(0, 0, 0, 0);
+                    white-space: nowrap;
+                    border-width: 0;
+                }
+                
+                .focus-not-sr-only:focus {
+                    position: static;
+                    width: auto;
+                    height: auto;
+                    padding: inherit;
+                    margin: inherit;
+                    overflow: visible;
+                    clip: auto;
+                    white-space: normal;
+                }
+            `}</style>
             <AccessibilityToolbar />
 
-            <div className="flex-1 flex flex-col lg:flex-row relative">
+      <main className="flex-1 flex flex-col lg:flex-row relative">
                 {/* LEFT SIDE: Context */}
                 <div className="hidden lg:block lg:w-1/2">
                     <div className="fixed top-0 left-0 w-1/2 h-full bg-slate-900 z-0">
@@ -175,14 +207,14 @@ const ProfileSetup = () => {
                 </div>
 
                 {/* RIGHT SIDE: Form */}
-                <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white dark:bg-slate-900 z-10 min-h-screen transition-colors duration-300">
+                <section className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white dark:bg-slate-900 z-10 min-h-screen transition-colors duration-300">
                     <div className="w-full max-w-md space-y-6 sm:space-y-8">
                         <div>
                             <button
                                 onClick={() => navigate(-1)}
-                                className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-8 group"
+                                className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-8 group rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             >
-                                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
                                 Back to Account Details
                             </button>
 
@@ -211,15 +243,15 @@ const ProfileSetup = () => {
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6" id="profile-setup-form" noValidate>
                             {/* Bio Field */}
                             <div className="space-y-2">
                                 <label htmlFor="bio" className={`block font-semibold text-slate-900 dark:text-slate-100 ${baseFontSize}`}>
                                     Bio (Optional)
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute top-3 left-3 pointer-events-none">
-                                        <FileText className={`w-5 h-5 ${errors.bio ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'}`} />
+                                    <div className="absolute top-3 left-3 pointer-events-none" aria-hidden="true">
+                                        <FileText className={`w-5 h-5 ${errors.bio ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'}`} aria-hidden="true" />
                                     </div>
                                     <textarea
                                         id="bio"
@@ -246,8 +278,8 @@ const ProfileSetup = () => {
                                     {isTutor ? 'Subjects you Teach' : 'Subjects you want to Learn'} <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <BookOpen className={`w-5 h-5 ${errors.subjects ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'}`} />
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
+                                        <BookOpen className={`w-5 h-5 ${errors.subjects ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'}`} aria-hidden="true" />
                                     </div>
                                     <input
                                         type="text"
@@ -318,13 +350,15 @@ const ProfileSetup = () => {
                                 </div>
                             </button>
 
-                            <p className="text-center text-xs text-slate-500 dark:text-slate-400">
-                                You can update these details later in your settings.
-                            </p>
+                            <footer className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-600">Privacy Policy</Link>
+                                </p>
+                            </footer>
                         </form>
                     </div>
-                </div>
-            </div>
+                </section>
+            </main>
         </div>
     );
 };
