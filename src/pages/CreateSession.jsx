@@ -178,7 +178,7 @@ const CreateSession = () => {
             <div className="flex items-center space-x-4">
               <Link 
                 to="/dashboard" 
-                className="flex items-center space-x-2 text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition"
+                className="flex items-center space-x-2 text-slate-600 dark:text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-200 transition"
               >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="font-medium">Back to Dashboard</span>
@@ -186,7 +186,7 @@ const CreateSession = () => {
             </div>
             <div className="flex items-center space-x-3">
               <div className="hidden md:block">
-                <span className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">Creating session as:</span>
+                <span className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300">Creating session as:</span>
                 <span className="ml-2 px-3 py-1 bg--100 text--800 dark:text-blue-300 rounded-full text-sm font-medium">
                   {user?.fullName || 'Tutor'}
                 </span>
@@ -203,7 +203,7 @@ const CreateSession = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
               Create Learning Session
             </h1>
-            <p className="text-slate-600 dark:text-slate-500 dark:text-slate-400">
+            <p className="text-slate-600 dark:text-slate-500 dark:text-slate-300">
               Design an accessible, engaging learning experience for your students
             </p>
           </div>
@@ -351,7 +351,7 @@ const CreateSession = () => {
                         Date *
                       </label>
                       <div className="relative">
-                        <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
+                        <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300 pointer-events-none" />
                         <input
                           id="date"
                           name="date"
@@ -379,7 +379,7 @@ const CreateSession = () => {
                         Time *
                       </label>
                       <div className="relative">
-                        <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
+                        <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300 pointer-events-none" />
                         <input
                           id="time"
                           name="time"
@@ -406,7 +406,7 @@ const CreateSession = () => {
                         Duration (minutes) *
                       </label>
                       <div className="relative">
-                        <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
+                        <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300 pointer-events-none" />
                         <input
                           id="duration"
                           name="duration"
@@ -428,7 +428,7 @@ const CreateSession = () => {
                           {errors.duration}
                         </p>
                       )}
-                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-500 dark:text-slate-400">
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-500 dark:text-slate-300">
                         Recommended: 60-90 minutes for optimal engagement
                       </p>
                     </div>
@@ -453,7 +453,7 @@ const CreateSession = () => {
                         Maximum Participants *
                       </label>
                       <div className="relative">
-                        <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
+                        <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300 pointer-events-none" />
                         <input
                           id="maxParticipants"
                           name="maxParticipants"
@@ -483,7 +483,7 @@ const CreateSession = () => {
                         <span className="ml-2 text-xs text-blue-700 dark:text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">Auto-generated</span>
                       </label>
                       <div className="relative">
-                        <Video className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
+                        <Video className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300 pointer-events-none" />
                         <input
                           id="meetingLink"
                           name="meetingLink"
@@ -499,7 +499,7 @@ const CreateSession = () => {
                           </div>
                         )}
                       </div>
-                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-500 dark:text-slate-400">
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-500 dark:text-slate-300">
                         <span className="font-medium">Note:</span> Meeting link automatically created via Zoom API. Students will access this after enrollment.
                       </p>
                     </div>
@@ -517,7 +517,7 @@ const CreateSession = () => {
                         <h2 id="meeting-settings-heading" className="text-xl font-bold text-slate-900 dark:text-white">
                           Video Meeting Settings
                         </h2>
-                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300 mt-1">
                           Configure Zoom meeting options for accessibility and recording
                         </p>
                       </div>
@@ -545,7 +545,7 @@ const CreateSession = () => {
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300 mt-1">
                           Enable real-time closed captions during the session
                         </p>
                       </div>
@@ -568,7 +568,7 @@ const CreateSession = () => {
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300 mt-1">
                           Generate text transcript after session ends
                         </p>
                       </div>
@@ -591,7 +591,7 @@ const CreateSession = () => {
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300 mt-1">
                           Save recording for students to review later
                         </p>
                       </div>
@@ -615,7 +615,7 @@ const CreateSession = () => {
                 {/* Form Actions */}
                 <div className="pt-8 border-t border-slate-200 dark:border-slate-700 transition-colors">
                   <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
+                    <div className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300">
                       <p className="flex items-center">
                         <HelpCircle className="w-4 h-4 mr-2" />
                         Fields marked with * are required

@@ -231,7 +231,7 @@ const ProfileSetup = () => {
                             <h1 className={`font-bold text-slate-900 dark:text-slate-100 ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`}>
                                 {isTutor ? 'Tutor Profile' : 'Learner Profile'}
                             </h1>
-                            <p className={`mt-2 text-slate-600 dark:text-slate-500 dark:text-slate-400 ${baseFontSize}`}>
+                            <p className={`mt-2 text-slate-600 dark:text-slate-500 dark:text-slate-300 ${baseFontSize}`}>
                                 This information helps us personalize your experience.
                             </p>
                         </div>
@@ -251,7 +251,7 @@ const ProfileSetup = () => {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute top-3 left-3 pointer-events-none" aria-hidden="true">
-                                        <FileText className={`w-5 h-5 ${errors.bio ? 'text-red-400' : 'text-slate-500 dark:text-slate-400 group-focus-within:text-blue-500'}`} aria-hidden="true" />
+                                        <FileText className={`w-5 h-5 ${errors.bio ? 'text-red-400' : 'text-slate-500 dark:text-slate-300 group-focus-within:text-blue-500'}`} aria-hidden="true" />
                                     </div>
                                     <textarea
                                         id="bio"
@@ -279,7 +279,7 @@ const ProfileSetup = () => {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
-                                        <BookOpen className={`w-5 h-5 ${errors.subjects ? 'text-red-400' : 'text-slate-500 dark:text-slate-400 group-focus-within:text-blue-500'}`} aria-hidden="true" />
+                                        <BookOpen className={`w-5 h-5 ${errors.subjects ? 'text-red-400' : 'text-slate-500 dark:text-slate-300 group-focus-within:text-blue-500'}`} aria-hidden="true" />
                                     </div>
                                     <input
                                         type="text"
@@ -351,7 +351,7 @@ const ProfileSetup = () => {
                             </button>
 
                             <footer className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-                                <p className="text-xs text-slate-500 dark:text-slate-500 dark:text-slate-400">
+                                <p className="text-xs text-slate-500 dark:text-slate-500 dark:text-slate-300">
                                     &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-700 dark:text-blue-500">Privacy Policy</Link>
                                 </p>
                             </footer>

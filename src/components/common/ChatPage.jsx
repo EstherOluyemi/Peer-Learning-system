@@ -334,7 +334,7 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                             })
                         ) : (
                             <div className="flex flex-col items-center justify-center h-40 gap-2">
-                                <MessageSquare className="w-8 h-8 text-slate-500 dark:text-slate-400" />
+                                <MessageSquare className="w-8 h-8 text-slate-500 dark:text-slate-300" />
                                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No conversations</p>
                                 <button onClick={openNewModal} className="text-xs text-blue-700 dark:text-blue-500 hover:underline">Start one</button>
                             </div>

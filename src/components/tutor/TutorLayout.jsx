@@ -286,7 +286,7 @@ const TutorLayout = () => {
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 aria-label="Search students and sessions"
-                className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-500 dark:placeholder:text-slate-400"
+                className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-500 dark:placeholder:text-slate-500"
                 style={{
                   backgroundColor: 'var(--input-bg)',
                   color: 'var(--input-text)',
@@ -402,7 +402,7 @@ const TutorLayout = () => {
                       ))
                     ) : (
                       <div className="p-8 text-center">
-                        <Bell className="w-12 h-12 mx-auto mb-2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                        <Bell className="w-12 h-12 mx-auto mb-2 text-slate-500 dark:text-slate-500" aria-hidden="true" />
                         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No notifications</p>
                       </div>
                     )}

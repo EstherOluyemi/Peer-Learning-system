@@ -23,10 +23,10 @@ const RoleCard = ({ title, description, icon: Icon, isSelected, onClick, id }) =
       </div>
       <div className="flex-1">
         <h3 className={`font-bold text-base sm:text-lg ${isSelected ? 'text-blue-900 dark:text-blue-100' : 'text-slate-900 dark:text-slate-100'}`}>{title}</h3>
-        <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-500 dark:text-slate-400'}`}>{description}</p>
+        <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-500 dark:text-slate-300'}`}>{description}</p>
       </div>
       <div className={`transition-transform duration-300 ${isSelected ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'}`} aria-hidden="true">
-        <ArrowRight className={`w-5 h-5 ${isSelected ? 'text-blue-700 dark:text-blue-500' : 'text-slate-500 dark:text-slate-400'}`} />
+        <ArrowRight className={`w-5 h-5 ${isSelected ? 'text-blue-700 dark:text-blue-500' : 'text-slate-500 dark:text-slate-300'}`} />
       </div>
     </div>
   </button>
@@ -108,7 +108,7 @@ const RoleSelection = () => {
             <h1 className={`font-extrabold text-slate-900 dark:text-slate-100 tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
               Choose your journey
             </h1>
-            <p className={`text-slate-600 dark:text-slate-500 dark:text-slate-400 max-w-sm mx-auto ${baseFontSize}`}>
+            <p className={`text-slate-600 dark:text-slate-500 dark:text-slate-300 max-w-sm mx-auto ${baseFontSize}`}>
               Select the role that best fits your goals on PeerLearn. You can always explore both sides later.
             </p>
           </header>
@@ -141,7 +141,7 @@ const RoleSelection = () => {
               disabled={!role}
               className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${role
                 ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-500/25 transform hover:-translate-y-0.5'
-                : 'bg-slate-200 text-slate-500 dark:text-slate-400 cursor-not-allowed shadow-none'
+                : 'bg-slate-200 text-slate-500 dark:text-slate-300 cursor-not-allowed shadow-none'
                 }`}
               aria-label={role ? `Continue to registration as ${role}` : 'Select a role to continue'}
             >
@@ -155,7 +155,7 @@ const RoleSelection = () => {
               Already have an account? Sign In
             </Link>
             <footer className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-500 dark:text-slate-300">
                 &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-700 dark:text-blue-500">Privacy Policy</Link>
               </p>
             </footer>

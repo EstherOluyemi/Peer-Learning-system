@@ -297,7 +297,7 @@ const MaterialsPage = () => {
           ) : (
             <div className="p-12 text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                <BookOpen className="w-8 h-8 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                <BookOpen className="w-8 h-8 text-slate-500 dark:text-slate-300" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                 {searchQuery || selectedSessionFilter !== 'all' ? 'No materials found' : 'No materials yet'}
@@ -336,7 +336,7 @@ const MaterialsPage = () => {
                 </h3>
                 <label className="block p-4 border-2 border-dashed rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition" style={{ borderColor: 'var(--border-color)' }}>
                   <div className="text-center">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-500 dark:text-slate-300" aria-hidden="true" />
                     <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                       {uploadFile ? uploadFile.name : 'Click or drag to upload'}
                     </p>

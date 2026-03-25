@@ -638,7 +638,7 @@ const SettingsPage = () => {
                             <button 
                                 type="button"
                                 onClick={() => togglePasswordVisibility('current')}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-400 hover:text-slate-600"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-300 hover:text-slate-600"
                                 aria-label={showPasswords.current ? "Hide current password" : "Show current password"}
                             >
                                 {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -663,7 +663,7 @@ const SettingsPage = () => {
                             <button 
                                 type="button"
                                 onClick={() => togglePasswordVisibility('new')}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-400 hover:text-slate-600"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-300 hover:text-slate-600"
                                 aria-label={showPasswords.new ? "Hide new password" : "Show new password"}
                             >
                                 {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -688,7 +688,7 @@ const SettingsPage = () => {
                             <button 
                                 type="button"
                                 onClick={() => togglePasswordVisibility('confirm')}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-400 hover:text-slate-600"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-300 hover:text-slate-600"
                                 aria-label={showPasswords.confirm ? "Hide confirmation password" : "Show confirmation password"}
                             >
                                 {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -866,7 +866,7 @@ const SettingsPage = () => {
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id
                                     ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                                    : 'text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    : 'text-slate-600 dark:text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                                     }`}
                             >
                                 <tab.icon className="w-4 h-4" aria-hidden="true" />

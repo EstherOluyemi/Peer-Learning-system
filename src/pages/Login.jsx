@@ -164,7 +164,7 @@ const Login = () => {
               <h1 className={`font-bold text-slate-900 dark:text-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
                 Welcome back
               </h1>
-              <p className={`mt-2 text-slate-600 dark:text-slate-500 dark:text-slate-400 ${baseFontSize}`}>
+              <p className={`mt-2 text-slate-600 dark:text-slate-500 dark:text-slate-300 ${baseFontSize}`}>
                 Please enter your details to sign in.
               </p>
             </header>
@@ -192,7 +192,7 @@ const Login = () => {
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
-                    <Mail className={`h-5 w-5 ${errors.email ? 'text-red-400' : 'text-slate-500 dark:text-slate-400 group-focus-within:text-blue-500'} transition-colors`} aria-hidden="true" />
+                    <Mail className={`h-5 w-5 ${errors.email ? 'text-red-400' : 'text-slate-500 dark:text-slate-300 group-focus-within:text-blue-500'} transition-colors`} aria-hidden="true" />
                   </div>
                   <input
                     type="email"
@@ -226,7 +226,7 @@ const Login = () => {
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
-                    <Lock className={`h-5 w-5 ${errors.password ? 'text-red-400' : 'text-slate-500 dark:text-slate-400 group-focus-within:text-blue-500'} transition-colors`} aria-hidden="true" />
+                    <Lock className={`h-5 w-5 ${errors.password ? 'text-red-400' : 'text-slate-500 dark:text-slate-300 group-focus-within:text-blue-500'} transition-colors`} aria-hidden="true" />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -247,7 +247,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 dark:text-slate-400 hover:text-slate-600 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 dark:text-slate-300 hover:text-slate-600 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                     aria-pressed={showPassword}
                     disabled={isLoading}
@@ -311,7 +311,7 @@ const Login = () => {
               </button>
 
               {/* Sign Up Link */}
-              <p className="text-center text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 pt-2">
+              <p className="text-center text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300 pt-2">
                 Don't have an account?{' '}
                 <Link
                   to="/signup"
@@ -322,7 +322,7 @@ const Login = () => {
               </p>
             </form>
             <footer className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-500 dark:text-slate-300">
                 &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-700 dark:text-blue-500">Privacy Policy</Link>
               </p>
             </footer>

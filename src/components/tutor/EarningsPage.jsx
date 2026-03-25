@@ -187,7 +187,7 @@ const EarningsPage = () => {
               <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">${earningsData.pending}</div>
               <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Pending</div>
             </div>
-            <Users className="w-8 h-8 text-amber-500" aria-hidden="true" />
+            <Users className="w-8 h-8 text-amber-600" aria-hidden="true" />
           </div>
         </div>
       </div>
@@ -292,7 +292,7 @@ const EarningsPage = () => {
                             {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
                           </span>
                            <button 
-                            className="p-2 text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                            className="p-2 text-slate-500 dark:text-slate-300 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 transition-colors"
                             aria-label={`View details for transaction with ${transaction.student}`}
                            >
                             <Eye className="w-5 h-5" aria-hidden="true" />
@@ -309,7 +309,7 @@ const EarningsPage = () => {
                 ))
               ) : (
                 <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
-                  <DollarSign className="w-12 h-12 text-slate-500 dark:text-slate-400 mx-auto mb-4" aria-hidden="true" />
+                  <DollarSign className="w-12 h-12 text-slate-500 dark:text-slate-300 mx-auto mb-4" aria-hidden="true" />
                   <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No transactions found</h3>
                   <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or filters.</p>
                 </div>

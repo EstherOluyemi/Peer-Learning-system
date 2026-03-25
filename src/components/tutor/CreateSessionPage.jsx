@@ -326,7 +326,7 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="date" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Date *</label>
                         <div className="relative">
-                          <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" aria-hidden="true" />
+                          <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300 pointer-events-none" aria-hidden="true" />
                           <input
                             id="date" name="date" type="date" value={formData.date} onChange={handleChange}
                             min={new Date().toISOString().split('T')[0]}
@@ -342,7 +342,7 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="time" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Time *</label>
                         <div className="relative">
-                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" aria-hidden="true" />
+                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300 pointer-events-none" aria-hidden="true" />
                           <input
                             id="time" name="time" type="time" value={formData.time} onChange={handleChange}
                             className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.time ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500' : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-500'} focus:outline-none transition-all`}
@@ -357,7 +357,7 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="duration" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Duration (minutes) *</label>
                         <div className="relative">
-                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" aria-hidden="true" />
+                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300 pointer-events-none" aria-hidden="true" />
                           <input
                             id="duration" name="duration" type="number" min="15" max="240" step="15"
                             value={formData.duration} onChange={handleChange}
@@ -478,7 +478,7 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="maxParticipants" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Maximum Participants *</label>
                         <div className="relative">
-                          <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" aria-hidden="true" />
+                          <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-300 pointer-events-none" aria-hidden="true" />
                           <input
                             id="maxParticipants" name="maxParticipants" type="number" min="1" max="50"
                             value={formData.maxParticipants} onChange={handleChange}

@@ -274,7 +274,7 @@ const SettingsPage = () => {
               style={{ backgroundColor: 'var(--bg-hover)' }}
             >
               <span style={{ color: 'var(--text-primary)' }}>{skill}</span>
-              <button className="p-1 text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors" aria-label={`Edit ${skill}`}>
+              <button className="p-1 text-slate-500 dark:text-slate-300 hover:text-red-500 transition-colors" aria-label={`Edit ${skill}`}>
                 <Edit className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
@@ -517,7 +517,7 @@ const SettingsPage = () => {
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility('current')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-400 hover:text-slate-600"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-300 hover:text-slate-600"
                 aria-label={showPasswords.current ? "Hide current password" : "Show current password"}
               >
                 {showPasswords.current ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
@@ -542,7 +542,7 @@ const SettingsPage = () => {
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility('new')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-400 hover:text-slate-600"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-300 hover:text-slate-600"
                 aria-label={showPasswords.new ? "Hide new password" : "Show new password"}
               >
                 {showPasswords.new ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
@@ -567,7 +567,7 @@ const SettingsPage = () => {
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility('confirm')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-400 hover:text-slate-600"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-500 dark:text-slate-300 hover:text-slate-600"
                 aria-label={showPasswords.confirm ? "Hide confirmation password" : "Show confirmation password"}
               >
                 {showPasswords.confirm ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}

@@ -211,7 +211,7 @@ const DashboardTutor = () => {
   const performanceStats = [
     { label: "Total Students", value: stats.totalStudents, icon: Users, color: "text-blue-700 dark:text-blue-500", bg: "bg-blue-100 dark:bg-blue-900/30" },
     { label: "Hours Taught", value: stats.hoursTaught, icon: Clock, color: "text-purple-700 dark:text-purple-500", bg: "bg-purple-100 dark:bg-purple-900/30" },
-    { label: "Average Rating", value: averageRating, icon: Star, color: "text-amber-700 dark:text-amber-500", bg: "bg-amber-100 dark:bg-amber-900/30", link: "/dashboard-tutor/reviews" },
+    { label: "Average Rating", value: averageRating, icon: Star, color: "text-amber-700 dark:text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/30", link: "/dashboard-tutor/reviews" },
   ];
 
   const formatRequestTime = (dateString) => {
@@ -444,7 +444,7 @@ const DashboardTutor = () => {
                                 disabled={session.status === 'completed'}
                                 className={`inline-flex items-center gap-1 text-xs font-semibold mt-2 transition-colors ${
                                   session.status === 'completed' 
-                                    ? 'text-slate-500 dark:text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-60' 
+                                    ? 'text-slate-500 dark:text-slate-500 dark:text-slate-300 cursor-not-allowed opacity-60' 
                                     : 'text-blue-700 dark:text-blue-400 hover:underline'
                                 }`}
                               >
@@ -455,7 +455,7 @@ const DashboardTutor = () => {
                         </div>
                         <button 
                           onClick={(e) => { e.stopPropagation(); setSelectedSession(session); }}
-                          className="p-2 text-slate-500 dark:text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
+                          className="p-2 text-slate-500 dark:text-slate-500 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
                           aria-label="View session details"
                         >
                           <ArrowUpRight className="w-5 h-5" aria-hidden="true" />
@@ -467,7 +467,7 @@ const DashboardTutor = () => {
               ) : (
                 <div className="p-12 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4" aria-hidden="true">
-                    <Calendar className="w-8 h-8 text-slate-500 dark:text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                    <Calendar className="w-8 h-8 text-slate-500 dark:text-slate-500 dark:text-slate-300" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                     {searchQuery ? 'No sessions found' : 'No upcoming sessions'}

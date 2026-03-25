@@ -659,7 +659,7 @@ const StudentsPage = () => {
                     <button
                       onClick={() => setDetailStudent(student)}
                       aria-label={`View sessions for ${student.name}`}
-                      className="p-2 border rounded-lg text-slate-500 dark:text-slate-500 dark:text-slate-400 hover:text-blue-700 hover:border-blue-400 dark:hover:text-blue-400 transition-colors"
+                      className="p-2 border rounded-lg text-slate-500 dark:text-slate-500 dark:text-slate-300 hover:text-blue-700 hover:border-blue-400 dark:hover:text-blue-400 transition-colors"
                       style={{ borderColor: 'var(--border-color)' }}
                     >
                       <Eye className="w-4 h-4" aria-hidden="true" />
@@ -670,7 +670,7 @@ const StudentsPage = () => {
             );
           }) : (
             <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
-              <Users className="w-12 h-12 text-slate-500 dark:text-slate-500 dark:text-slate-400 mx-auto mb-4" aria-hidden="true" />
+              <Users className="w-12 h-12 text-slate-500 dark:text-slate-500 dark:text-slate-300 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No students found</h3>
               <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or session filter.</p>
             </div>
@@ -722,7 +722,7 @@ const StudentsPage = () => {
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>Completed</span>
-                <span className="font-bold text-emerald-700 dark:text-emerald-500">{totalCompleted}</span>
+                <span className="font-bold text-emerald-700 dark:text-emerald-600">{totalCompleted}</span>
               </div>
             </div>
           </div>
@@ -904,7 +904,7 @@ const StudentsPage = () => {
               {[
                 { label: 'Total', value: detailStudent.totalSessions || 0, color: 'text-slate-700 dark:text-slate-300' },
                 { label: 'Upcoming', value: detailStudent.upcomingSessions || 0, color: 'text-blue-700 dark:text-blue-500' },
-                { label: 'Completed', value: detailStudent.completedSessions || 0, color: 'text-emerald-700 dark:text-emerald-500' },
+                { label: 'Completed', value: detailStudent.completedSessions || 0, color: 'text-emerald-700 dark:text-emerald-600' },
               ].map(({ label, value, color }) => (
                 <div key={label} className="p-4 text-center" style={{ borderColor: 'var(--border-color)' }}>
                   <div className={`text-2xl font-bold ${color}`}>{value}</div>
@@ -947,7 +947,7 @@ const StudentsPage = () => {
                         {s.meetingLink && (
                           s.status === 'completed' ? (
                             <span
-                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-500 dark:text-slate-400 cursor-not-allowed select-none"
+                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-500 dark:text-slate-300 cursor-not-allowed select-none"
                               aria-label="Session has ended"
                             >
                               <Video className="w-3.5 h-3.5" aria-hidden="true" /> Join

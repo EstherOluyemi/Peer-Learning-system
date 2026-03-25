@@ -380,7 +380,7 @@ const SessionsPage = () => {
                                                     }}
                                                     disabled={!session.meetingLink || session.status === 'completed' || isPendingApproval}
                                                     className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${!session.meetingLink || session.status === 'completed' || isPendingApproval
-                                                        ? 'bg-slate-100 text-slate-500 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
+                                                        ? 'bg-slate-100 text-slate-500 dark:text-slate-300 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                         : 'bg-blue-600 text-white hover:bg-blue-700'
                                                         }`}
                                                     aria-label={isPendingApproval ? 'Pending Approval' : 'Join session'}
@@ -492,7 +492,7 @@ const SessionsPage = () => {
                                                                 }}
                                                                 disabled={session.status === 'completed' || isPendingApproval}
                                                                 className={`flex items-center gap-1 text-sm font-medium transition-colors ${session.status === 'completed' || isPendingApproval
-                                                                    ? 'text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-60'
+                                                                    ? 'text-slate-500 dark:text-slate-300 cursor-not-allowed opacity-60'
                                                                     : 'text-blue-700 dark:text-blue-500 hover:underline'
                                                                     }`}
                                                                 aria-label={isPendingApproval ? 'Pending Approval' : session.status === 'completed' ? 'Session Completed' : 'Join session'}
@@ -531,7 +531,7 @@ const SessionsPage = () => {
                                                         }}
                                                         disabled={!session.meetingLink || session.status === 'completed' || isPendingApproval}
                                                         className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${!session.meetingLink || session.status === 'completed' || isPendingApproval
-                                                            ? 'bg-slate-100 text-slate-500 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
+                                                            ? 'bg-slate-100 text-slate-500 dark:text-slate-300 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                             : 'bg-blue-600 text-white hover:bg-blue-700'
                                                             }`}
                                                         aria-label={isPendingApproval ? 'Pending Approval' : 'Join session'}
@@ -544,7 +544,7 @@ const SessionsPage = () => {
                                                     onClick={() => session.status !== 'completed' && handleLeaveSession(session._id || session.id)}
                                                     disabled={session.status === 'completed' || leavingSessionId === (session._id || session.id)}
                                                     className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all ${session.status === 'completed'
-                                                        ? 'border-slate-300 text-slate-500 dark:text-slate-400 dark:border-slate-600 dark:text-slate-500 cursor-not-allowed opacity-60'
+                                                        ? 'border-slate-300 text-slate-500 dark:text-slate-300 dark:border-slate-600 dark:text-slate-500 cursor-not-allowed opacity-60'
                                                         : 'text-red-600 hover:text-white hover:bg-red-600 border-red-600 disabled:opacity-50 disabled:cursor-not-allowed'
                                                         }`}
                                                     aria-label={`Leave ${session.title || 'this session'}`}
@@ -610,7 +610,7 @@ const SessionsPage = () => {
                         ) : (
                             <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)' }} aria-live="polite">
                                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                                    <Calendar className="w-8 h-8 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                                    <Calendar className="w-8 h-8 text-slate-500 dark:text-slate-300" aria-hidden="true" />
                                 </div>
                                 <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                                     {searchTerm || statusFilter !== 'all' ? 'No sessions found' : 'No enrolled sessions yet'}
@@ -923,7 +923,7 @@ const SessionsPage = () => {
                                 }}
                                 disabled={selectedSession.status === 'completed' || leavingSessionId === (selectedSession._id || selectedSession.id)}
                                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedSession.status === 'completed'
-                                    ? 'bg-slate-200 text-slate-500 dark:text-slate-400 dark:bg-slate-700 dark:text-slate-500 cursor-not-allowed opacity-60'
+                                    ? 'bg-slate-200 text-slate-500 dark:text-slate-300 dark:bg-slate-700 dark:text-slate-500 cursor-not-allowed opacity-60'
                                     : 'bg-red-600 hover:bg-red-700 text-white disabled:opacity-50'
                                     }`}
                             >

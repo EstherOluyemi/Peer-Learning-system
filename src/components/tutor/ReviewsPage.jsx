@@ -333,7 +333,7 @@ const ReviewsPage = () => {
                       </button>
                       <button
                         onClick={() => setDetailReview(review)}
-                        className="p-2 text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 border rounded-lg border-slate-200 dark:border-slate-700 hover:border-blue-400 transition-colors"
+                        className="p-2 text-slate-500 dark:text-slate-300 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 border rounded-lg border-slate-200 dark:border-slate-700 hover:border-blue-400 transition-colors"
                         aria-label={`View full review by ${review.studentName}`}
                       >
                         <Eye className="w-4 h-4" aria-hidden="true" />
@@ -375,7 +375,7 @@ const ReviewsPage = () => {
               </div>
             )) : (
               <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
-                <Star className="w-12 h-12 text-slate-500 dark:text-slate-400 mx-auto mb-4" />
+                <Star className="w-12 h-12 text-slate-500 dark:text-slate-300 mx-auto mb-4" />
                 <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No reviews found</h3>
                 <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or filters.</p>
               </div>

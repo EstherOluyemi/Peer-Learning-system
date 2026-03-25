@@ -305,7 +305,7 @@ const DashboardLearner = () => {
   const statCards = [
     { icon: BookOpen, label: 'Total Sessions', value: stats.totalSessions, color: 'text-blue-700 dark:text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30' },
     { icon: Clock, label: 'Hours Learned', value: stats.hoursLearned, color: 'text-purple-700 dark:text-purple-500', bg: 'bg-purple-100 dark:bg-purple-900/30' },
-    { icon: TrendingUp, label: 'Completed', value: stats.completed, color: 'text-emerald-700 dark:text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
+    { icon: TrendingUp, label: 'Completed', value: stats.completed, color: 'text-emerald-700 dark:text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
     { icon: Calendar, label: 'Upcoming', value: stats.upcoming, color: 'text-orange-700 dark:text-orange-500', bg: 'bg-orange-100 dark:bg-orange-900/30' },
   ];
 
@@ -480,7 +480,7 @@ const DashboardLearner = () => {
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className={`w-3 h-3 ${i < Math.floor(tutor.rating) ? 'fill-amber-600 text-amber-600' : 'text-slate-400'}`}
+                    className={`w-3 h-3 ${i < Math.floor(tutor.rating) ? 'fill-amber-600 text-amber-600' : 'text-slate-500'}`}
                     aria-hidden="true"
                   />
                 ))}
@@ -550,7 +550,7 @@ const DashboardLearner = () => {
               ) : (
                 <div className="p-12 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                    <Calendar className="w-8 h-8 text-slate-500 dark:text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                    <Calendar className="w-8 h-8 text-slate-500 dark:text-slate-500 dark:text-slate-300" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No upcoming sessions</h3>
                   <p className="text-sm max-w-xs mx-auto mb-6" style={{ color: 'var(--text-secondary)' }}>
@@ -645,7 +645,7 @@ const DashboardLearner = () => {
               {recentActivity.map((activity) => (
                 <div key={activity.id} className="flex gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded" tabIndex={0}>
                   <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg shrink-0 h-fit">
-                    <activity.icon className="w-4 h-4 text-slate-600 dark:text-slate-500 dark:text-slate-400" />
+                    <activity.icon className="w-4 h-4 text-slate-600 dark:text-slate-500 dark:text-slate-300" />
                   </div>
                   <div>
                     <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{activity.detail}</p>

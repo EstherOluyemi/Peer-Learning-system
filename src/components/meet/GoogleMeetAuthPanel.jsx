@@ -46,7 +46,7 @@ const GoogleMeetAuthPanel = ({
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm">
         <div className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
-          {connected ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-amber-500" />}
+          {connected ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-amber-600" />}
           <span>Token expires: {formatExpiry(expiresAt)}</span>
         </div>
         <div className="flex flex-wrap items-center gap-2">

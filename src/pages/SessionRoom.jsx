@@ -381,7 +381,7 @@ const SessionRoom = () => {
       <div className="min-h-screen flex items-center justify-center px-4 sm:px-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="max-w-xl w-full p-6 rounded-2xl border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
           <div className="flex items-start gap-3">
-            <Shield className="w-5 h-5 text-amber-500 mt-0.5" />
+            <Shield className="w-5 h-5 text-amber-600 mt-0.5" />
             <div>
               <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Access restricted</h1>
               <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
@@ -455,7 +455,7 @@ const SessionRoom = () => {
                       <Video className="w-10 h-10 text-blue-400" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Ready to join?</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 max-w-xs">
+                    <p className="text-slate-500 dark:text-slate-300 text-sm mb-8 max-w-xs">
                       The video session opens in a new tab. Come back here for chat and session info.
                     </p>
                     <a
@@ -475,7 +475,7 @@ const SessionRoom = () => {
                   <div className="flex flex-col items-center gap-3">
                     <AlertCircle className="w-10 h-10 text-amber-400" />
                     <p className="text-sm font-medium text-white">Meeting link unavailable.</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Contact your tutor or refresh the page.</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Contact your tutor or refresh the page.</p>
                   </div>
                 )}
               </div>
@@ -630,7 +630,7 @@ const SessionRoom = () => {
       </main>
     <footer className="mt-auto py-6 border-t bg-slate-50 dark:bg-slate-900/50" style={{ borderColor: 'var(--card-border)' }}>
       <div className="container mx-auto px-4 text-center">
-        <p className="text-sm text-slate-500 dark:text-slate-500 dark:text-slate-400">
+        <p className="text-sm text-slate-500 dark:text-slate-500 dark:text-slate-300">
           &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-700 dark:text-blue-500">Privacy Policy</Link>
         </p>
       </div>

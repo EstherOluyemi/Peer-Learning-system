@@ -377,7 +377,7 @@ const CreateSessionPage = () => {
                                             <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{tutor.name}</h4>
                                             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{tutor.specialization || tutor.subject || 'Expert Tutor'}</p>
                                             <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                                                <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-500 fill-amber-500" /> {tutor.rating || 'N/A'}</span>
+                                                <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-600 fill-amber-500" /> {tutor.rating || 'N/A'}</span>
                                                 <span>${tutor.price || '0'}/hr</span>
                                             </div>
                                         </div>

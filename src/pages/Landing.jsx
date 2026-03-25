@@ -217,7 +217,7 @@ const Landing = () => {
                 onClick={scrollToTestimonials}
                 className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium transition-colors text-left focus-visible:outline-2 focus-visible:outline-blue-600"
               >
-                <Star className="w-5 h-5 text-amber-500" aria-hidden="true" />
+                <Star className="w-5 h-5 text-amber-600" aria-hidden="true" />
                 <span>Testimonials</span>
               </button>
               <Link
@@ -414,7 +414,7 @@ const Landing = () => {
         </nav>
 
         {/* Hero Content */}
-        <div id="main-content" tabIndex="-1" className="relative z-10 container mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-12 sm:pb-16 flex flex-col items-start outline-none" aria-label="Hero section">
+        <div id="main-content" tabIndex="-1" className="relative z-10 container mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-12 sm:pb-16 flex flex-col items-start outline-none" role="region" aria-label="Hero section">
           <span className="block text-white text-base sm:text-lg mb-4" tabIndex={0}>🎓 Transform Your Learning Journey</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6 drop-shadow-md" tabIndex={0}>
             Learn <span className="text-blue-300">Together,</span>
@@ -558,7 +558,7 @@ const Landing = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-500 dark:text-slate-400'}`}
+                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-600 fill-amber-500' : 'text-slate-500 dark:text-slate-300'}`}
                             aria-hidden="true"
                           />
                         ))}
@@ -596,7 +596,7 @@ const Landing = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-500 dark:text-slate-400'}`}
+                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-600 fill-amber-500' : 'text-slate-500 dark:text-slate-300'}`}
                             aria-hidden="true"
                           />
                         ))}
@@ -618,7 +618,7 @@ const Landing = () => {
               Join Our Community
               <ArrowRight className="ml-3 w-5 h-5" aria-hidden="true" />
             </Link>
-            <p className="text-slate-500 dark:text-slate-500 dark:text-slate-400 text-sm mt-4" tabIndex={0}>
+            <p className="text-slate-500 dark:text-slate-500 dark:text-slate-300 text-sm mt-4" tabIndex={0}>
               Join {stats[0].number} learners and {stats[1].number} tutors already transforming education
             </p>
           </div>
@@ -668,7 +668,7 @@ const Landing = () => {
                 <div className="text-center">
                   <Play className="w-20 h-20 text-white mx-auto mb-6" aria-hidden="true" />
                   <p id="video-modal-title" className="text-white text-xl mb-2">Platform Demo Video</p>
-                  <p className="text-slate-500 dark:text-slate-400">See how PeerLearn transforms learning experiences</p>
+                  <p className="text-slate-500 dark:text-slate-300">See how PeerLearn transforms learning experiences</p>
                 </div>
               </div>
             </div>

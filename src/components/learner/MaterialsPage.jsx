@@ -203,7 +203,7 @@ const LearnerMaterialsPage = () => {
           ) : (
             <div className="p-12 text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                <BookOpen className="w-8 h-8 text-slate-500 dark:text-slate-400" />
+                <BookOpen className="w-8 h-8 text-slate-500 dark:text-slate-300" />
               </div>
               <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                 {searchQuery ? 'No materials found' : 'No materials available'}

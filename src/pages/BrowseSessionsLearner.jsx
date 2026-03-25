@@ -168,7 +168,7 @@ const BrowseSessionsLearner = () => {
         <header className="mb-6 sm:mb-8">
           <button
             onClick={() => navigate('/dashboard-learner')}
-            className="inline-flex items-center text-slate-500 dark:text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+            className="inline-flex items-center text-slate-500 dark:text-slate-500 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-400 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
           >
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
             Back to Dashboard
@@ -261,9 +261,9 @@ const BrowseSessionsLearner = () => {
           </div>
         ) : filteredSessions.length === 0 ? (
           <div className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl shadow-lg p-8 sm:p-12 text-center transition-colors">
-            <Search className="w-12 h-12 text-slate-500 dark:text-slate-400 dark:text-slate-600 mx-auto mb-4" aria-hidden="true" />
+            <Search className="w-12 h-12 text-slate-500 dark:text-slate-300 dark:text-slate-600 mx-auto mb-4" aria-hidden="true" />
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">No Sessions Found</h2>
-            <p className="text-slate-600 dark:text-slate-500 dark:text-slate-400 mb-6">
+            <p className="text-slate-600 dark:text-slate-500 dark:text-slate-300 mb-6">
               {searchQuery || filterSubject
                 ? 'Try adjusting your search or filter criteria'
                 : 'Check back soon for new sessions!'}
@@ -298,7 +298,7 @@ const BrowseSessionsLearner = () => {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-1">{session.title || 'Untitled'}</h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">{session.subject || 'General'}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300">{session.subject || 'General'}</p>
                       </div>
                     </div>
 
@@ -323,7 +323,7 @@ const BrowseSessionsLearner = () => {
 
                     {/* Description (if available) */}
                     {session.description && (
-                      <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
+                      <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300 mb-4 line-clamp-2">
                         {session.description}
                       </p>
                     )}
@@ -332,7 +332,7 @@ const BrowseSessionsLearner = () => {
                     {session.tutor?.rating && (
                       <div className="flex items-center gap-1 mb-4">
                         <Star className="w-4 h-4 fill-amber-400 text-amber-400" aria-hidden="true" />
-                        <span className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
+                        <span className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-300">
                           {session.tutor.rating.toFixed(1)} ({session.tutor.reviewCount} reviews)
                         </span>
                       </div>

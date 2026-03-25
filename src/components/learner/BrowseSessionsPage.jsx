@@ -199,11 +199,11 @@ const BrowseSessionsPage = () => {
         }
 
         if (session.status === 'completed' || isPast) {
-            return { status: 'Completed', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500 dark:text-slate-400' };
+            return { status: 'Completed', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500 dark:text-slate-300' };
         }
 
         if (session.status === 'cancelled') {
-            return { status: 'Cancelled', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500 dark:text-slate-400' };
+            return { status: 'Cancelled', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500 dark:text-slate-300' };
         }
 
         const currentStudents = session.studentIds?.length || 0;
@@ -518,7 +518,7 @@ const BrowseSessionsPage = () => {
 
                                                     {enrolled ? (
                                                         <button
-                                                            className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500 dark:text-slate-400 text-sm font-medium cursor-default"
+                                                            className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500 dark:text-slate-300 text-sm font-medium cursor-default"
                                                             aria-label={`Enrolled in ${session.title}`}
                                                             disabled
                                                         >
@@ -538,7 +538,7 @@ const BrowseSessionsPage = () => {
                                                             disabled={joiningId === sessionId || isFull || availability.status === 'Completed' || availability.status === 'Cancelled'}
                                                             aria-disabled={isFull || availability.status === 'Completed' || availability.status === 'Cancelled'}
                                                             className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${(isFull || availability.status === 'Completed' || availability.status === 'Cancelled')
-                                                                    ? 'bg-slate-100 text-slate-500 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
+                                                                    ? 'bg-slate-100 text-slate-500 dark:text-slate-300 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                                     : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 active:scale-95'
                                                                 }`}
                                                             aria-label={isFull ? `Session ${session.title} is full` : availability.status === 'Completed' ? `Session ${session.title} completed` : availability.status === 'Cancelled' ? `Session ${session.title} cancelled` : `Enroll in ${session.title}`}
@@ -555,7 +555,7 @@ const BrowseSessionsPage = () => {
                         ) : (
                             <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)' }}>
                                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                                    <Search className="w-8 h-8 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                                    <Search className="w-8 h-8 text-slate-500 dark:text-slate-300" aria-hidden="true" />
                                 </div>
                                 <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No sessions found</h3>
                                 <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
@@ -661,7 +661,7 @@ const BrowseSessionsPage = () => {
                                             aria-pressed={selectedSubject === subject}
                                             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedSubject === subject
                                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                                                 }`}
                                             aria-label={`Filter by ${subject} (${count} sessions)`}
                                         >
