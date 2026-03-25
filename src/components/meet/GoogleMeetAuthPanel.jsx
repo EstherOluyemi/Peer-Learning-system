@@ -18,13 +18,13 @@ const GoogleMeetAuthPanel = ({
   onDisconnect,
 }) => {
   const statusLabel = connected ? 'Connected' : 'Not connected';
-  const statusTone = connected ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+  const statusTone = connected ? 'bg--100 text--800' : 'bg-amber-100 text-amber-700';
 
   return (
     <div className="rounded-xl border p-4 space-y-4" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-100 text-blue-600">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-100 text-blue-700 dark:text-blue-500">
             <Shield className="w-5 h-5" />
           </div>
           <div>

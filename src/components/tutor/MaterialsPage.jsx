@@ -220,7 +220,7 @@ const MaterialsPage = () => {
               return (
                 <div key={materialId} className="p-4 sm:p-6 flex flex-col sm:flex-row items-start justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
                   <div className="flex items-start gap-4 flex-1 min-w-0 w-full">
-                    <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shrink-0">
+                    <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-500 shrink-0">
                       <FileText className="w-6 h-6" aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -277,7 +277,7 @@ const MaterialsPage = () => {
                         href={material.fileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-blue-600 dark:text-blue-400 transition"
+                        className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-blue-700 dark:text-blue-500 transition"
                         aria-label={`Download or view ${material.title}`}
                       >
                         <Download className="w-5 h-5" aria-hidden="true" />
@@ -297,7 +297,7 @@ const MaterialsPage = () => {
           ) : (
             <div className="p-12 text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                <BookOpen className="w-8 h-8 text-slate-400" aria-hidden="true" />
+                <BookOpen className="w-8 h-8 text-slate-500 dark:text-slate-400" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                 {searchQuery || selectedSessionFilter !== 'all' ? 'No materials found' : 'No materials yet'}
@@ -336,7 +336,7 @@ const MaterialsPage = () => {
                 </h3>
                 <label className="block p-4 border-2 border-dashed rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition" style={{ borderColor: 'var(--border-color)' }}>
                   <div className="text-center">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" aria-hidden="true" />
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                     <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                       {uploadFile ? uploadFile.name : 'Click or drag to upload'}
                     </p>

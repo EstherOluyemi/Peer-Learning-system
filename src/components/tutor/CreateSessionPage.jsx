@@ -223,7 +223,7 @@ const CreateSessionPage = () => {
             </Link>
             <div className="hidden md:block">
               <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>{editId ? 'Editing' : 'Creating'} session as:</span>
-              <span className="ml-2 px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-full text-sm font-medium">
+              <span className="ml-2 px-3 py-1 bg--100 text--800 dark:bg-blue-900/30 dark:text-blue-400 rounded-full text-sm font-medium">
                 {user?.name || 'Tutor'}
               </span>
             </div>
@@ -232,14 +232,14 @@ const CreateSessionPage = () => {
       </header>
 
       {isLoading ? (
-        <main id="main-content" className="container mx-auto px-4 sm:px-6 py-8">
+        <div className="container mx-auto px-4 sm:px-6 py-8">
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" aria-live="polite">
             <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
             <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading session...</p>
           </div>
-        </main>
+        </div>
       ) : (
-        <main id="main-content" className="container mx-auto px-4 sm:px-6 py-8">
+        <div className="container mx-auto px-4 sm:px-6 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="mb-8">
               <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
@@ -265,7 +265,7 @@ const CreateSessionPage = () => {
                   <section aria-labelledby="basic-info-heading">
                     <div className="flex items-center space-x-3 mb-6">
                       <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <BookOpen className="w-5 h-5 text-blue-700 dark:text-blue-500" />
                       </div>
                       <h2 id="basic-info-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Basic Information</h2>
                     </div>
@@ -311,99 +311,14 @@ const CreateSessionPage = () => {
                     </div>
                   </section>
 
-                  {/* Course Modules Section */}
-                  <section aria-labelledby="modules-heading" className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <h2 id="modules-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Course Modules</h2>
-                    </div>
-
-                    <div className="space-y-4">
-                      <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                        Define the curriculum by adding modules. Learners can track their progress by marking these as complete.
-                      </p>
-
-                      <div className="flex flex-col gap-2">
-                        <label htmlFor="new-module" className="sr-only">Add New Module</label>
-                        <div className="flex gap-2">
-                          <input
-                            id="new-module"
-                            type="text"
-                            className="flex-1 px-4 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-                            style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
-                            placeholder="e.g., Introduction to Algebra"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                const value = e.target.value.trim();
-                                if (value && !formData.modules.includes(value)) {
-                                  setFormData(prev => ({ ...prev, modules: [...prev.modules, value] }));
-                                  e.target.value = '';
-                                }
-                              }
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const input = document.getElementById('new-module');
-                              const value = input.value.trim();
-                              if (value && !formData.modules.includes(value)) {
-                                setFormData(prev => ({ ...prev, modules: [...prev.modules, value] }));
-                                input.value = '';
-                              }
-                            }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                          >
-                            Add
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 max-h-60 overflow-y-auto">
-                        {formData.modules.length > 0 ? (
-                          formData.modules.map((module, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-3 rounded-lg border"
-                              style={{ backgroundColor: 'var(--bg-hover)', borderColor: 'var(--card-border)' }}
-                            >
-                              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                                {index + 1}. {module}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    modules: prev.modules.filter((_, i) => i !== index)
-                                  }));
-                                }}
-                                className="text-red-500 hover:text-red-700 p-1"
-                                aria-label={`Remove module ${module}`}
-                              >
-                                <AlertCircle className="w-4 h-4" aria-hidden="true" />
-                              </button>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-center py-6 border-2 border-dashed rounded-xl" style={{ borderColor: 'var(--card-border)' }}>
-                            <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>No modules added yet. Add your first module above.</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </section>
 
 
                   {/* Scheduling */}
                   <section aria-labelledby="scheduling-heading" className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
                     <div className="flex items-center space-x-3 mb-6">
                       <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                        <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                        <Calendar className="w-5 h-5 text-blue-700 dark:text-blue-500" />
+                        <Calendar className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                       </div>
                       <h2 id="scheduling-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Scheduling</h2>
                     </div>
@@ -411,7 +326,7 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="date" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Date *</label>
                         <div className="relative">
-                          <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" aria-hidden="true" />
+                          <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" aria-hidden="true" />
                           <input
                             id="date" name="date" type="date" value={formData.date} onChange={handleChange}
                             min={new Date().toISOString().split('T')[0]}
@@ -427,7 +342,7 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="time" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Time *</label>
                         <div className="relative">
-                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" aria-hidden="true" />
+                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" aria-hidden="true" />
                           <input
                             id="time" name="time" type="time" value={formData.time} onChange={handleChange}
                             className={`w-full pl-12 pr-4 py-3 rounded-lg border ${errors.time ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500' : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-500'} focus:outline-none transition-all`}
@@ -442,7 +357,7 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="duration" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Duration (minutes) *</label>
                         <div className="relative">
-                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" aria-hidden="true" />
+                          <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" aria-hidden="true" />
                           <input
                             id="duration" name="duration" type="number" min="15" max="240" step="15"
                             value={formData.duration} onChange={handleChange}
@@ -462,12 +377,12 @@ const CreateSessionPage = () => {
                     <section aria-labelledby="google-meet-heading" className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
                       <div className="flex items-center space-x-3 mb-6">
                         <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                          <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                          <Video className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                         </div>
                         <div>
-                          <h2 id="google-meet-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Google Meet</h2>
+                          <h2 id="google-meet-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Video Session</h2>
                           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                            Optionally generate a Meet link now. No redirect happens during session creation.
+                            Optionally generate a Video link now. No redirect happens during session creation.
                           </p>
                         </div>
                       </div>
@@ -477,7 +392,7 @@ const CreateSessionPage = () => {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div>
                             <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                              Quick Google Meet Link
+                              Quick Video Link
                             </p>
                             <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
                               Create an instant meeting link without any account connection
@@ -545,7 +460,7 @@ const CreateSessionPage = () => {
                           id="meetingLink" name="meetingLink" type="url" value={formData.meetingLink} onChange={handleChange}
                           className="w-full px-4 py-3 rounded-lg border focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                           style={{ backgroundColor: 'var(--input-bg)', color: 'var(--input-text)', borderColor: 'var(--input-border)' }}
-                          placeholder="https://meet.google.com/..."
+                          placeholder="https://meet.jit.si/... or https://meet.google.com/..."
                         />
                       </div>
                     </section>
@@ -555,7 +470,7 @@ const CreateSessionPage = () => {
                   <section aria-labelledby="details-heading" className="pt-8 border-t" style={{ borderColor: 'var(--card-border)' }}>
                     <div className="flex items-center space-x-3 mb-6">
                       <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                        <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                        <Users className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                       </div>
                       <h2 id="details-heading" className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Session Details</h2>
                     </div>
@@ -563,7 +478,7 @@ const CreateSessionPage = () => {
                       <div>
                         <label htmlFor="maxParticipants" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Maximum Participants *</label>
                         <div className="relative">
-                          <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" aria-hidden="true" />
+                          <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" aria-hidden="true" />
                           <input
                             id="maxParticipants" name="maxParticipants" type="number" min="1" max="50"
                             value={formData.maxParticipants} onChange={handleChange}
@@ -619,7 +534,7 @@ const CreateSessionPage = () => {
               </div>
             </div>
           </div>
-        </main>
+        </div>
       )}
     </div>
   );

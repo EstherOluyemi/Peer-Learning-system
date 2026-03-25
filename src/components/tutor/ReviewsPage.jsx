@@ -228,7 +228,7 @@ const ReviewsPage = () => {
                     onClick={() => { setFilterRating(r); setCurrentPage(1); }}
                     aria-pressed={filterRating === r}
                     className={`flex items-center justify-between w-full px-3 py-2 rounded-lg transition-colors ${filterRating === r
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                      ? 'bg--100 text--800 dark:bg-blue-900/30 dark:text-blue-400'
                       : 'hover:bg-slate-100 dark:hover:bg-slate-800'
                       }`}
                   >
@@ -263,7 +263,7 @@ const ReviewsPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--text-secondary)' }}>Response Rate</span>
-                  <span className="font-bold text-blue-600">{stats.responseRate}</span>
+                  <span className="font-bold text-blue-700 dark:text-blue-500">{stats.responseRate}</span>
                 </div>
               </div>
             </div>
@@ -306,7 +306,7 @@ const ReviewsPage = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1 flex-wrap">
                         <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>{review.studentName}</h4>
-                        <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                        <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg--100 text--800 dark:bg-green-900/30 dark:text-green-400">
                           {review.studentLevel}
                         </span>
                         <StarRow rating={review.rating} />
@@ -333,7 +333,7 @@ const ReviewsPage = () => {
                       </button>
                       <button
                         onClick={() => setDetailReview(review)}
-                        className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 border rounded-lg border-slate-200 dark:border-slate-700 hover:border-blue-400 transition-colors"
+                        className="p-2 text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 border rounded-lg border-slate-200 dark:border-slate-700 hover:border-blue-400 transition-colors"
                         aria-label={`View full review by ${review.studentName}`}
                       >
                         <Eye className="w-4 h-4" aria-hidden="true" />
@@ -366,7 +366,7 @@ const ReviewsPage = () => {
                   <div className="mt-4">
                     <button
                       onClick={() => { setRespondTarget(review); setResponseText(''); }}
-                      className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors text-sm"
+                      className="flex items-center gap-2 px-4 py-2 text-blue-700 dark:text-blue-500 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors text-sm"
                     >
                       <MessageCircle className="w-4 h-4" aria-hidden="true" /> Respond to this review
                     </button>
@@ -375,7 +375,7 @@ const ReviewsPage = () => {
               </div>
             )) : (
               <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
-                <Star className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                <Star className="w-12 h-12 text-slate-500 dark:text-slate-400 mx-auto mb-4" />
                 <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No reviews found</h3>
                 <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or filters.</p>
               </div>

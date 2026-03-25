@@ -62,8 +62,8 @@ const CreateSession = () => {
   ];
 
   const difficulties = [
-    { value: 'beginner', label: 'Beginner', color: 'bg-emerald-100 text-emerald-700' },
-    { value: 'intermediate', label: 'Intermediate', color: 'bg-blue-100 text-blue-700' },
+    { value: 'beginner', label: 'Beginner', color: 'bg--100 text--800' },
+    { value: 'intermediate', label: 'Intermediate', color: 'bg--100 text--800' },
     { value: 'advanced', label: 'Advanced', color: 'bg-purple-100 text-purple-700' }
   ];
 
@@ -178,7 +178,7 @@ const CreateSession = () => {
             <div className="flex items-center space-x-4">
               <Link 
                 to="/dashboard" 
-                className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition"
+                className="flex items-center space-x-2 text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition"
               >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="font-medium">Back to Dashboard</span>
@@ -186,8 +186,8 @@ const CreateSession = () => {
             </div>
             <div className="flex items-center space-x-3">
               <div className="hidden md:block">
-                <span className="text-sm text-slate-600 dark:text-slate-400">Creating session as:</span>
-                <span className="ml-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
+                <span className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">Creating session as:</span>
+                <span className="ml-2 px-3 py-1 bg--100 text--800 dark:text-blue-300 rounded-full text-sm font-medium">
                   {user?.fullName || 'Tutor'}
                 </span>
               </div>
@@ -203,7 +203,7 @@ const CreateSession = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
               Create Learning Session
             </h1>
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-slate-600 dark:text-slate-500 dark:text-slate-400">
               Design an accessible, engaging learning experience for your students
             </p>
           </div>
@@ -216,7 +216,7 @@ const CreateSession = () => {
                 <section aria-labelledby="basic-info-heading">
                   <div className="flex items-center space-x-3 mb-4 sm:mb-6">
                     <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <BookOpen className="w-5 h-5 text-blue-700 dark:text-blue-500" />
                     </div>
                     <h2 id="basic-info-heading" className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
                       Basic Information
@@ -337,7 +337,7 @@ const CreateSession = () => {
                 <section aria-labelledby="scheduling-heading" className="pt-8 border-t border-slate-200 dark:border-slate-700 transition-colors">
                   <div className="flex items-center space-x-3 mb-6">
                     <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <Calendar className="w-5 h-5 text-blue-700 dark:text-blue-500" />
                     </div>
                     <h2 id="scheduling-heading" className="text-xl font-bold text-slate-900 dark:text-white">
                       Scheduling
@@ -351,7 +351,7 @@ const CreateSession = () => {
                         Date *
                       </label>
                       <div className="relative">
-                        <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                        <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
                         <input
                           id="date"
                           name="date"
@@ -379,7 +379,7 @@ const CreateSession = () => {
                         Time *
                       </label>
                       <div className="relative">
-                        <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                        <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
                         <input
                           id="time"
                           name="time"
@@ -406,7 +406,7 @@ const CreateSession = () => {
                         Duration (minutes) *
                       </label>
                       <div className="relative">
-                        <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                        <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
                         <input
                           id="duration"
                           name="duration"
@@ -428,7 +428,7 @@ const CreateSession = () => {
                           {errors.duration}
                         </p>
                       )}
-                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-500 dark:text-slate-400">
                         Recommended: 60-90 minutes for optimal engagement
                       </p>
                     </div>
@@ -439,7 +439,7 @@ const CreateSession = () => {
                 <section aria-labelledby="details-heading" className="pt-8 border-t border-slate-200 dark:border-slate-700 transition-colors">
                   <div className="flex items-center space-x-3 mb-6">
                     <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
-                      <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <Users className="w-5 h-5 text-blue-700 dark:text-blue-500" />
                     </div>
                     <h2 id="details-heading" className="text-xl font-bold text-slate-900 dark:text-white">
                       Session Details
@@ -453,7 +453,7 @@ const CreateSession = () => {
                         Maximum Participants *
                       </label>
                       <div className="relative">
-                        <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                        <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
                         <input
                           id="maxParticipants"
                           name="maxParticipants"
@@ -480,10 +480,10 @@ const CreateSession = () => {
                     <div className="md:col-span-2">
                       <label htmlFor="meetingLink" className="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-2">
                         Video Meeting Link
-                        <span className="ml-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">Auto-generated</span>
+                        <span className="ml-2 text-xs text-blue-700 dark:text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">Auto-generated</span>
                       </label>
                       <div className="relative">
-                        <Video className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                        <Video className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-slate-400 pointer-events-none" />
                         <input
                           id="meetingLink"
                           name="meetingLink"
@@ -499,7 +499,7 @@ const CreateSession = () => {
                           </div>
                         )}
                       </div>
-                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-500 dark:text-slate-400">
                         <span className="font-medium">Note:</span> Meeting link automatically created via Zoom API. Students will access this after enrollment.
                       </p>
                     </div>
@@ -511,13 +511,13 @@ const CreateSession = () => {
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
-                        <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <Video className="w-5 h-5 text-blue-700 dark:text-blue-500" />
                       </div>
                       <div>
                         <h2 id="meeting-settings-heading" className="text-xl font-bold text-slate-900 dark:text-white">
                           Video Meeting Settings
                         </h2>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">
                           Configure Zoom meeting options for accessibility and recording
                         </p>
                       </div>
@@ -536,7 +536,7 @@ const CreateSession = () => {
                         name="accessibilityFeatures.captions"
                         checked={formData.accessibilityFeatures.captions}
                         onChange={handleChange}
-                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                        className="mt-1 mr-3 h-4 w-4 text-blue-700 dark:text-blue-500 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
@@ -545,7 +545,7 @@ const CreateSession = () => {
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">
                           Enable real-time closed captions during the session
                         </p>
                       </div>
@@ -559,7 +559,7 @@ const CreateSession = () => {
                         name="accessibilityFeatures.transcript"
                         checked={formData.accessibilityFeatures.transcript}
                         onChange={handleChange}
-                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                        className="mt-1 mr-3 h-4 w-4 text-blue-700 dark:text-blue-500 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
@@ -568,7 +568,7 @@ const CreateSession = () => {
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">
                           Generate text transcript after session ends
                         </p>
                       </div>
@@ -582,7 +582,7 @@ const CreateSession = () => {
                         name="accessibilityFeatures.recordSession"
                         checked={formData.accessibilityFeatures.recordSession}
                         onChange={handleChange}
-                        className="mt-1 mr-3 h-4 w-4 text-blue-600 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500"
+                        className="mt-1 mr-3 h-4 w-4 text-blue-700 dark:text-blue-500 rounded border-slate-300 dark:border-slate-600 focus:ring-blue-500"
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
@@ -591,7 +591,7 @@ const CreateSession = () => {
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-1">
                           Save recording for students to review later
                         </p>
                       </div>
@@ -600,7 +600,7 @@ const CreateSession = () => {
                   
                   <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-lg">
                     <div className="flex items-start">
-                      <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3 mt-0.5 shrink-0" />
+                      <AlertCircle className="w-5 h-5 text-blue-700 dark:text-blue-500 mr-3 mt-0.5 shrink-0" />
                       <div className="text-sm text-slate-700 dark:text-slate-300">
                         <p className="font-medium text-blue-900 dark:text-blue-300 mb-1">Zoom API Integration Required</p>
                         <p>
@@ -615,7 +615,7 @@ const CreateSession = () => {
                 {/* Form Actions */}
                 <div className="pt-8 border-t border-slate-200 dark:border-slate-700 transition-colors">
                   <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                    <div className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
                       <p className="flex items-center">
                         <HelpCircle className="w-4 h-4 mr-2" />
                         Fields marked with * are required

@@ -205,7 +205,7 @@ const LearnerReviewsPage = () => {
                     disabled={alreadyRated}
                     aria-label={alreadyRated ? `Already reviewed ${session.title || 'this session'}` : `Review ${session.title || 'this session'}`}
                     className={`px-4 py-2 rounded-lg font-medium text-sm shrink-0 transition-colors ${alreadyRated
-                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-500'
+                        ? 'bg-slate-100 text-slate-500 dark:text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-500'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                       }`}
                   >
@@ -217,7 +217,7 @@ const LearnerReviewsPage = () => {
           </div>
         ) : (
           <div className="p-8 text-center" aria-live="polite">
-            <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-3" aria-hidden="true" />
+            <MessageSquare className="w-12 h-12 text-slate-500 dark:text-slate-400 mx-auto mb-3" aria-hidden="true" />
             <p style={{ color: 'var(--text-secondary)' }}>No completed sessions to review yet</p>
             <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>Complete a tutoring session to leave a review</p>
           </div>
@@ -264,7 +264,7 @@ const LearnerReviewsPage = () => {
             })
           ) : (
             <div className="p-12 text-center" aria-live="polite">
-              <Star className="w-12 h-12 text-slate-400 mx-auto mb-3" aria-hidden="true" />
+              <Star className="w-12 h-12 text-slate-500 dark:text-slate-400 mx-auto mb-3" aria-hidden="true" />
               <p style={{ color: 'var(--text-secondary)' }}>No reviews submitted yet</p>
               <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>
                 Complete a session and share your feedback

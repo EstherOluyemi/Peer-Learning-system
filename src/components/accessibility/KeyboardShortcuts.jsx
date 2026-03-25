@@ -80,7 +80,7 @@ const KeyboardShortcuts = () => {
                 id="shortcuts-title"
                 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2"
               >
-                <Keyboard size={24} className="text-blue-600" />
+                <Keyboard size={24} className="text-blue-700 dark:text-blue-500" />
                 Keyboard Shortcuts
               </h2>
               <button
@@ -88,7 +88,7 @@ const KeyboardShortcuts = () => {
                 className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 aria-label="Close shortcuts dialog"
               >
-                <X size={24} className="text-slate-600 dark:text-slate-400" />
+                <X size={24} className="text-slate-600 dark:text-slate-500 dark:text-slate-400" />
               </button>
             </div>
 
@@ -120,7 +120,7 @@ const KeyboardShortcuts = () => {
 
             {/* Footer */}
             <div className="p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
                 <strong>Tip:</strong> Use these keyboard shortcuts to navigate the application hands-free.
               </p>
             </div>

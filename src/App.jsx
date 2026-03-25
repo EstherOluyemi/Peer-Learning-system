@@ -55,7 +55,6 @@ function App() {
             <ThemeProvider>
               <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
                 <SkipToContent />
-                <AccessibilityToolbar />
                 <Routes>
                   <Route path="/" element={<Landing />} />
                   <Route path="/login" element={<Login />} />
@@ -101,6 +100,7 @@ function App() {
                   <Route path="/DashboardLearner" element={<Navigate to="/dashboard-learner" replace />} />
                   <Route path="/DashboardTutor" element={<Navigate to="/dashboard-tutor" replace />} />
                 </Routes>
+                <AccessibilityToolbar />
               </div>
             </ThemeProvider>
           </AccessibilityProvider>

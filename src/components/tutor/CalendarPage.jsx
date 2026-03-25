@@ -294,7 +294,7 @@ const CalendarPage = () => {
                   style={{ borderColor: 'var(--border-color)' }}
                 >
                   <div className={`text-sm font-medium mb-2 ${
-                    isToday(date) ? 'text-blue-600 dark:text-blue-400' : ''
+                    isToday(date) ? 'text-blue-700 dark:text-blue-500' : ''
                   }`}
                     style={{ color: isToday(date) ? undefined : 'var(--text-primary)' }}
                   >
@@ -336,7 +336,7 @@ const CalendarPage = () => {
                   style={{ borderColor: 'var(--border-color)' }}
                 >
                   <div className={`text-sm font-medium mb-1 ${
-                    isToday(date) ? 'text-blue-600 dark:text-blue-400' : ''
+                    isToday(date) ? 'text-blue-700 dark:text-blue-500' : ''
                   }`}
                     style={{ color: isToday(date) ? undefined : 'var(--text-primary)' }}
                   >
@@ -378,10 +378,10 @@ const CalendarPage = () => {
                   {selectedSession.title}
                 </h2>
                 <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
-                  selectedSession.status === 'scheduled' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                  selectedSession.status === 'ongoing' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                  selectedSession.status === 'scheduled' ? 'bg--100 text--800 dark:bg-blue-900/30 dark:text-blue-400' :
+                  selectedSession.status === 'ongoing' ? 'bg--100 text--800 dark:bg-green-900/30 dark:text-green-400' :
                   selectedSession.status === 'completed' ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' :
-                  'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  'bg--100 text--800 dark:bg-red-900/30 dark:text-red-400'
                 }`}>
                   {selectedSession.status}
                 </span>
@@ -398,7 +398,7 @@ const CalendarPage = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                  <Clock className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                  <Clock className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                   <div>
                     <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Start Time</div>
                     <div className="font-medium" style={{ color: 'var(--text-primary)' }}>
@@ -407,7 +407,7 @@ const CalendarPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                  <Users className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                  <Users className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                   <div>
                     <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Students</div>
                     <div className="font-medium" style={{ color: 'var(--text-primary)' }}>

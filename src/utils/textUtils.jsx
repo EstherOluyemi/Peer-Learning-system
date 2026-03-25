@@ -23,7 +23,7 @@ export const linkify = (text, customClasses = "") => {
           href={part} 
           target="_blank" 
           rel="noopener noreferrer"
-          className={`underline break-all transition-all ${customClasses || 'text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300'}`}
+          className={`underline break-all transition-all ${customClasses || 'text-blue-500 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-300'}`}
           onClick={(e) => e.stopPropagation()} // Prevent bubble click events
         >
           {part}

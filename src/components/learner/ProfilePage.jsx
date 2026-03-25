@@ -207,7 +207,7 @@ const ProfilePage = () => {
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-                <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+                <Loader2 className="w-12 h-12 text-blue-700 dark:text-blue-500 animate-spin" />
                 <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading profile...</p>
             </div>
         );
@@ -247,7 +247,7 @@ const ProfilePage = () => {
                             <button
                                 onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
                                 disabled={saving}
-                                className="flex items-center gap-2 px-3 py-1.5 text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50"
+                                className="flex items-center gap-2 px-3 py-1.5 text-blue-700 dark:text-blue-500 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50"
                             >
                                 {saving ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -373,7 +373,7 @@ const ProfilePage = () => {
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {profile.skills.map(skill => (
-                                    <span key={skill} className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                    <span key={skill} className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-full bg--100 text--800 dark:bg-blue-900/30 dark:text-blue-400">
                                         {skill}
                                         <button onClick={() => removeSkill(skill)} className="ml-1" aria-label={`Remove ${skill}`}>
                                             <X className="w-3 h-3" aria-hidden="true" />
@@ -415,7 +415,7 @@ const ProfilePage = () => {
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {profile.interests.map(interest => (
-                                    <span key={interest} className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                    <span key={interest} className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-full bg--100 text--800 dark:bg-green-900/30 dark:text-green-400">
                                         {interest}
                                         <button onClick={() => removeInterest(interest)} className="ml-1">
                                             <Edit className="w-3 h-3" />
@@ -465,7 +465,7 @@ const ProfilePage = () => {
                         <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                                    <BookOpen className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                                    <BookOpen className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                                 </div>
                                 <div>
                                     <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{profile.university}</div>
@@ -514,11 +514,11 @@ const ProfilePage = () => {
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{profile.totalSessions}</div>
+                            <div className="text-2xl font-bold text-blue-700 dark:text-blue-500">{profile.totalSessions}</div>
                             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Sessions</div>
                         </div>
                         <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                            <BookOpen className="w-6 h-6 text-blue-600" aria-hidden="true" />
+                            <BookOpen className="w-6 h-6 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                         </div>
                     </div>
                 </div>
@@ -593,7 +593,7 @@ const ProfilePage = () => {
                         </div>
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                                <Star className="w-4 h-4 text-blue-600" />
+                                <Star className="w-4 h-4 text-blue-700 dark:text-blue-500" />
                             </div>
                             <div>
                                 <div className="font-medium" style={{ color: 'var(--text-primary)' }}>Left 5-star review</div>
@@ -646,7 +646,7 @@ const ProfilePage = () => {
                         }}
                     >
                         <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full mx-auto mb-3 flex items-center justify-center">
-                            <Plus className="w-6 h-6 text-slate-400" />
+                            <Plus className="w-6 h-6 text-slate-500 dark:text-slate-400" />
                         </div>
                         <div className="font-medium" style={{ color: 'var(--text-primary)' }}>More Badges</div>
                         <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Keep Learning</div>
@@ -696,7 +696,7 @@ const ProfilePage = () => {
                 >
                     <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Learning Streak</h3>
                     <div className="text-center">
-                        <div className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">7</div>
+                        <div className="text-2xl sm:text-3xl font-bold text-blue-700 dark:text-blue-500">7</div>
                         <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Days in a row</div>
                         <div className="mt-4 flex justify-center gap-2">
                             {[...Array(7)].map((_, i) => (
@@ -811,7 +811,7 @@ const ProfilePage = () => {
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === tab.id
                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                : 'text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                                 }`}
                         >
                             <tab.icon className="w-4 h-4" aria-hidden="true" />

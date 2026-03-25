@@ -443,10 +443,10 @@ const SessionRoom = () => {
           <div className="space-y-4 sm:space-y-6">
 
 
-            <section className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <section aria-labelledby="video-session-heading" className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
               <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-color)' }}>
-                <Video className="w-5 h-5 text-blue-600" aria-hidden="true" />
-                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Live Session</h2>
+                <Video className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
+                <h2 id="video-session-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Live Session</h2>
               </div>
               <div className="bg-slate-900 flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-8 text-center min-h-64 sm:min-h-80">
                 {meetingLink ? (
@@ -455,8 +455,8 @@ const SessionRoom = () => {
                       <Video className="w-10 h-10 text-blue-400" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Ready to join?</h3>
-                    <p className="text-slate-400 text-sm mb-8 max-w-xs">
-                      Google Meet opens in a new tab. Come back here for chat and session info.
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 max-w-xs">
+                      The video session opens in a new tab. Come back here for chat and session info.
                     </p>
                     <a
                       href={meetingLink}
@@ -465,7 +465,7 @@ const SessionRoom = () => {
                       className="inline-flex w-full sm:w-auto max-w-xs items-center justify-center gap-3 px-5 sm:px-8 py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold rounded-2xl text-base sm:text-lg transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-500/40"
                     >
                       <Video className="w-6 h-6" />
-                      Join Google Meet
+                      Join Video Session
                     </a>
                     <p className="text-xs text-slate-500 mt-4">
                       {sessionActive ? 'Session is live now' : sessionEnded ? 'Session has ended' : 'Session has not started yet'}
@@ -475,17 +475,17 @@ const SessionRoom = () => {
                   <div className="flex flex-col items-center gap-3">
                     <AlertCircle className="w-10 h-10 text-amber-400" />
                     <p className="text-sm font-medium text-white">Meeting link unavailable.</p>
-                    <p className="text-xs text-slate-400">Contact your tutor or refresh the page.</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Contact your tutor or refresh the page.</p>
                   </div>
                 )}
               </div>
             </section>
 
             {/* Materials Section */}
-            <section className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+            <section aria-labelledby="materials-heading" className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
               <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-color)' }}>
                 <FileText className="w-5 h-5 text-green-600" aria-hidden="true" />
-                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Session Materials</h2>
+                <h2 id="materials-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Session Materials</h2>
               </div>
               <div className="p-4">
                 {materialsLoading ? (
@@ -509,7 +509,7 @@ const SessionRoom = () => {
                               href={material.fileUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded text-blue-600 dark:text-blue-400 transition inline-flex items-center justify-center"
+                              className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded text-blue-700 dark:text-blue-500 transition inline-flex items-center justify-center"
                               title={`Download ${material.title}`}
                             >
                               <Download className="w-4 h-4" />
@@ -528,12 +528,12 @@ const SessionRoom = () => {
             </section>
           </div>
 
-          <section className="rounded-2xl shadow-sm border flex flex-col" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+          <section aria-labelledby="chat-heading" className="rounded-2xl shadow-sm border flex flex-col" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-blue-600" />
+                <MessageSquare className="w-5 h-5 text-blue-700 dark:text-blue-500" />
                 <div>
-                  <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Group Chat</h2>
+                  <h2 id="chat-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Group Chat</h2>
                   <p className="text-xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>All {session?.studentIds?.length || 0} participants</p>
                 </div>
               </div>
@@ -580,7 +580,7 @@ const SessionRoom = () => {
                   >
                     <div className={`max-w-[92%] sm:max-w-[85%] rounded-2xl px-3 py-2 text-sm ${isOwn ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100'}`}>
                       <div className="text-xs font-semibold mb-1 opacity-80">{senderName}</div>
-                      <div className="whitespace-pre-wrap break-word">{linkify(messageText, isOwn ? "text-white font-bold hover:underline" : "text-blue-600 dark:text-blue-400 font-bold hover:underline")}</div>
+                      <div className="whitespace-pre-wrap break-word">{linkify(messageText, isOwn ? "text-white font-bold hover:underline" : "text-blue-700 dark:text-blue-500 font-bold hover:underline")}</div>
                       <div className="text-[10px] mt-1 opacity-70">
                         {message.timestamp || message.createdAt ? new Date(message.timestamp || message.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''}
                       </div>
@@ -630,8 +630,8 @@ const SessionRoom = () => {
       </main>
     <footer className="mt-auto py-6 border-t bg-slate-50 dark:bg-slate-900/50" style={{ borderColor: 'var(--card-border)' }}>
       <div className="container mx-auto px-4 text-center">
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-600">Privacy Policy</Link>
+        <p className="text-sm text-slate-500 dark:text-slate-500 dark:text-slate-400">
+          &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-700 dark:text-blue-500">Privacy Policy</Link>
         </p>
       </div>
     </footer>

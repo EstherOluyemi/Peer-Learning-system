@@ -17,16 +17,16 @@ const RoleCard = ({ title, description, icon: Icon, isSelected, onClick, id }) =
     aria-pressed={isSelected}
   >
     <div className="flex items-center gap-4 sm:gap-5">
-      <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition-colors duration-300 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+      <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition-colors duration-300 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 group-hover:text-blue-700 dark:text-blue-500 dark:group-hover:text-blue-400'
         }`} aria-hidden="true">
         {Icon && <Icon className="w-6 h-6 sm:w-7 sm:h-7" />}
       </div>
       <div className="flex-1">
         <h3 className={`font-bold text-base sm:text-lg ${isSelected ? 'text-blue-900 dark:text-blue-100' : 'text-slate-900 dark:text-slate-100'}`}>{title}</h3>
-        <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400'}`}>{description}</p>
+        <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-500 dark:text-slate-400'}`}>{description}</p>
       </div>
       <div className={`transition-transform duration-300 ${isSelected ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'}`} aria-hidden="true">
-        <ArrowRight className={`w-5 h-5 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`} />
+        <ArrowRight className={`w-5 h-5 ${isSelected ? 'text-blue-700 dark:text-blue-500' : 'text-slate-500 dark:text-slate-400'}`} />
       </div>
     </div>
   </button>
@@ -87,7 +87,7 @@ const RoleSelection = () => {
       <div className="p-6">
         <Link
           to="/"
-          className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+          className="inline-flex items-center text-slate-500 hover:text-blue-700 dark:text-blue-500 font-medium transition-colors group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
         >
           <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
           Back to Home
@@ -108,7 +108,7 @@ const RoleSelection = () => {
             <h1 className={`font-extrabold text-slate-900 dark:text-slate-100 tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`} tabIndex={-1}>
               Choose your journey
             </h1>
-            <p className={`text-slate-600 dark:text-slate-400 max-w-sm mx-auto ${baseFontSize}`}>
+            <p className={`text-slate-600 dark:text-slate-500 dark:text-slate-400 max-w-sm mx-auto ${baseFontSize}`}>
               Select the role that best fits your goals on PeerLearn. You can always explore both sides later.
             </p>
           </header>
@@ -141,7 +141,7 @@ const RoleSelection = () => {
               disabled={!role}
               className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${role
                 ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-500/25 transform hover:-translate-y-0.5'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                : 'bg-slate-200 text-slate-500 dark:text-slate-400 cursor-not-allowed shadow-none'
                 }`}
               aria-label={role ? `Continue to registration as ${role}` : 'Select a role to continue'}
             >
@@ -149,14 +149,14 @@ const RoleSelection = () => {
             </button>
             <Link
               to="/login"
-              className="inline-flex items-center justify-center text-slate-500 hover:text-blue-600 font-medium transition-colors py-2 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+              className="inline-flex items-center justify-center text-slate-500 hover:text-blue-700 dark:text-blue-500 font-medium transition-colors py-2 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
             >
               <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
               Already have an account? Sign In
             </Link>
             <footer className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-600">Privacy Policy</Link>
+              <p className="text-xs text-slate-500 dark:text-slate-500 dark:text-slate-400">
+                &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-700 dark:text-blue-500">Privacy Policy</Link>
               </p>
             </footer>
           </div>

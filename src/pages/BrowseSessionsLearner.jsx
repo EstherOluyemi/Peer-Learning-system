@@ -42,7 +42,7 @@ const BrowseSessionsLearner = () => {
         try {
           const enrolledRes = await api.get('/v1/learner/sessions');
           const enrolledList = Array.isArray(enrolledRes) ? enrolledRes : (enrolledRes?.data && Array.isArray(enrolledRes.data) ? enrolledRes.data : []);
-          
+
           // Find sessions with pending status - check all enrollment status fields
           const pending = enrolledList
             .filter(session => {
@@ -50,7 +50,7 @@ const BrowseSessionsLearner = () => {
               return enrollStatus === 'pending';
             })
             .map(session => session._id || session.id);
-          
+
           console.log('Pending enrollments found:', pending);
           setPendingEnrollments(pending);
         } catch (err) {
@@ -95,25 +95,25 @@ const BrowseSessionsLearner = () => {
     try {
       setJoiningSessionId(sessionId);
       setError('');
-      
+
       const response = await joinSession(sessionId);
-      
+
       // Extract response data - API returns { status: "success", data: { status: "pending", ... } }
       const enrollmentData = response?.data?.data || response?.data || response;
       const enrollmentStatus = enrollmentData.status;
-      
+
       // Check the status from API response
       if (enrollmentStatus === 'pending') {
         setPendingEnrollments((prev) => [...prev, sessionId]);
         setSuccessMessage('Enrollment request submitted and is pending approval!');
-        
+
         // Clear success message after 3 seconds
         setTimeout(() => {
           setSuccessMessage('');
         }, 3000);
       } else if (enrollmentStatus === 'approved' || enrollmentStatus === 'enrolled') {
         setSuccessMessage('Successfully enrolled in the session!');
-        
+
         // Navigate to my sessions after 2 seconds for approved enrollments
         setTimeout(() => {
           navigate('/my-sessions-learner', { state: { showJoined: true } });
@@ -156,19 +156,19 @@ const BrowseSessionsLearner = () => {
       <AccessibilityToolbar />
 
       {/* Skip Link */}
-      <a 
-        href="#sessions-grid" 
+      <a
+        href="#sessions-grid"
         className="sr-only focus-not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
       >
         Skip to sessions list
       </a>
 
-      <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-6xl" id="main-content">
+      <main id="main-content" className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-6xl">
         {/* Header */}
         <header className="mb-6 sm:mb-8">
           <button
             onClick={() => navigate('/dashboard-learner')}
-            className="inline-flex items-center text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+            className="inline-flex items-center text-slate-500 dark:text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
           >
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
             Back to Dashboard
@@ -184,7 +184,7 @@ const BrowseSessionsLearner = () => {
 
         {/* Messages */}
         {successMessage && (
-          <div 
+          <div
             className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-md flex items-start"
             role="alert"
             aria-live="polite"
@@ -195,7 +195,7 @@ const BrowseSessionsLearner = () => {
         )}
 
         {error && (
-          <div 
+          <div
             className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md flex items-start"
             role="alert"
             aria-live="assertive"
@@ -261,9 +261,9 @@ const BrowseSessionsLearner = () => {
           </div>
         ) : filteredSessions.length === 0 ? (
           <div className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-2xl shadow-lg p-8 sm:p-12 text-center transition-colors">
-            <Search className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" aria-hidden="true" />
+            <Search className="w-12 h-12 text-slate-500 dark:text-slate-400 dark:text-slate-600 mx-auto mb-4" aria-hidden="true" />
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">No Sessions Found</h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
+            <p className="text-slate-600 dark:text-slate-500 dark:text-slate-400 mb-6">
               {searchQuery || filterSubject
                 ? 'Try adjusting your search or filter criteria'
                 : 'Check back soon for new sessions!'}
@@ -274,7 +274,7 @@ const BrowseSessionsLearner = () => {
                   setSearchQuery('');
                   setFilterSubject('');
                 }}
-                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
+                className="inline-flex items-center gap-2 text-blue-700 hover:text-blue-800 font-semibold"
               >
                 Clear Filters
               </button>
@@ -298,7 +298,7 @@ const BrowseSessionsLearner = () => {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-1">{session.title || 'Untitled'}</h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">{session.subject || 'General'}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">{session.subject || 'General'}</p>
                       </div>
                     </div>
 
@@ -323,7 +323,7 @@ const BrowseSessionsLearner = () => {
 
                     {/* Description (if available) */}
                     {session.description && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
+                      <p className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
                         {session.description}
                       </p>
                     )}
@@ -332,7 +332,7 @@ const BrowseSessionsLearner = () => {
                     {session.tutor?.rating && (
                       <div className="flex items-center gap-1 mb-4">
                         <Star className="w-4 h-4 fill-amber-400 text-amber-400" aria-hidden="true" />
-                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                        <span className="text-sm text-slate-600 dark:text-slate-500 dark:text-slate-400">
                           {session.tutor.rating.toFixed(1)} ({session.tutor.reviewCount} reviews)
                         </span>
                       </div>
@@ -342,13 +342,12 @@ const BrowseSessionsLearner = () => {
                     <button
                       onClick={() => handleJoinSession(session._id)}
                       disabled={isFull || joiningSessionId === session._id || isPending}
-                      className={`w-full py-2.5 rounded-lg font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                        isFull || isPending
+                      className={`w-full py-2.5 rounded-lg font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 ${isFull || isPending
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           : 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-blue-600'
-                      }`}
+                        }`}
                       aria-busy={joiningSessionId === session._id}
-                      aria-label={`${isFull ? 'Session full' : isPending ? 'Enrollment pending' : 'Join'} - ${session.title}`}
+                      aria-label={`${isFull ? 'Session Full' : isPending ? 'Pending Approval' : 'Enroll Now'} - ${session.title}`}
                     >
                       {joiningSessionId === session._id ? 'Enrolling...' : isFull ? 'Session Full' : isPending ? 'Pending Approval' : 'Enroll Now'}
                     </button>

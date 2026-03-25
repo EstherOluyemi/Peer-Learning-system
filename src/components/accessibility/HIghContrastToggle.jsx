@@ -30,7 +30,7 @@ const HighContrastToggle = ({ size = 'default' }) => {
         }`}
       >
         {highContrast ? (
-          <Eye size={14} className="text-blue-600" />
+          <Eye size={14} className="text-blue-700 dark:text-blue-500" />
         ) : (
           <EyeOff size={14} className="text-slate-600" />
         )}

@@ -153,8 +153,8 @@ const TutorProfilePage = () => {
             id={`${tab}-tab`}
             className={`px-4 py-3 font-medium border-b-2 transition-colors capitalize ${
               activeTab === tab
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+                ? 'border-blue-600 text-blue-700 dark:text-blue-500'
+                : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300'
             }`}
           >
             {tab}
@@ -266,21 +266,21 @@ const TutorProfilePage = () => {
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <User className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                    <User className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                     <div>
                       <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Full Name</div>
                       <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{profile.name}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                    <Mail className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                     <div>
                       <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Email</div>
                       <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{profile.email}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                    <Calendar className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                     <div>
                       <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Joined</div>
                       <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{profile.joinedDate}</div>
@@ -307,7 +307,7 @@ const TutorProfilePage = () => {
               {editedProfile.expertise && editedProfile.expertise.length > 0 ? (
                 editedProfile.expertise.map((skill, idx) => (
                   <div key={idx} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                    <BookOpen className="w-4 h-4 text-blue-600" aria-hidden="true" />
+                    <BookOpen className="w-4 h-4 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                     <span style={{ color: 'var(--text-primary)' }}>{skill}</span>
                   </div>
                 ))
@@ -330,7 +330,7 @@ const TutorProfilePage = () => {
           <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <Bell className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                <Bell className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                 <div>
                   <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>Notifications</h3>
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>New messages and session updates</p>
@@ -351,13 +351,13 @@ const TutorProfilePage = () => {
           <div className="p-4 sm:p-6 rounded-2xl shadow-sm border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <Shield className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                <Shield className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                 <div>
                   <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>Two-Factor Authentication</h3>
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Add extra security to your account</p>
                 </div>
               </div>
-              <button className="px-4 py-2 text-blue-600 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
+              <button className="px-4 py-2 text-blue-700 dark:text-blue-500 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
                 Enable
               </button>
             </div>

@@ -123,7 +123,7 @@ const LearnerMaterialsPage = () => {
                   onClick={() => setExpandedSession(expandedSession === (session._id || session.id) ? null : (session._id || session.id))}
                 >
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                    <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-500">
                       <BookOpen className="w-6 h-6" aria-hidden="true" />
                     </div>
                     <div className="flex-1">
@@ -144,7 +144,7 @@ const LearnerMaterialsPage = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-600" style={{ color: 'var(--accent)' }}>
+                    <div className="text-2xl font-bold text-blue-700 dark:text-blue-500" style={{ color: 'var(--accent)' }}>
                       {session.materials.length}
                     </div>
                     <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
@@ -189,7 +189,7 @@ const LearnerMaterialsPage = () => {
                         </div>
                          <button
                            onClick={() => handleDownload(material)}
-                           className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-blue-600 dark:text-blue-400 transition shrink-0"
+                           className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-blue-700 dark:text-blue-500 transition shrink-0"
                            aria-label={material.type === 'link' ? 'Open link' : 'Download file'}
                          >
                            <Download className="w-4 h-4" aria-hidden="true" />
@@ -203,7 +203,7 @@ const LearnerMaterialsPage = () => {
           ) : (
             <div className="p-12 text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                <BookOpen className="w-8 h-8 text-slate-400" />
+                <BookOpen className="w-8 h-8 text-slate-500 dark:text-slate-400" />
               </div>
               <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                 {searchQuery ? 'No materials found' : 'No materials available'}

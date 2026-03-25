@@ -105,7 +105,7 @@ const MySessionsTutor = () => {
           <div>
             <button
                onClick={() => navigate('/dashboard-tutor')}
-               className="inline-flex items-center text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
+               className="inline-flex items-center text-slate-500 dark:text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 font-medium transition-colors mb-6 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded"
             >
               <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
               Back to Dashboard
@@ -164,7 +164,7 @@ const MySessionsTutor = () => {
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg dark:shadow-slate-900/50 border border-transparent dark:border-slate-700 p-8 sm:p-12 text-center transition-colors">
             <Calendar className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" aria-hidden="true" />
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">No Sessions Yet</h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">Create your first tutoring session to get started!</p>
+            <p className="text-slate-600 dark:text-slate-500 dark:text-slate-400 mb-6">Create your first tutoring session to get started!</p>
             <button
               onClick={() => navigate('/create-session')}
               className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -191,7 +191,7 @@ const MySessionsTutor = () => {
                       </span>
                     </div>
 
-                    <p className="text-slate-600 dark:text-slate-400 mb-3">{session.subject || 'No subject'}</p>
+                    <p className="text-slate-600 dark:text-slate-500 dark:text-slate-400 mb-3">{session.subject || 'No subject'}</p>
 
                     <div className="space-y-2 text-sm">
                       <p className="flex items-center gap-2 text-slate-600 dark:text-slate-300">

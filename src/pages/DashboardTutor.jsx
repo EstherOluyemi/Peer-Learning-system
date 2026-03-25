@@ -63,10 +63,10 @@ const DashboardTutor = () => {
 
   const getStatusColor = (status) => {
     const statusMap = {
-      'scheduled': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800',
-      'ongoing': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+      'scheduled': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+      'ongoing': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
       'completed': 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600',
-      'cancelled': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800'
+      'cancelled': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800'
     };
     return statusMap[status?.toLowerCase()] || 'bg-slate-100 text-slate-700 border-slate-200';
   };
@@ -209,9 +209,9 @@ const DashboardTutor = () => {
     : '0.0';
 
   const performanceStats = [
-    { label: "Total Students", value: stats.totalStudents, icon: Users, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30" },
-    { label: "Hours Taught", value: stats.hoursTaught, icon: Clock, color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30" },
-    { label: "Average Rating", value: averageRating, icon: Star, color: "text-yellow-600", bg: "bg-yellow-100 dark:bg-yellow-900/30", link: "/dashboard-tutor/reviews" },
+    { label: "Total Students", value: stats.totalStudents, icon: Users, color: "text-blue-700 dark:text-blue-500", bg: "bg-blue-100 dark:bg-blue-900/30" },
+    { label: "Hours Taught", value: stats.hoursTaught, icon: Clock, color: "text-purple-700 dark:text-purple-500", bg: "bg-purple-100 dark:bg-purple-900/30" },
+    { label: "Average Rating", value: averageRating, icon: Star, color: "text-amber-700 dark:text-amber-500", bg: "bg-amber-100 dark:bg-amber-900/30", link: "/dashboard-tutor/reviews" },
   ];
 
   const formatRequestTime = (dateString) => {
@@ -274,8 +274,8 @@ const DashboardTutor = () => {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Tutor Dashboard</h1>
-          <p style={{ color: 'var(--text-secondary)' }} className="mt-1">
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Tutor Dashboard</h1>
+          <p style={{ color: 'var(--text-secondary)' }} className="mt-1" tabIndex={0}>
             Welcome back, {user?.name || 'Tutor'}. Manage your sessions and track student progress.
           </p>
         </div>
@@ -297,8 +297,8 @@ const DashboardTutor = () => {
             const wrapperProps = stat.link ? { to: stat.link } : {};
             
             return (
-              <CardWrapper key={index} {...wrapperProps} role="listitem" 
-                className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200"
+              <CardWrapper key={index} {...wrapperProps} role="listitem" tabIndex={0}
+                className="p-4 sm:p-6 rounded-2xl shadow-sm border hover:shadow-md transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div className={`p-3 rounded-xl ${stat.bg}`} aria-hidden="true">
@@ -310,7 +310,7 @@ const DashboardTutor = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</p>
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{stat.label}</p>
                 </div>
               </CardWrapper>
             );
@@ -320,8 +320,8 @@ const DashboardTutor = () => {
 
       <section aria-labelledby="enrollment-heading" className="rounded-2xl shadow-sm border p-6" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="flex items-center justify-between mb-4">
-          <h2 id="enrollment-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Enrollment Requests</h2>
-          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+          <h2 id="enrollment-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Enrollment Requests</h2>
+          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
             {pendingRequests.length} pending
           </span>
         </div>
@@ -349,18 +349,16 @@ const DashboardTutor = () => {
                     <button
                       onClick={() => handleApproveRequest(requestId)}
                       disabled={requestActionId === requestId}
-                      aria-label={`Approve enrollment request from ${learnerName}`}
                       className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-60"
                     >
-                      Approve
+                      Approve <span className="sr-only">enrollment request from {learnerName}</span>
                     </button>
                     <button
                       onClick={() => handleRejectRequest(requestId)}
                       disabled={requestActionId === requestId}
-                      aria-label={`Reject enrollment request from ${learnerName}`}
-                      className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-60"
+                      className="px-4 py-2 rounded-lg bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 text-sm font-semibold hover:bg-slate-300 dark:hover:bg-slate-700 disabled:opacity-60"
                     >
-                      Reject
+                      Reject <span className="sr-only">enrollment request from {learnerName}</span>
                     </button>
                   </div>
                 </li>
@@ -377,7 +375,7 @@ const DashboardTutor = () => {
             style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
             <div className="p-4 sm:p-6 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style={{ borderColor: 'var(--border-color)' }}>
               <div>
-                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Upcoming Sessions</h2>
+                <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Upcoming Sessions</h2>
                 <div className="mt-3 flex items-center gap-2">
                   {['all', 'today', 'week'].map((filter) => (
                     <button
@@ -394,7 +392,7 @@ const DashboardTutor = () => {
                   ))}
                 </div>
               </div>
-              <Link to="/dashboard-tutor/sessions" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center">
+              <Link to="/dashboard-tutor/sessions" className="text-sm font-semibold text-blue-700 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center">
                 View All <ChevronRight className="w-4 h-4" aria-hidden="true" />
               </Link>
             </div>
@@ -407,7 +405,7 @@ const DashboardTutor = () => {
                   const maxParticipants = session.maxParticipants || 0;
                   
                   return (
-                    <article key={session._id || session.id} role="listitem" tabIndex={0} 
+                    <div key={session._id || session.id} role="listitem" tabIndex={0} 
                       className="p-6 transition-colors group cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                       onClick={() => setSelectedSession(session)}
                       onKeyDown={(event) => handleKeyboardActivate(event, () => setSelectedSession(session))}
@@ -416,13 +414,13 @@ const DashboardTutor = () => {
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-start gap-4">
-                          <div className="flex flex-col items-center justify-center w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true">
+                          <div className="flex flex-col items-center justify-center w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-700 dark:text-blue-500 shrink-0" aria-hidden="true">
                             <span className="text-xs font-bold uppercase">{startDate.dayMonth}</span>
                             <span className="text-sm font-bold mt-0.5">{startDate.time}</span>
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-bold group-hover:text-blue-600 transition-colors" style={{ color: 'var(--text-primary)' }}>
+                              <h3 className="font-bold group-hover:text-blue-700 dark:text-blue-500 transition-colors" style={{ color: 'var(--text-primary)' }}>
                                 {session.title || 'Untitled Session'}
                               </h3>
                               <span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${getStatusColor(session.status)}`}>
@@ -446,8 +444,8 @@ const DashboardTutor = () => {
                                 disabled={session.status === 'completed'}
                                 className={`inline-flex items-center gap-1 text-xs font-semibold mt-2 transition-colors ${
                                   session.status === 'completed' 
-                                    ? 'text-slate-400 cursor-not-allowed opacity-60' 
-                                    : 'text-blue-600 dark:text-blue-400 hover:underline'
+                                    ? 'text-slate-500 dark:text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-60' 
+                                    : 'text-blue-700 dark:text-blue-400 hover:underline'
                                 }`}
                               >
                                 <Video className="w-3 h-3" aria-hidden="true" /> Open Session Room
@@ -457,19 +455,19 @@ const DashboardTutor = () => {
                         </div>
                         <button 
                           onClick={(e) => { e.stopPropagation(); setSelectedSession(session); }}
-                          className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          className="p-2 text-slate-500 dark:text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
                           aria-label="View session details"
                         >
                           <ArrowUpRight className="w-5 h-5" aria-hidden="true" />
                         </button>
                       </div>
-                    </article>
+                    </div>
                   );
                 })
               ) : (
                 <div className="p-12 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4" aria-hidden="true">
-                    <Calendar className="w-8 h-8 text-slate-400" aria-hidden="true" />
+                    <Calendar className="w-8 h-8 text-slate-500 dark:text-slate-500 dark:text-slate-400" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                     {searchQuery ? 'No sessions found' : 'No upcoming sessions'}
@@ -482,14 +480,14 @@ const DashboardTutor = () => {
                   {searchQuery ? (
                     <button
                       onClick={() => setSearchParams({})}
-                      className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                      className="text-sm font-bold text-blue-700 dark:text-blue-400 hover:underline"
                     >
                       Clear search
                     </button>
                   ) : (
                     <button
                       onClick={() => navigate('/dashboard-tutor/create-session')}
-                      className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                      className="text-sm font-bold text-blue-700 dark:text-blue-400 hover:underline"
                     >
                       Create your first session
                     </button>
@@ -504,30 +502,30 @@ const DashboardTutor = () => {
         <div className="space-y-8">
           <div className="rounded-2xl shadow-sm border p-6"
             style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Actions</h2>
+            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Quick Actions</h2>
             <div className="grid grid-cols-2 gap-3">
               <ActionButton
                 icon={MessageSquare}
                 label="Message"
-                color="bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
+                color="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
                 onClick={() => navigate('/dashboard-tutor/messages')}
               />
               <ActionButton
                 icon={BookOpen}
                 label="Materials"
-                color="bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400"
+                color="bg-pink-50 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400"
                 onClick={() => navigate('/dashboard-tutor/materials')}
               />
               <ActionButton
                 icon={Calendar}
                 label="Schedule"
-                color="bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400"
+                color="bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
                 onClick={() => setShowCalendarModal(true)}
               />
               <ActionButton
                 icon={Settings}
                 label="Settings"
-                color="bg-slate-50 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                color="bg-slate-50 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
                 onClick={() => navigate('/dashboard-tutor/settings')}
               />
             </div>
@@ -535,7 +533,7 @@ const DashboardTutor = () => {
 
           <div className="rounded-2xl shadow-sm border p-6"
             style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
-            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Recent Activity</h2>
+            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Recent Activity</h2>
             {recentSessions.length > 0 ? (
               <div className="space-y-4">
                 {recentSessions.map((session) => {
@@ -728,7 +726,6 @@ const ActionButton = ({ icon: IconComponent, label, color, onClick }) => (
   <button
     onClick={onClick}
     className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all hover:scale-105 active:scale-95 ${color}`}
-    aria-label={label}
   >
     <IconComponent className="w-6 h-6 mb-2" aria-hidden="true" />
     <span className="text-xs font-bold">{label}</span>

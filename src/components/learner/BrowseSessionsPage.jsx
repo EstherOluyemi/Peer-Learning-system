@@ -199,22 +199,22 @@ const BrowseSessionsPage = () => {
         }
 
         if (session.status === 'completed' || isPast) {
-            return { status: 'Completed', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' };
+            return { status: 'Completed', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500 dark:text-slate-400' };
         }
 
         if (session.status === 'cancelled') {
-            return { status: 'Cancelled', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' };
+            return { status: 'Cancelled', color: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500 dark:text-slate-400' };
         }
 
         const currentStudents = session.studentIds?.length || 0;
         const spotsLeft = session.maxParticipants - currentStudents;
 
         if (spotsLeft <= 0) {
-            return { status: 'Full', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' };
+            return { status: 'Full', color: 'bg--100 text--800 dark:bg-red-900/30 dark:text-red-400' };
         } else if (spotsLeft <= 2) {
             return { status: `${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} left!`, color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' };
         }
-        return { status: `${spotsLeft} spots available`, color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' };
+        return { status: `${spotsLeft} spots available`, color: 'bg--100 text--800 dark:bg-green-900/30 dark:text-green-400' };
     };
 
     const formatDateTime = (dateString) => {
@@ -256,7 +256,7 @@ const BrowseSessionsPage = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Browse Sessions</h1>
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4" aria-live="polite">
                         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                            Showing <span className="font-bold text-blue-600">{filteredSessions.length}</span> sessions
+                            Showing <span className="font-bold text-blue-700 dark:text-blue-500">{filteredSessions.length}</span> sessions
                         </p>
                         <div className="flex items-center gap-2">
                             <button
@@ -265,7 +265,7 @@ const BrowseSessionsPage = () => {
                                 aria-label="Grid view"
                                 aria-pressed={viewMode === 'grid'}
                             >
-                                <Filter className={`w-5 h-5 ${viewMode === 'grid' ? 'text-blue-600' : ''}`} aria-hidden="true" />
+                                <Filter className={`w-5 h-5 ${viewMode === 'grid' ? 'text-blue-700 dark:text-blue-500' : ''}`} aria-hidden="true" />
                             </button>
                         </div>
                     </div>
@@ -456,7 +456,7 @@ const BrowseSessionsPage = () => {
                                                             {session.title}
                                                         </h4>
                                                         {enrolled && (
-                                                            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center gap-1">
+                                                            <span className="px-3 py-1 text-xs font-semibold rounded-full bg--100 text--800 dark:bg-blue-900/30 dark:text-blue-400 flex items-center gap-1">
                                                                 <CheckCircle className="w-3 h-3" aria-hidden="true" /> Enrolled
                                                             </span>
                                                         )}
@@ -518,7 +518,7 @@ const BrowseSessionsPage = () => {
 
                                                     {enrolled ? (
                                                         <button
-                                                            className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 text-sm font-medium cursor-default"
+                                                            className="px-4 py-2 rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-500 dark:text-slate-400 text-sm font-medium cursor-default"
                                                             aria-label={`Enrolled in ${session.title}`}
                                                             disabled
                                                         >
@@ -538,7 +538,7 @@ const BrowseSessionsPage = () => {
                                                             disabled={joiningId === sessionId || isFull || availability.status === 'Completed' || availability.status === 'Cancelled'}
                                                             aria-disabled={isFull || availability.status === 'Completed' || availability.status === 'Cancelled'}
                                                             className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${(isFull || availability.status === 'Completed' || availability.status === 'Cancelled')
-                                                                    ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
+                                                                    ? 'bg-slate-100 text-slate-500 dark:text-slate-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed'
                                                                     : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 active:scale-95'
                                                                 }`}
                                                             aria-label={isFull ? `Session ${session.title} is full` : availability.status === 'Completed' ? `Session ${session.title} completed` : availability.status === 'Cancelled' ? `Session ${session.title} cancelled` : `Enroll in ${session.title}`}
@@ -555,7 +555,7 @@ const BrowseSessionsPage = () => {
                         ) : (
                             <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)' }}>
                                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                                    <Search className="w-8 h-8 text-slate-400" aria-hidden="true" />
+                                    <Search className="w-8 h-8 text-slate-500 dark:text-slate-400" aria-hidden="true" />
                                 </div>
                                 <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No sessions found</h3>
                                 <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
@@ -661,7 +661,7 @@ const BrowseSessionsPage = () => {
                                             aria-pressed={selectedSubject === subject}
                                             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedSubject === subject
                                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                                                 }`}
                                             aria-label={`Filter by ${subject} (${count} sessions)`}
                                         >
@@ -690,7 +690,7 @@ const BrowseSessionsPage = () => {
                         <div className="p-6 sm:p-8">
                             <div className="flex justify-between items-start mb-6">
                                 <div>
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 mb-2 inline-block">
+                                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg--100 text--800 dark:bg-blue-900/30 dark:text-blue-400 mb-2 inline-block">
                                         {selectedSession.subject}
                                     </span>
                                     <h2 id="details-modal-title" className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -789,14 +789,14 @@ const BrowseSessionsPage = () => {
                         style={{ backgroundColor: 'var(--card-bg)' }}
                     >
                         <div className="p-8">
-                            <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6">
+                            <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-500 flex items-center justify-center mb-6">
                                 <GraduationCap className="w-8 h-8" aria-hidden="true" />
                             </div>
                             <h2 id="enroll-modal-title" className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
                                 Confirm Enrollment
                             </h2>
                             <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-                                You are about to enroll in <span className="font-bold text-blue-600">{selectedSession.title}</span>.
+                                You are about to enroll in <span className="font-bold text-blue-700 dark:text-blue-500">{selectedSession.title}</span>.
                                 This will reserve your spot and add it to your schedule.
                             </p>
 

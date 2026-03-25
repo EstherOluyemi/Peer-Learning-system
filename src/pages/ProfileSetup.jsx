@@ -207,12 +207,12 @@ const ProfileSetup = () => {
                 </div>
 
                 {/* RIGHT SIDE: Form */}
-                <section className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white dark:bg-slate-900 z-10 min-h-screen transition-colors duration-300">
+                <div className="flex-1 w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 lg:px-16 bg-white dark:bg-slate-900 z-10 min-h-screen transition-colors duration-300">
                     <div className="w-full max-w-md space-y-6 sm:space-y-8">
                         <div>
                             <button
                                 onClick={() => navigate(-1)}
-                                className="inline-flex items-center text-slate-500 hover:text-blue-600 font-medium transition-colors mb-8 group rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                                className="inline-flex items-center text-slate-500 hover:text-blue-700 dark:text-blue-500 font-medium transition-colors mb-8 group rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             >
                                 <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
                                 Back to Account Details
@@ -231,7 +231,7 @@ const ProfileSetup = () => {
                             <h1 className={`font-bold text-slate-900 dark:text-slate-100 ${textSize === 'large' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`}>
                                 {isTutor ? 'Tutor Profile' : 'Learner Profile'}
                             </h1>
-                            <p className={`mt-2 text-slate-600 dark:text-slate-400 ${baseFontSize}`}>
+                            <p className={`mt-2 text-slate-600 dark:text-slate-500 dark:text-slate-400 ${baseFontSize}`}>
                                 This information helps us personalize your experience.
                             </p>
                         </div>
@@ -251,7 +251,7 @@ const ProfileSetup = () => {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute top-3 left-3 pointer-events-none" aria-hidden="true">
-                                        <FileText className={`w-5 h-5 ${errors.bio ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'}`} aria-hidden="true" />
+                                        <FileText className={`w-5 h-5 ${errors.bio ? 'text-red-400' : 'text-slate-500 dark:text-slate-400 group-focus-within:text-blue-500'}`} aria-hidden="true" />
                                     </div>
                                     <textarea
                                         id="bio"
@@ -279,7 +279,7 @@ const ProfileSetup = () => {
                                 </label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
-                                        <BookOpen className={`w-5 h-5 ${errors.subjects ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-500'}`} aria-hidden="true" />
+                                        <BookOpen className={`w-5 h-5 ${errors.subjects ? 'text-red-400' : 'text-slate-500 dark:text-slate-400 group-focus-within:text-blue-500'}`} aria-hidden="true" />
                                     </div>
                                     <input
                                         type="text"
@@ -296,7 +296,7 @@ const ProfileSetup = () => {
                                     <button
                                         type="button"
                                         onClick={handleAddSubject}
-                                        className="absolute right-2 top-1.5 p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                                        className="absolute right-2 top-1.5 p-1.5 bg-blue-50 text-blue-700 dark:text-blue-500 rounded-lg hover:bg-blue-100 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                                         aria-label="Add subject"
                                     >
                                         <Plus className="w-5 h-5" aria-hidden="true" />
@@ -351,13 +351,13 @@ const ProfileSetup = () => {
                             </button>
 
                             <footer className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
-                                    &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-600">Privacy Policy</Link>
+                                <p className="text-xs text-slate-500 dark:text-slate-500 dark:text-slate-400">
+                                    &copy; 2026 PeerLearn. All rights reserved. • <Link to="/privacy" className="hover:text-blue-700 dark:text-blue-500">Privacy Policy</Link>
                                 </p>
                             </footer>
                         </form>
                     </div>
-                </section>
+                </div>
             </main>
         </div>
     );

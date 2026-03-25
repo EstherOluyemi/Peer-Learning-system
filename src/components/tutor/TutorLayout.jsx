@@ -204,7 +204,7 @@ const TutorLayout = () => {
         return <AlertCircle className="w-5 h-5 text-orange-600" />;
       case 'INFO':
       default:
-        return <Info className="w-5 h-5 text-blue-600" />;
+        return <Info className="w-5 h-5 text-blue-700 dark:text-blue-500" />;
     }
   };
 
@@ -279,14 +279,14 @@ const TutorLayout = () => {
               <Menu className="w-6 h-6" aria-hidden="true" />
             </button>
             <div className="hidden sm:flex relative w-64 md:w-96">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-tertiary)' }} aria-hidden="true" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-secondary)' }} aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Search students, sessions..."
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 aria-label="Search students and sessions"
-                className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full pl-10 pr-4 py-2 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-500 dark:placeholder:text-slate-400"
                 style={{
                   backgroundColor: 'var(--input-bg)',
                   color: 'var(--input-text)',
@@ -331,7 +331,7 @@ const TutorLayout = () => {
                     {notifications.length > 0 && (
                       <button 
                         onClick={clearAll}
-                        className="text-xs text-blue-600 hover:underline"
+                        className="text-xs text-blue-700 dark:text-blue-500 hover:underline"
                       >
                         Clear all
                       </button>
@@ -348,7 +348,7 @@ const TutorLayout = () => {
                         <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{notificationsError}</p>
                         <button
                           onClick={() => setShowNotifications(false)}
-                          className="text-xs text-blue-600 hover:underline"
+                          className="text-xs text-blue-700 dark:text-blue-500 hover:underline"
                         >
                           Close
                         </button>
@@ -357,6 +357,14 @@ const TutorLayout = () => {
                       notifications.map((notif) => (
                         <div
                           key={notif._id}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if ((e.key === 'Enter' || e.key === ' ') && !notif.read) {
+                              e.preventDefault();
+                              markAsRead(notif._id);
+                            }
+                          }}
                           className={`p-4 border-b hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer ${
                             !notif.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
                           }`}
@@ -372,7 +380,7 @@ const TutorLayout = () => {
                                 {notif.message || notif.title}
                               </p>
                               {notif.data?.sessionTitle && (
-                                <p className="text-xs mt-1 text-blue-600 font-medium">
+                                <p className="text-xs mt-1 text-blue-700 dark:text-blue-500 font-medium">
                                   {notif.data.sessionTitle}
                                 </p>
                               )}
@@ -386,7 +394,7 @@ const TutorLayout = () => {
                                 className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded shrink-0"
                                 title="Mark as read"
                               >
-                                <Check className="w-4 h-4 text-blue-600" />
+                                <Check className="w-4 h-4 text-blue-700 dark:text-blue-500" />
                               </button>
                             )}
                           </div>
@@ -394,7 +402,7 @@ const TutorLayout = () => {
                       ))
                     ) : (
                       <div className="p-8 text-center">
-                        <Bell className="w-12 h-12 mx-auto mb-2 text-slate-300" />
+                        <Bell className="w-12 h-12 mx-auto mb-2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No notifications</p>
                       </div>
                     )}
@@ -404,12 +412,11 @@ const TutorLayout = () => {
             </div>
             <button
               onClick={() => navigate('/dashboard-tutor/profile')}
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
-              aria-label="Open profile"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-full"
             >
               <div className="text-right hidden md:block">
                 <div className="text-sm font-bold">{user?.name || 'Jane Doe'}</div>
-                <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Senior Tutor</div>
+                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Senior Tutor</div>
               </div>
               <img
                 src={`https://ui-avatars.com/api/?name=${user?.name || 'Tutor'}&background=random`}
@@ -421,7 +428,7 @@ const TutorLayout = () => {
           </div>
         </header>
 
-        <main id="main-content" ref={mainContentRef} tabIndex={-1} className="flex-1 p-4 sm:p-8 overflow-y-auto" style={{
+        <main id="main-content" ref={mainContentRef} className="flex-1 p-4 sm:p-8 overflow-y-auto" style={{
           backgroundColor: 'var(--bg-primary)',
           color: 'var(--text-primary)',
           transition: 'background-color 0.3s ease, color 0.3s ease'

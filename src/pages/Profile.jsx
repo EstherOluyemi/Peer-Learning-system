@@ -70,7 +70,7 @@ const Profile = () => {
   }
 
   return (
-    <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8" id="main-content">
+    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6">My Profile</h1>
 
@@ -137,7 +137,7 @@ const Profile = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 opacity-60 cursor-not-allowed"
                   disabled
                 />
-                <p className="text-sm text-gray-500 mt-1">Email cannot be changed</p>
+                <p className="text-sm text-gray-700 mt-1">Email cannot be changed</p>
               </div>
 
               <div>
@@ -157,7 +157,7 @@ const Profile = () => {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-2 px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2 bg-green-700 text-white rounded hover:bg-green-800 transition disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -170,13 +170,13 @@ const Profile = () => {
           ) : (
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-500 text-2xl font-bold">
                   {user.name?.charAt(0) || 'U'}
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">{user.name}</h3>
-                  <p className="text-gray-600">{user.email}</p>
-                  <p className="text-sm text-gray-500">Role: {user.role}</p>
+                  <p className="text-gray-700">{user.email}</p>
+                  <p className="text-sm text-gray-600">Role: {user.role}</p>
                 </div>
               </div>
 
@@ -209,11 +209,11 @@ const Profile = () => {
       <footer className="mt-12 text-center text-slate-500 text-xs border-t border-slate-200 dark:border-slate-800 pt-8" role="contentinfo">
         <p>© 2026 PeerLearn. All rights reserved.</p>
         <div className="mt-2 flex justify-center gap-4">
-          <a href="/privacy" className="hover:text-blue-600">Privacy Policy</a>
-          <a href="/terms" className="hover:text-blue-600">Terms of Service</a>
+          <a href="/privacy" className="hover:text-blue-700 dark:text-blue-500">Privacy Policy</a>
+          <a href="/terms" className="hover:text-blue-700 dark:text-blue-500">Terms of Service</a>
         </div>
       </footer>
-    </main>
+    </div>
   );
 };
 

@@ -78,9 +78,9 @@ const EarningsPage = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      case 'completed': return 'bg--100 text--800 dark:bg-green-900/30 dark:text-green-400';
       case 'pending': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-      case 'cancelled': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      case 'cancelled': return 'bg--100 text--800 dark:bg-red-900/30 dark:text-red-400';
       default: return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
     }
   };
@@ -212,7 +212,7 @@ const EarningsPage = () => {
               </div>
               <div className="flex justify-between items-center">
                 <span style={{ color: 'var(--text-secondary)' }}>Success Rate</span>
-                <span className="font-bold text-blue-600 dark:text-blue-400">{earningsData.successRate}</span>
+                <span className="font-bold text-blue-700 dark:text-blue-500">{earningsData.successRate}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span style={{ color: 'var(--text-secondary)' }}>Refund Rate</span>
@@ -292,7 +292,7 @@ const EarningsPage = () => {
                             {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
                           </span>
                            <button 
-                            className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            className="p-2 text-slate-500 dark:text-slate-400 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 transition-colors"
                             aria-label={`View details for transaction with ${transaction.student}`}
                            >
                             <Eye className="w-5 h-5" aria-hidden="true" />
@@ -309,7 +309,7 @@ const EarningsPage = () => {
                 ))
               ) : (
                 <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
-                  <DollarSign className="w-12 h-12 text-slate-400 mx-auto mb-4" aria-hidden="true" />
+                  <DollarSign className="w-12 h-12 text-slate-500 dark:text-slate-400 mx-auto mb-4" aria-hidden="true" />
                   <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No transactions found</h3>
                   <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or filters.</p>
                 </div>

@@ -33,12 +33,12 @@ const formatTime = (d) => {
 
 const statusColor = (status) => {
   switch ((status || '').toLowerCase()) {
-    case 'ongoing': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+    case 'ongoing': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
     case 'scheduled':
-    case 'upcoming': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-    case 'completed': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-    case 'cancelled': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-    default: return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+    case 'upcoming': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+    case 'completed': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400';
+    case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+    default: return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
   }
 };
 
@@ -620,13 +620,13 @@ const StudentsPage = () => {
 
                       {/* Session stats row */}
                       <div className="flex flex-wrap gap-3 text-xs font-medium mb-3">
-                        <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                        <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                           <Calendar className="w-3 h-3" aria-hidden="true" /> {student.upcomingSessions || 0} upcoming
                         </span>
-                        <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                        <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
                           <CheckCircle className="w-3 h-3" aria-hidden="true" /> {student.completedSessions || 0} completed
                         </span>
-                        <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                        <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
                           <BookOpen className="w-3 h-3" aria-hidden="true" /> {student.totalSessions || 0} total
                         </span>
                       </div>
@@ -659,7 +659,7 @@ const StudentsPage = () => {
                     <button
                       onClick={() => setDetailStudent(student)}
                       aria-label={`View sessions for ${student.name}`}
-                      className="p-2 border rounded-lg text-slate-400 hover:text-blue-600 hover:border-blue-400 dark:hover:text-blue-400 transition-colors"
+                      className="p-2 border rounded-lg text-slate-500 dark:text-slate-500 dark:text-slate-400 hover:text-blue-700 hover:border-blue-400 dark:hover:text-blue-400 transition-colors"
                       style={{ borderColor: 'var(--border-color)' }}
                     >
                       <Eye className="w-4 h-4" aria-hidden="true" />
@@ -670,7 +670,7 @@ const StudentsPage = () => {
             );
           }) : (
             <div className="p-12 text-center rounded-2xl border border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
-              <Users className="w-12 h-12 text-slate-400 mx-auto mb-4" aria-hidden="true" />
+              <Users className="w-12 h-12 text-slate-500 dark:text-slate-500 dark:text-slate-400 mx-auto mb-4" aria-hidden="true" />
               <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>No students found</h3>
               <p style={{ color: 'var(--text-secondary)' }}>Try adjusting your search or session filter.</p>
             </div>
@@ -714,15 +714,15 @@ const StudentsPage = () => {
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>Total Enrolments</span>
-                <span className="font-bold text-blue-600">{totalEnrolments}</span>
+                <span className="font-bold text-blue-700 dark:text-blue-500">{totalEnrolments}</span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>Upcoming</span>
-                <span className="font-bold text-blue-600">{totalUpcoming}</span>
+                <span className="font-bold text-blue-700 dark:text-blue-500">{totalUpcoming}</span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>Completed</span>
-                <span className="font-bold text-emerald-600">{totalCompleted}</span>
+                <span className="font-bold text-emerald-700 dark:text-emerald-500">{totalCompleted}</span>
               </div>
             </div>
           </div>
@@ -903,8 +903,8 @@ const StudentsPage = () => {
             <div className="grid grid-cols-3 divide-x" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-hover)' }}>
               {[
                 { label: 'Total', value: detailStudent.totalSessions || 0, color: 'text-slate-700 dark:text-slate-300' },
-                { label: 'Upcoming', value: detailStudent.upcomingSessions || 0, color: 'text-blue-600' },
-                { label: 'Completed', value: detailStudent.completedSessions || 0, color: 'text-emerald-600' },
+                { label: 'Upcoming', value: detailStudent.upcomingSessions || 0, color: 'text-blue-700 dark:text-blue-500' },
+                { label: 'Completed', value: detailStudent.completedSessions || 0, color: 'text-emerald-700 dark:text-emerald-500' },
               ].map(({ label, value, color }) => (
                 <div key={label} className="p-4 text-center" style={{ borderColor: 'var(--border-color)' }}>
                   <div className={`text-2xl font-bold ${color}`}>{value}</div>
@@ -947,7 +947,7 @@ const StudentsPage = () => {
                         {s.meetingLink && (
                           s.status === 'completed' ? (
                             <span
-                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none"
+                              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-500 dark:text-slate-400 cursor-not-allowed select-none"
                               aria-label="Session has ended"
                             >
                               <Video className="w-3.5 h-3.5" aria-hidden="true" /> Join

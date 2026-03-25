@@ -221,7 +221,7 @@ const LearnerLayout = ({ children }) => {
                 return <AlertCircle className="w-5 h-5 text-orange-600" />;
             case 'INFO':
             default:
-                return <Info className="w-5 h-5 text-blue-600" />;
+                return <Info className="w-5 h-5 text-blue-700 dark:text-blue-500" />;
         }
     };
 
@@ -308,7 +308,7 @@ const LearnerLayout = ({ children }) => {
                                         {notifications.length > 0 && (
                                             <button
                                                 onClick={clearAll}
-                                                className="text-xs text-blue-600 hover:underline"
+                                                className="text-xs text-blue-700 dark:text-blue-500 hover:underline"
                                             >
                                                 Clear all
                                             </button>
@@ -325,7 +325,7 @@ const LearnerLayout = ({ children }) => {
                                                 <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{notificationsError}</p>
                                                 <button
                                                     onClick={() => setShowNotifications(false)}
-                                                    className="text-xs text-blue-600 hover:underline"
+                                                    className="text-xs text-blue-700 dark:text-blue-500 hover:underline"
                                                 >
                                                     Close
                                                 </button>
@@ -349,7 +349,7 @@ const LearnerLayout = ({ children }) => {
                                                                 {notif.message || notif.title}
                                                             </p>
                                                             {notif.data?.sessionTitle && (
-                                                                <p className="text-xs mt-1 text-blue-600 font-medium">
+                                                                <p className="text-xs mt-1 text-blue-700 dark:text-blue-500 font-medium">
                                                                     {notif.data.sessionTitle}
                                                                 </p>
                                                             )}
@@ -363,7 +363,7 @@ const LearnerLayout = ({ children }) => {
                                                                 className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded shrink-0"
                                                                 title="Mark as read"
                                                             >
-                                                                <Check className="w-4 h-4 text-blue-600" />
+                                                                <Check className="w-4 h-4 text-blue-700 dark:text-blue-500" />
                                                             </button>
                                                         )}
                                                     </div>

@@ -76,7 +76,7 @@ const AccessibilityToolbar = () => {
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
             <div className="flex items-center gap-3">
               {highContrast ? (
-                <Eye size={20} className="text-blue-600" />
+                <Eye size={20} className="text-blue-700 dark:text-blue-500" />
               ) : (
                 <EyeOff size={20} className="text-gray-400" />
               )}
@@ -104,7 +104,7 @@ const AccessibilityToolbar = () => {
           {/* Text Size */}
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
             <div className="flex items-center gap-3">
-              <div className="text-2xl font-bold text-blue-600">A</div>
+              <div className="text-2xl font-bold text-blue-700 dark:text-blue-500">A</div>
               <div>
                 <p className="font-medium text-gray-800">Text Size</p>
                 <p className="text-xs text-gray-500">Adjust for readability</p>
@@ -134,7 +134,7 @@ const AccessibilityToolbar = () => {
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
             <div className="flex items-center gap-3">
               {darkMode ? (
-                <Moon size={20} className="text-blue-600" />
+                <Moon size={20} className="text-blue-700 dark:text-blue-500" />
               ) : (
                 <Sun size={20} className="text-gray-400" />
               )}

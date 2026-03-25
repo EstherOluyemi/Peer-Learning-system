@@ -65,10 +65,10 @@ const DashboardLearner = () => {
 
   const getStatusColor = (status) => {
     const statusMap = {
-      'scheduled': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800',
-      'ongoing': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+      'scheduled': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+      'ongoing': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
       'completed': 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600',
-      'cancelled': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800'
+      'cancelled': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800'
     };
     return statusMap[status?.toLowerCase()] || 'bg-slate-100 text-slate-700 border-slate-200';
   };
@@ -303,10 +303,10 @@ const DashboardLearner = () => {
   }, [user]);
 
   const statCards = [
-    { icon: BookOpen, label: 'Total Sessions', value: stats.totalSessions, color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30' },
-    { icon: Clock, label: 'Hours Learned', value: stats.hoursLearned, color: 'text-purple-600', bg: 'bg-purple-100 dark:bg-purple-900/30' },
-    { icon: TrendingUp, label: 'Completed', value: stats.completed, color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
-    { icon: Calendar, label: 'Upcoming', value: stats.upcoming, color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' },
+    { icon: BookOpen, label: 'Total Sessions', value: stats.totalSessions, color: 'text-blue-700 dark:text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30' },
+    { icon: Clock, label: 'Hours Learned', value: stats.hoursLearned, color: 'text-purple-700 dark:text-purple-500', bg: 'bg-purple-100 dark:bg-purple-900/30' },
+    { icon: TrendingUp, label: 'Completed', value: stats.completed, color: 'text-emerald-700 dark:text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
+    { icon: Calendar, label: 'Upcoming', value: stats.upcoming, color: 'text-orange-700 dark:text-orange-500', bg: 'bg-orange-100 dark:bg-orange-900/30' },
   ];
 
   useEffect(() => {
@@ -349,10 +349,10 @@ const DashboardLearner = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-0 space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }} tabIndex={0}>
             Welcome back, {user?.name?.split(' ')[0] || 'Learner'}! :)
           </h1>
-          <p style={{ color: 'var(--text-secondary)' }} className="mt-1">
+          <p style={{ color: 'var(--text-secondary)' }} className="mt-1" tabIndex={0}>
             Ready to continue your learning journey?
           </p>
         </div>
@@ -383,8 +383,8 @@ const DashboardLearner = () => {
         <h2 id="stats-heading" className="sr-only">Learning Statistics</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="list">
           {statCards.map((stat, i) => (
-            <article key={i} role="listitem" 
-              className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md"
+            <div key={i} role="listitem" tabIndex={0} 
+              className="rounded-2xl p-6 shadow-sm border transition-all duration-200 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               style={{
                 backgroundColor: 'var(--card-bg)',
                 borderColor: 'var(--card-border)'
@@ -395,10 +395,10 @@ const DashboardLearner = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</p>
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{stat.label}</p>
                 </div>
               </div>
-            </article>
+            </div>
           ))}
         </div>
       </section>
@@ -406,14 +406,14 @@ const DashboardLearner = () => {
       {/* Recommended Sessions Section */}
       <section aria-labelledby="recommended-heading" className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="p-4 sm:p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
-          <h2 id="recommended-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Recommended for You</h2>
-          <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center">
+          <h2 id="recommended-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Recommended for You</h2>
+          <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-700 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center">
             View All <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 sm:p-6" role="list">
           {recommendedSessions.length > 0 ? recommendedSessions.map((session) => (
-            <article key={session.id} role="listitem" tabIndex={0} 
+            <div key={session.id} role="listitem" tabIndex={0} 
               className="p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
               onClick={() => navigate('/dashboard-learner/sessions')}
@@ -425,14 +425,14 @@ const DashboardLearner = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" aria-hidden="true" />
+                  <Star className="w-4 h-4 fill-amber-600 text-amber-600" aria-hidden="true" />
                   <span className="sr-only">Rating</span>
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{session.rating}</span>
                 </div>
                 <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{session.students} students</p>
               </div>
               <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>with {session.tutor}</p>
-            </article>
+            </div>
           )) : (
             <div className="col-span-full text-sm" style={{ color: 'var(--text-secondary)' }}>
               No recommendations available right now. Explore sessions to help personalize this section.
@@ -444,11 +444,11 @@ const DashboardLearner = () => {
       {/* Top Tutors Section */}
       <section aria-labelledby="toptutors-heading" className="rounded-2xl shadow-sm border overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
         <div className="p-4 sm:p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
-          <h2 id="toptutors-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Top Rated Tutors</h2>
+          <h2 id="toptutors-heading" className="text-lg font-bold" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Top Rated Tutors</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 sm:p-6" role="list">
           {topTutors.length > 0 ? topTutors.map((tutor, idx) => (
-            <article key={tutor._id || idx} role="listitem" tabIndex={0} 
+            <div key={tutor._id || idx} role="listitem" tabIndex={0} 
               className="p-4 rounded-xl border text-center transition-all hover:shadow-md cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
               onClick={() => navigate('/dashboard-learner/browse-sessions', { state: { tutorId: tutor._id } })}
@@ -480,7 +480,7 @@ const DashboardLearner = () => {
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className={`w-3 h-3 ${i < Math.floor(tutor.rating) ? 'fill-yellow-500 text-yellow-500' : 'text-slate-300'}`}
+                    className={`w-3 h-3 ${i < Math.floor(tutor.rating) ? 'fill-amber-600 text-amber-600' : 'text-slate-400'}`}
                     aria-hidden="true"
                   />
                 ))}
@@ -489,7 +489,7 @@ const DashboardLearner = () => {
                 </span>
               </div>
               <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{tutor.students} student{tutor.students !== 1 ? 's' : ''}</p>
-            </article>
+            </div>
           )) : (
             <div className="col-span-full p-8 text-center" style={{ color: 'var(--text-secondary)' }}>
               <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
@@ -507,8 +507,8 @@ const DashboardLearner = () => {
               borderColor: 'var(--card-border)'
             }}>
             <div className="p-4 sm:p-6 border-b flex flex-wrap justify-between items-center gap-4" style={{ borderColor: 'var(--border-color)' }}>
-              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Upcoming Sessions</h2>
-              <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center">
+              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Upcoming Sessions</h2>
+              <Link to="/dashboard-learner/sessions" className="text-sm font-semibold text-blue-700 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center">
                 View Schedule <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -526,7 +526,7 @@ const DashboardLearner = () => {
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-start gap-4 flex-1">
-                          <div className="flex flex-col items-center justify-center w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400 shrink-0">
+                          <div className="flex flex-col items-center justify-center w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-700 dark:text-blue-400 shrink-0">
                             <span className="text-xs font-bold">{startDate.dayMonth}</span>
                             <span className="text-sm font-bold">{startDate.timeLabel}</span>
                           </div>
@@ -550,7 +550,7 @@ const DashboardLearner = () => {
               ) : (
                 <div className="p-12 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                    <Calendar className="w-8 h-8 text-slate-400" aria-hidden="true" />
+                    <Calendar className="w-8 h-8 text-slate-500 dark:text-slate-500 dark:text-slate-400" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>No upcoming sessions</h3>
                   <p className="text-sm max-w-xs mx-auto mb-6" style={{ color: 'var(--text-secondary)' }}>
@@ -558,7 +558,7 @@ const DashboardLearner = () => {
                   </p>
                   <button 
                     onClick={() => navigate('/dashboard-learner/sessions')}
-                    className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                    className="text-sm font-bold text-blue-700 dark:text-blue-400 hover:underline"
                   >
                     Find a Tutor
                   </button>
@@ -574,7 +574,7 @@ const DashboardLearner = () => {
               backgroundColor: 'var(--card-bg)',
               borderColor: 'var(--card-border)'
             }}>
-            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Actions</h2>
+            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Quick Actions</h2>
             <div className="space-y-3">
               <button 
                 onClick={() => navigate('/dashboard-learner/sessions')}
@@ -603,16 +603,16 @@ const DashboardLearner = () => {
               backgroundColor: 'var(--card-bg)',
               borderColor: 'var(--card-border)'
             }}>
-            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Learning Progress</h2>
+            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Learning Progress</h2>
             <div className="space-y-4">
               {learnerProgress.length > 0 ? (
                 learnerProgress.slice(0, 3).map((progress, index) => (
-                  <div key={progress._id || index}>
+                  <div key={progress._id || index} tabIndex={0} className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded">
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-sm font-medium truncate max-w-[70%]" style={{ color: 'var(--text-primary)' }}>
                         {progress.courseId?.title || 'Session'}
                       </p>
-                      <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                      <p className="text-sm font-bold text-blue-700 dark:text-blue-400">
                         {progress.completionPercentage}%
                       </p>
                     </div>
@@ -640,12 +640,12 @@ const DashboardLearner = () => {
               backgroundColor: 'var(--card-bg)',
               borderColor: 'var(--card-border)'
             }}>
-            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Recent Activity</h2>
+            <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }} tabIndex={0}>Recent Activity</h2>
             <div className="space-y-4">
               {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex gap-3">
+                <div key={activity.id} className="flex gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded" tabIndex={0}>
                   <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg shrink-0 h-fit">
-                    <activity.icon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                    <activity.icon className="w-4 h-4 text-slate-600 dark:text-slate-500 dark:text-slate-400" />
                   </div>
                   <div>
                     <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{activity.detail}</p>

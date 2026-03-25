@@ -31,7 +31,7 @@ const roleBadge = (role) => {
     if (!role) return null;
     const r = role.toLowerCase();
     if (r === 'tutor') return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
-    return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+    return 'bg--100 text--800 dark:bg-blue-900/30 dark:text-blue-400';
 };
 
 /* ─── sub-components ──────────────────────────────────────────────────────── */
@@ -334,9 +334,9 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                             })
                         ) : (
                             <div className="flex flex-col items-center justify-center h-40 gap-2">
-                                <MessageSquare className="w-8 h-8 text-slate-400" />
+                                <MessageSquare className="w-8 h-8 text-slate-500 dark:text-slate-400" />
                                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No conversations</p>
-                                <button onClick={openNewModal} className="text-xs text-blue-600 hover:underline">Start one</button>
+                                <button onClick={openNewModal} className="text-xs text-blue-700 dark:text-blue-500 hover:underline">Start one</button>
                             </div>
                         )}
                     </div>
@@ -415,7 +415,7 @@ const ChatPage = ({ title = 'Messages', subtitle = 'Chat with your network.' }) 
                                                             ? 'bg-blue-600 text-white rounded-br-sm'
                                                             : 'bg-slate-100 dark:bg-slate-800 rounded-bl-sm'}`}
                                                             style={isMine ? {} : { color: 'var(--text-primary)' }}>
-                                                            {linkify(msg.text, isMine ? "text-white font-bold hover:underline" : "text-blue-600 dark:text-blue-400 font-bold hover:underline")}
+                                                            {linkify(msg.text, isMine ? "text-white font-bold hover:underline" : "text-blue-700 dark:text-blue-500 font-bold hover:underline")}
                                                             {msg.isEdited && (
                                                                 <span className="text-xs ml-2 opacity-75">(edited)</span>
                                                             )}

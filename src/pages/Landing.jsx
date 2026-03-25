@@ -49,7 +49,7 @@ const Landing = () => {
       title: "Live Peer Sessions",
       desc: "Real-time learning with peers through interactive video sessions",
       icon: Video,
-      color: "bg-blue-50 text-blue-600"
+      color: "bg-blue-50 text-blue-700 dark:text-blue-500"
     },
     {
       title: "Smart Matching",
@@ -169,6 +169,7 @@ const Landing = () => {
       <div
         className={`fixed inset-0 z-50 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
         aria-hidden={!sidebarOpen}
+        inert={!sidebarOpen ? "" : undefined}
       >
         {/* Backdrop */}
         <div
@@ -191,7 +192,7 @@ const Landing = () => {
                 {peerlearnLogo ? (
                   <img src={peerlearnLogo} alt="PeerLearn Logo" className="h-8 w-auto" />
                 ) : (
-                <Users className="w-6 h-6 text-blue-600" aria-hidden="true" />
+                <Users className="w-6 h-6 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                 )}
                 <span className="font-bold text-slate-900 dark:text-slate-100">PeerLearn</span>
               <button
@@ -209,7 +210,7 @@ const Landing = () => {
                 className="flex items-center space-x-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600"
                 onClick={closeSidebar}
               >
-                <Zap className="w-5 h-5 text-blue-600" aria-hidden="true" />
+                <Zap className="w-5 h-5 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                 <span>Features</span>
               </a>
               <button
@@ -241,12 +242,6 @@ const Landing = () => {
           </div>
         </div>
       </div>
-      <a
-        href="#main-content"
-        className="sr-only focus-not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
-      >
-        Skip to main content
-      </a>
 
       <style jsx global>{`
         /* Accessibility utilities */
@@ -399,7 +394,7 @@ const Landing = () => {
               <Link to="/login" className="text-white/90 hover:bg-white/10 hover:text-white hover:underline font-medium transition hover:scale-105 rounded-lg px-3 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Login</Link>
               <Link
                 to="/role-selection"
-                className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-lg hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-semibold hover:bg--100 text--800 transition-all hover:shadow-lg hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Get Started For Free
               </Link>
@@ -420,18 +415,18 @@ const Landing = () => {
 
         {/* Hero Content */}
         <div id="main-content" tabIndex="-1" className="relative z-10 container mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-12 sm:pb-16 flex flex-col items-start outline-none" aria-label="Hero section">
-          <span className="block text-white text-base sm:text-lg mb-4" role="doc-subtitle">🎓 Transform Your Learning Journey</span>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6 drop-shadow-md">
+          <span className="block text-white text-base sm:text-lg mb-4" tabIndex={0}>🎓 Transform Your Learning Journey</span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6 drop-shadow-md" tabIndex={0}>
             Learn <span className="text-blue-300">Together,</span>
             <span className="block">Grow <span className="text-emerald-300">Together</span></span>
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-white/95 mb-8 max-w-lg leading-relaxed drop-shadow-sm">
+          <p className="text-base sm:text-lg md:text-xl text-white/95 mb-8 max-w-lg leading-relaxed drop-shadow-sm" tabIndex={0}>
             Connect with peers, share knowledge, and accelerate your learning journey through collaborative sessions and expert guidance in an interactive environment.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
             <Link
               to="/role-selection"
-              className="inline-flex w-full sm:w-auto items-center justify-center bg-white text-slate-900 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:bg-blue-100 hover:text-blue-700 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="inline-flex w-full sm:w-auto items-center justify-center bg-white text-slate-900 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:bg--100 text--800 transition-all hover:shadow-xl transform hover:-translate-y-1 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Start Learning For Free
               <ArrowRight className="ml-3 w-5 h-5" aria-hidden="true" />
@@ -459,10 +454,10 @@ const Landing = () => {
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-linear-to-br from-blue-50 to-white dark:from-slate-700 dark:to-slate-800 rounded-2xl mb-3 sm:mb-4 border border-slate-300 dark:border-slate-600" aria-hidden="true">
-                    <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" aria-hidden="true" />
+                    <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-700 dark:text-blue-500" aria-hidden="true" />
                   </div>
-                  <div className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-1 sm:mb-2">{stat.number}</div>
-                  <div className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium">{stat.label}</div>
+                  <div className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-1 sm:mb-2" tabIndex={0}>{stat.number}</div>
+                  <div className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium" tabIndex={0}>{stat.label}</div>
                 </div>
               );
             })}
@@ -477,11 +472,11 @@ const Landing = () => {
             className="text-center max-w-3xl mx-auto mb-10 sm:mb-16"
             ref={el => sectionRefs.current[3] = el}
           >
-            <h2 id="features-heading" className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded">
+            <h2 id="features-heading" className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 rounded" tabIndex={0}>
               Everything You Need for
-              <span className="text-blue-600"> Effective Learning</span>
+              <span className="text-blue-700 dark:text-blue-500"> Effective Learning</span>
             </h2>
-            <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed" tabIndex={0}>
               Our platform combines cutting-edge technology with proven learning methodologies to create the perfect peer learning environment.
             </p>
           </div>
@@ -495,18 +490,19 @@ const Landing = () => {
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <article
+                <div
                   key={index}
                   className="group bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-300 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-400 animate-fade-in-up focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-within:shadow-xl"
                   style={{ animationDelay: `${index * 100}ms` }}
                   role="listitem"
+                  tabIndex={0}
                 >
                   <div className={`w-14 h-14 ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`} aria-hidden="true">
                     <Icon className="w-7 h-7" aria-hidden="true" />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">{feature.title}</h3>
                   <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{feature.desc}</p>
-                </article>
+                </div>
               );
             })}
           </div>
@@ -520,10 +516,10 @@ const Landing = () => {
             className="text-center max-w-3xl mx-auto mb-10 sm:mb-16"
             ref={el => sectionRefs.current[5] = el}
           >
-            <h2 id="testimonials-heading" className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+            <h2 id="testimonials-heading" className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4" tabIndex={0}>
               What Our Community Says
             </h2>
-            <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed" tabIndex={0}>
               Hear from learners and tutors who transformed their educational journey with PeerLearn
             </p>
           </div>
@@ -531,9 +527,6 @@ const Landing = () => {
           {/* Testimonials - Now Keyboard Accessible */}
           <div
             className="relative py-4"
-            role="region"
-            aria-labelledby="testimonials-heading"
-            aria-label="Customer testimonials carousel - Use arrow keys to navigate"
           >
             {/* linear overlay on edges */}
             <div className="absolute left-0 top-0 bottom-0 w-10 sm:w-32 bg-linear-to-r from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 z-10 pointer-events-none" aria-hidden="true"></div>
@@ -542,7 +535,7 @@ const Landing = () => {
             {/* Marquee Row 1 - Moves LEFT (faster: 30s) */}
             <div className="flex animate-marquee-left mb-10" role="list">
               {duplicatedTestimonials.map((testimonial, index) => (
-                <article
+                <div
                   key={`first-${testimonial.id}-${index}`}
                   role="listitem"
                   className="shrink-0 w-[18rem] sm:w-80 mx-2 sm:mx-4 testimonial-card bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -565,24 +558,25 @@ const Landing = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`}
+                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-500 dark:text-slate-400'}`}
                             aria-hidden="true"
                           />
                         ))}
                       </div>
                     </div>
                   </div>
-                </article>
+                </div>
               ))}
             </div>
 
             {/* Marquee Row 2 - Moves RIGHT (faster: 30s) */}
             <div className="flex animate-marquee-right" role="list">
               {[...duplicatedTestimonials].reverse().map((testimonial, index) => (
-                <article
+                <div
                   key={`second-${testimonial.id}-${index}`}
                   role="listitem"
                   className="shrink-0 w-[18rem] sm:w-80 mx-2 sm:mx-4 testimonial-card bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  tabIndex={0}
                 >
                   <Quote className="w-8 h-8 text-emerald-400 mb-4 quote-icon transition-transform duration-300" aria-hidden="true" />
                   <p className="text-slate-700 dark:text-slate-200 mb-6 italic line-clamp-4 text-sm leading-relaxed">{testimonial.text}</p>
@@ -602,14 +596,14 @@ const Landing = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`}
+                            className={`w-4 h-4 ${i < testimonial.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-500 dark:text-slate-400'}`}
                             aria-hidden="true"
                           />
                         ))}
                       </div>
                     </div>
                   </div>
-                </article>
+                </div>
               ))}
             </div>
           </div>
@@ -618,13 +612,13 @@ const Landing = () => {
           <div className="text-center mt-10 sm:mt-16">
             <Link
               to="/role-selection"
-              className="inline-flex items-center justify-center bg-linear-to-r from-blue-600 to-blue-700 text-white px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-blue-100 hover:text-blue-700 hover:shadow-xl hover:scale-105 transition-all shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="inline-flex items-center justify-center bg-linear-to-r from-blue-600 to-blue-700 text-white px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg--100 text--800 hover:shadow-xl hover:scale-105 transition-all shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               aria-label="Get started with PeerLearn - Journey to your learning destination starts here"
             >
               Join Our Community
               <ArrowRight className="ml-3 w-5 h-5" aria-hidden="true" />
             </Link>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-4">
+            <p className="text-slate-500 dark:text-slate-500 dark:text-slate-400 text-sm mt-4" tabIndex={0}>
               Join {stats[0].number} learners and {stats[1].number} tutors already transforming education
             </p>
           </div>
@@ -674,7 +668,7 @@ const Landing = () => {
                 <div className="text-center">
                   <Play className="w-20 h-20 text-white mx-auto mb-6" aria-hidden="true" />
                   <p id="video-modal-title" className="text-white text-xl mb-2">Platform Demo Video</p>
-                  <p className="text-slate-400">See how PeerLearn transforms learning experiences</p>
+                  <p className="text-slate-500 dark:text-slate-400">See how PeerLearn transforms learning experiences</p>
                 </div>
               </div>
             </div>

@@ -311,7 +311,7 @@ const CreateSessionPage = () => {
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {formData.skills.map(skill => (
-                                <span key={skill} className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                <span key={skill} className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full bg--100 text--800 dark:bg-blue-900/30 dark:text-blue-400">
                                     {skill}
                                     <button onClick={() => removeSkill(skill)} className="ml-1">
                                         <X className="w-3 h-3" />
@@ -352,7 +352,7 @@ const CreateSessionPage = () => {
                 
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-12 gap-3">
-                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-blue-700 dark:text-blue-500 animate-spin" />
                         <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Finding available tutors...</p>
                     </div>
                 ) : tutors.length > 0 ? (
